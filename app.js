@@ -29,34 +29,34 @@ const DEFAULT_SECRETARY_PASSWORD = 'avsktp';
 
 // Built-in Seed Members for Armed Veng South Branch (Sadrak, Mesak, Abednego)
 const DEFAULT_MEMBERS = [
-  { id: "ktp-001", name: "Lalhruaitluanga", group: "Sadrak", phone: "9862345120", gender: "Mipa", houseNo: "H-14", upaBial: "Upa Bial 1", photo: "" },
-  { id: "ktp-002", name: "Vanlalpeka Sailo", group: "Mesak", phone: "9436152084", gender: "Mipa", houseNo: "H-28", upaBial: "Upa Bial 2", photo: "" },
-  { id: "ktp-003", name: "C. Lalrinsanga", group: "Abednego", phone: "8794102938", gender: "Mipa", houseNo: "A-05", upaBial: "Upa Bial 3", photo: "" },
-  { id: "ktp-004", name: "Lalnunmawii", group: "Sadrak", phone: "9862981240", gender: "Hmeichhia", houseNo: "H-42", upaBial: "Upa Bial 1", photo: "" },
-  { id: "ktp-005", name: "R. Lalrintluangi", group: "Mesak", phone: "7085129481", gender: "Hmeichhia", houseNo: "B-19", upaBial: "Upa Bial 4", photo: "" },
-  { id: "ktp-006", name: "H. Malsawmtluanga", group: "Abednego", phone: "8974561230", gender: "Mipa", houseNo: "H-63", upaBial: "Upa Bial 2", photo: "" },
-  { id: "ktp-007", name: "Zodinpuia", group: "Sadrak", phone: "9862145890", gender: "Mipa", houseNo: "H-09", upaBial: "Upa Bial 5", photo: "" },
-  { id: "ktp-008", name: "C. Vanlalruati", group: "Mesak", phone: "9436378291", gender: "Hmeichhia", houseNo: "A-31", upaBial: "Upa Bial 3", photo: "" },
-  { id: "ktp-009", name: "Samuel Lalhmingmawia", group: "Abednego", phone: "8794827103", gender: "Mipa", houseNo: "H-77", upaBial: "Upa Bial 6", photo: "" },
-  { id: "ktp-010", name: "Deborah Malsawmdawngi", group: "Sadrak", phone: "7085938102", gender: "Hmeichhia", houseNo: "H-22", upaBial: "Upa Bial 1", photo: "" },
-  { id: "ktp-011", name: "Lalremruata", group: "Mesak", phone: "9862789401", gender: "Mipa", houseNo: "B-04", upaBial: "Upa Bial 4", photo: "" },
-  { id: "ktp-012", name: "Jerry Lalbiaknunga", group: "Abednego", phone: "9774123890", gender: "Mipa", houseNo: "H-51", upaBial: "Upa Bial 2", photo: "" },
-  { id: "ktp-013", name: "Melody Lalramchuani", group: "Sadrak", phone: "9436192847", gender: "Hmeichhia", houseNo: "A-18", upaBial: "Upa Bial 3", photo: "" },
-  { id: "ktp-014", name: "F. Lalawmpuia", group: "Mesak", phone: "8794617283", gender: "Mipa", houseNo: "H-39", upaBial: "Upa Bial 5", photo: "" },
-  { id: "ktp-015", name: "Jenny Zothanpuii", group: "Abednego", phone: "7085348291", gender: "Hmeichhia", houseNo: "H-84", upaBial: "Upa Bial 6", photo: "" },
-  { id: "ktp-016", name: "K. Lalmuanpuia", group: "Sadrak", phone: "9862451928", gender: "Mipa", houseNo: "B-27", upaBial: "Upa Bial 4", photo: "" },
-  { id: "ktp-017", name: "David Laltanpuia", group: "Mesak", phone: "9436284710", gender: "Mipa", houseNo: "H-16", upaBial: "Upa Bial 1", photo: "" },
-  { id: "ktp-018", name: "Lalhminghlui", group: "Abednego", phone: "8794209182", gender: "Hmeichhia", houseNo: "A-44", upaBial: "Upa Bial 3", photo: "" },
-  { id: "ktp-019", name: "R. Lalpekhlua", group: "Sadrak", phone: "9862671930", gender: "Mipa", houseNo: "H-60", upaBial: "Upa Bial 2", photo: "" },
-  { id: "ktp-020", name: "Mary Lalhriatpuii", group: "Mesak", phone: "7085781920", gender: "Hmeichhia", houseNo: "H-93", upaBial: "Upa Bial 6", photo: "" },
-  { id: "ktp-021", name: "Benjamin Lalrintluanga", group: "Abednego", phone: "9774650192", gender: "Mipa", houseNo: "B-11", upaBial: "Upa Bial 4", photo: "" },
-  { id: "ktp-022", name: "H. Lalduhsaka", group: "Sadrak", phone: "9862541092", gender: "Mipa", houseNo: "H-33", upaBial: "Upa Bial 5", photo: "" },
-  { id: "ktp-023", name: "Angela Lalhmangaihi", group: "Mesak", phone: "9436892014", gender: "Hmeichhia", houseNo: "A-02", upaBial: "Upa Bial 1", photo: "" },
-  { id: "ktp-024", name: "Ruth Lalthazuali", group: "Abednego", phone: "8794382910", gender: "Hmeichhia", houseNo: "H-48", upaBial: "Upa Bial 2", photo: "" },
-  { id: "ktp-025", name: "T. Malsawmtluanga", group: "Sadrak", phone: "7085491028", gender: "Mipa", houseNo: "H-71", upaBial: "Upa Bial 7", photo: "" },
-  { id: "ktp-026", name: "Esther Lalrempuii", group: "Mesak", phone: "9862890123", gender: "Hmeichhia", houseNo: "B-35", upaBial: "Upa Bial 8", photo: "" },
-  { id: "ktp-027", name: "PC Lalhlimpuii", group: "Abednego", phone: "9436781290", gender: "Hmeichhia", houseNo: "A-20", upaBial: "Upa Bial 9", photo: "" },
-  { id: "ktp-028", name: "K. Lalrinpuii", group: "Sadrak", phone: "8794901827", gender: "Hmeichhia", houseNo: "H-10", upaBial: "Upa Bial 10", photo: "" }
+  { id: "ktp-001", name: "Lalhruaitluanga", parentsName: "R. Lalmuana", group: "Sadrak", phone: "9862345120", gender: "Mipa", houseNo: "H-14", upaBial: "Upa Bial 1", photo: "" },
+  { id: "ktp-002", name: "Vanlalpeka Sailo", parentsName: "K. Vanlalruata", group: "Mesak", phone: "9436152084", gender: "Mipa", houseNo: "H-28", upaBial: "Upa Bial 2", photo: "" },
+  { id: "ktp-003", name: "C. Lalrinsanga", parentsName: "C. Rochunga", group: "Abednego", phone: "8794102938", gender: "Mipa", houseNo: "A-05", upaBial: "Upa Bial 3", photo: "" },
+  { id: "ktp-004", name: "Lalnunmawii", parentsName: "Lalzirliana", group: "Sadrak", phone: "9862981240", gender: "Hmeichhia", houseNo: "H-42", upaBial: "Upa Bial 1", photo: "" },
+  { id: "ktp-005", name: "R. Lalrintluangi", parentsName: "R. Thangseia", group: "Mesak", phone: "7085129481", gender: "Hmeichhia", houseNo: "B-19", upaBial: "Upa Bial 4", photo: "" },
+  { id: "ktp-006", name: "H. Malsawmtluanga", parentsName: "H. Lalhmingthanga", group: "Abednego", phone: "8974561230", gender: "Mipa", houseNo: "H-63", upaBial: "Upa Bial 2", photo: "" },
+  { id: "ktp-007", name: "Zodinpuia", parentsName: "Lalremsanga", group: "Sadrak", phone: "9862145890", gender: "Mipa", houseNo: "H-09", upaBial: "Upa Bial 5", photo: "" },
+  { id: "ktp-008", name: "C. Vanlalruati", parentsName: "C. Lalthanmawia", group: "Mesak", phone: "9436378291", gender: "Hmeichhia", houseNo: "A-31", upaBial: "Upa Bial 3", photo: "" },
+  { id: "ktp-009", name: "Samuel Lalhmingmawia", parentsName: "Zoramchhana", group: "Abednego", phone: "8794827103", gender: "Mipa", houseNo: "H-77", upaBial: "Upa Bial 6", photo: "" },
+  { id: "ktp-010", name: "Deborah Malsawmdawngi", parentsName: "Laldinpuia", group: "Sadrak", phone: "7085938102", gender: "Hmeichhia", houseNo: "H-22", upaBial: "Upa Bial 1", photo: "" },
+  { id: "ktp-011", name: "Lalremruata", parentsName: "F. Vanlalhruaia", group: "Mesak", phone: "9862789401", gender: "Mipa", houseNo: "B-04", upaBial: "Upa Bial 4", photo: "" },
+  { id: "ktp-012", name: "Jerry Lalbiaknunga", parentsName: "Lalbiaktluanga", group: "Abednego", phone: "9774123890", gender: "Mipa", houseNo: "H-51", upaBial: "Upa Bial 2", photo: "" },
+  { id: "ktp-013", name: "Melody Lalramchuani", parentsName: "Lalnghinglova", group: "Sadrak", phone: "9436192847", gender: "Hmeichhia", houseNo: "A-18", upaBial: "Upa Bial 3", photo: "" },
+  { id: "ktp-014", name: "F. Lalawmpuia", parentsName: "F. Rohlupuia", group: "Mesak", phone: "8794617283", gender: "Mipa", houseNo: "H-39", upaBial: "Upa Bial 5", photo: "" },
+  { id: "ktp-015", name: "Jenny Zothanpuii", parentsName: "K. Lalrinthanga", group: "Abednego", phone: "7085348291", gender: "Hmeichhia", houseNo: "H-84", upaBial: "Upa Bial 6", photo: "" },
+  { id: "ktp-016", name: "K. Lalmuanpuia", parentsName: "K. Vanlalliana", group: "Sadrak", phone: "9862451928", gender: "Mipa", houseNo: "B-27", upaBial: "Upa Bial 4", photo: "" },
+  { id: "ktp-017", name: "David Laltanpuia", parentsName: "Lalthantluanga", group: "Mesak", phone: "9436284710", gender: "Mipa", houseNo: "H-16", upaBial: "Upa Bial 1", photo: "" },
+  { id: "ktp-018", name: "Lalhminghlui", parentsName: "Lalhmingliana", group: "Abednego", phone: "8794209182", gender: "Hmeichhia", houseNo: "A-44", upaBial: "Upa Bial 3", photo: "" },
+  { id: "ktp-019", name: "R. Lalpekhlua", parentsName: "R. Lalnunsanga", group: "Sadrak", phone: "9862671930", gender: "Mipa", houseNo: "H-60", upaBial: "Upa Bial 2", photo: "" },
+  { id: "ktp-020", name: "Mary Lalhriatpuii", parentsName: "Lalthanpuia", group: "Mesak", phone: "7085781920", gender: "Hmeichhia", houseNo: "H-93", upaBial: "Upa Bial 6", photo: "" },
+  { id: "ktp-021", name: "Benjamin Lalrintluanga", parentsName: "Lalchhanhima", group: "Abednego", phone: "9774650192", gender: "Mipa", houseNo: "B-11", upaBial: "Upa Bial 4", photo: "" },
+  { id: "ktp-022", name: "H. Lalduhsaka", parentsName: "H. Zothansanga", group: "Sadrak", phone: "9862541092", gender: "Mipa", houseNo: "H-33", upaBial: "Upa Bial 5", photo: "" },
+  { id: "ktp-023", name: "Angela Lalhmangaihi", parentsName: "Lalhmunsiama", group: "Mesak", phone: "9436892014", gender: "Hmeichhia", houseNo: "A-02", upaBial: "Upa Bial 1", photo: "" },
+  { id: "ktp-024", name: "Ruth Lalthazuali", parentsName: "Lalthazuala", group: "Abednego", phone: "8794382910", gender: "Hmeichhia", houseNo: "H-48", upaBial: "Upa Bial 2", photo: "" },
+  { id: "ktp-025", name: "T. Malsawmtluanga", parentsName: "T. Vanlalruata", group: "Sadrak", phone: "7085491028", gender: "Mipa", houseNo: "H-71", upaBial: "Upa Bial 7", photo: "" },
+  { id: "ktp-026", name: "Esther Lalrempuii", parentsName: "Lalremthanga", group: "Mesak", phone: "9862890123", gender: "Hmeichhia", houseNo: "B-35", upaBial: "Upa Bial 8", photo: "" },
+  { id: "ktp-027", name: "PC Lalhlimpuii", parentsName: "PC Lalsangliana", group: "Abednego", phone: "9436781290", gender: "Hmeichhia", houseNo: "A-20", upaBial: "Upa Bial 9", photo: "" },
+  { id: "ktp-028", name: "K. Lalrinpuii", parentsName: "K. Lalduhawma", group: "Sadrak", phone: "8794901827", gender: "Hmeichhia", houseNo: "H-10", upaBial: "Upa Bial 10", photo: "" }
 ];
 
 // Built-in Seed Notices for Armed Veng South Branch Notice Board
@@ -106,6 +106,18 @@ const GROUP_CONFIG = {
     dotColor: 'bg-emerald-600',
     avatarBg: 'bg-emerald-700',
     textColor: 'text-emerald-800'
+  },
+  'Unassigned': {
+    badgeClass: 'badge-unassigned',
+    dotColor: 'bg-slate-400',
+    avatarBg: 'bg-slate-600',
+    textColor: 'text-slate-600'
+  },
+  '': {
+    badgeClass: 'badge-unassigned',
+    dotColor: 'bg-slate-400',
+    avatarBg: 'bg-slate-600',
+    textColor: 'text-slate-600'
   }
 };
 
@@ -584,7 +596,8 @@ async function handleSelfRegisterSubmit(e) {
   e.preventDefault();
 
   const name = document.getElementById('selfRegName').value.trim();
-  const group = document.getElementById('selfRegGroup').value;
+  const parentsName = (document.getElementById('selfRegParentsName')?.value || '').trim();
+  const group = document.getElementById('selfRegGroup').value || 'Unassigned';
   let phone = document.getElementById('selfRegPhone').value.trim().replace(/\D/g, '');
   const gender = document.getElementById('selfRegGender').value;
   const houseNo = document.getElementById('selfRegHouseNo').value.trim();
@@ -607,6 +620,7 @@ async function handleSelfRegisterSubmit(e) {
   const newMember = {
     id: 'ktp-' + Date.now(),
     name,
+    parentsName,
     group,
     phone,
     gender,
@@ -655,7 +669,15 @@ async function loadMembersData() {
     try {
       const parsed = JSON.parse(local);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        members = parsed;
+        members = parsed.map(m => {
+          const seedMatch = DEFAULT_MEMBERS.find(d => d.id === m.id);
+          return {
+            ...m,
+            parentsName: m.parentsName || (seedMatch ? seedMatch.parentsName : ''),
+            group: m.group || 'Unassigned'
+          };
+        });
+        saveToLocalStorage(members);
         return;
       }
     } catch (e) {}
@@ -1059,7 +1081,8 @@ function renderMembers() {
       const matchPhone = (member.phone || '').includes(searchVal);
       const matchHouse = (member.houseNo || '').toLowerCase().includes(searchVal);
       const matchBial = (member.upaBial || '').toLowerCase().includes(searchVal);
-      if (!matchName && !matchPhone && !matchHouse && !matchBial) {
+      const matchParents = (member.parentsName || '').toLowerCase().includes(searchVal);
+      if (!matchName && !matchPhone && !matchHouse && !matchBial && !matchParents) {
         return false;
       }
     }
@@ -1188,7 +1211,14 @@ function renderTableRows() {
           </div>
         </td>
 
-        <!-- 4. Group (Sadrak, Mesak, Abednego) -->
+        <!-- 4. Nu / Pa Hming -->
+        <td class="py-3 px-3">
+          <span class="text-xs font-semibold text-slate-700 block truncate max-w-[150px]">
+            ${escapeHtml(member.parentsName || '-')}
+          </span>
+        </td>
+
+        <!-- 5. Group (Sadrak, Mesak, Abednego) -->
         <td class="py-3 px-3">
           <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${groupCfg.badgeClass}">
             <span class="w-2 h-2 rounded-full ${groupCfg.dotColor} mr-1.5"></span>
@@ -1254,8 +1284,17 @@ function renderTableRows() {
 
         <!-- 8. Actions (Only when Secretary is logged in) -->
         ${isSecretaryLoggedIn ? `
-          <td class="py-3 px-4 text-center action-col">
-            <div class="flex items-center justify-center space-x-1">
+          <td class="py-3 px-3 text-center action-col">
+            <div class="flex items-center justify-center space-x-1.5">
+              <!-- VIEW ID CARD BUTTON -->
+              <button 
+                onclick="viewMemberIdCard('${member.id}')" 
+                title="View Member ID Card" 
+                class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center gap-1 transition border border-indigo-200 shadow-2xs cursor-pointer"
+              >
+                <i data-lucide="id-card" class="w-3.5 h-3.5"></i>
+                <span>View</span>
+              </button>
               <button 
                 onclick="openEditMemberModal('${member.id}')" 
                 title="Edit Member" 
@@ -1307,6 +1346,10 @@ function renderCardsGrid() {
             </span>
             ${isSecretaryLoggedIn ? `
               <div class="flex items-center space-x-1">
+                <button onclick="viewMemberIdCard('${member.id}')" title="View Member ID Card" class="px-2 py-0.5 rounded-md bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center gap-1 transition border border-indigo-200 cursor-pointer">
+                  <i data-lucide="id-card" class="w-3 h-3"></i>
+                  <span>View</span>
+                </button>
                 <button onclick="openEditMemberModal('${member.id}')" title="Edit" class="text-slate-400 hover:text-amber-700 p-1">
                   <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
                 </button>
@@ -1323,8 +1366,12 @@ function renderCardsGrid() {
             <div class="min-w-0 flex-1">
               <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(member.name)}</h4>
               <p class="text-[11px] text-slate-500">${member.gender === 'Mipa' ? 'Mipa' : 'Hmeichhia'}</p>
-              <!-- Distinct separate rows for H/No. and Upa Bial -->
+              <!-- Distinct separate rows for Nu/Pa, H/No., Upa Bial -->
               <div class="mt-2 space-y-1 text-[11px]">
+                <div class="flex items-center justify-between bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                  <span class="text-slate-400 font-semibold uppercase text-[10px]">Nu / Pa:</span>
+                  <span class="font-semibold text-slate-700 truncate max-w-[150px]">${escapeHtml(member.parentsName || '-')}</span>
+                </div>
                 <div class="flex items-center justify-between bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
                   <span class="text-slate-400 font-semibold uppercase text-[10px]">H/No:</span>
                   <span class="font-mono font-bold text-slate-800">${escapeHtml(member.houseNo || '-')}</span>
@@ -1520,6 +1567,7 @@ function openAddMemberModal() {
   document.getElementById('modalTitle').textContent = 'Member Thar Dahna';
   document.getElementById('btnSubmitText').textContent = 'Dah rawh (Save Member)';
   document.getElementById('formName').value = '';
+  if (document.getElementById('formParentsName')) document.getElementById('formParentsName').value = '';
   document.getElementById('formGroup').value = activeGroupFilter !== 'All' ? activeGroupFilter : 'Sadrak';
   document.getElementById('formPhone').value = '';
   document.getElementById('formGender').value = 'Mipa';
@@ -1548,7 +1596,8 @@ function openEditMemberModal(id) {
   document.getElementById('modalTitle').textContent = 'Member Siamthatna';
   document.getElementById('btnSubmitText').textContent = 'Siamṭha rawh (Update)';
   document.getElementById('formName').value = member.name || '';
-  document.getElementById('formGroup').value = member.group || 'Sadrak';
+  if (document.getElementById('formParentsName')) document.getElementById('formParentsName').value = member.parentsName || '';
+  document.getElementById('formGroup').value = member.group || '';
   document.getElementById('formPhone').value = member.phone || '';
   document.getElementById('formGender').value = member.gender || 'Mipa';
   document.getElementById('formHouseNo').value = member.houseNo || '';
@@ -1598,7 +1647,8 @@ async function handleSecretaryMemberSubmit(e) {
 
   const id = document.getElementById('formMemberId').value;
   const name = document.getElementById('formName').value.trim();
-  const group = document.getElementById('formGroup').value;
+  const parentsName = (document.getElementById('formParentsName')?.value || '').trim();
+  const group = document.getElementById('formGroup').value || 'Unassigned';
   let phone = document.getElementById('formPhone').value.trim().replace(/\D/g, '');
   const gender = document.getElementById('formGender').value;
   const houseNo = document.getElementById('formHouseNo').value.trim();
@@ -1625,6 +1675,7 @@ async function handleSecretaryMemberSubmit(e) {
       members[index] = {
         ...members[index],
         name,
+        parentsName,
         group,
         phone,
         gender,
@@ -1641,6 +1692,7 @@ async function handleSecretaryMemberSubmit(e) {
     const newMember = {
       id: 'ktp-' + Date.now(),
       name,
+      parentsName,
       group,
       phone,
       gender,
@@ -1945,4 +1997,290 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+
+// ==================== MEMBER ID CARD FUNCTIONS ====================
+
+let currentViewedMember = null;
+
+function viewMemberIdCard(id) {
+  const member = members.find(m => String(m.id) === String(id));
+  if (!member) return;
+
+  currentViewedMember = member;
+
+  const modal = document.getElementById('memberIdCardModal');
+  const nameEl = document.getElementById('idCardMemberName');
+  const idBadge = document.getElementById('idCardMemberIdBadge');
+  const groupBadge = document.getElementById('idCardGroupBadge');
+  const genderBadge = document.getElementById('idCardGenderBadge');
+  const parentsEl = document.getElementById('idCardParentsName');
+  const houseEl = document.getElementById('idCardHouseNo');
+  const upaBialEl = document.getElementById('idCardUpaBial');
+  const phoneEl = document.getElementById('idCardPhone');
+  const photoContainer = document.getElementById('idCardPhotoContainer');
+  const ribbon = document.getElementById('idCardHeaderRibbon');
+
+  if (nameEl) nameEl.textContent = member.name || '-';
+  if (idBadge) idBadge.textContent = (member.id || 'AVS-KTP').toUpperCase();
+  if (parentsEl) parentsEl.textContent = member.parentsName || '-';
+  if (houseEl) houseEl.textContent = member.houseNo || '-';
+  if (upaBialEl) upaBialEl.textContent = member.upaBial || '-';
+
+  const cleanPhone = (member.phone || '').replace(/\D/g, '');
+  const formattedPhone = cleanPhone.length === 10
+    ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
+    : cleanPhone;
+  if (phoneEl) phoneEl.textContent = formattedPhone || '-';
+
+  if (genderBadge) genderBadge.textContent = member.gender || 'Mipa';
+
+  // Group config
+  const groupCfg = GROUP_CONFIG[member.group] || GROUP_CONFIG['Unassigned'];
+  if (groupBadge) {
+    groupBadge.className = `inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${groupCfg.badgeClass}`;
+    groupBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${groupCfg.dotColor} mr-1"></span>${escapeHtml(member.group || 'Unassigned')}`;
+  }
+
+  // Header ribbon color
+  if (ribbon) {
+    if (member.group === 'Sadrak') {
+      ribbon.className = 'bg-gradient-to-r from-red-800 via-rose-700 to-red-900 text-white p-3.5 text-center relative';
+    } else if (member.group === 'Mesak') {
+      ribbon.className = 'bg-gradient-to-r from-amber-700 via-yellow-600 to-amber-800 text-white p-3.5 text-center relative';
+    } else if (member.group === 'Abednego') {
+      ribbon.className = 'bg-gradient-to-r from-emerald-800 via-teal-700 to-emerald-900 text-white p-3.5 text-center relative';
+    } else {
+      ribbon.className = 'bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-3.5 text-center relative';
+    }
+  }
+
+  // Photo / Avatar
+  const { initials, colorClass } = getAvatarData(member.name);
+  if (photoContainer) {
+    if (member.photo) {
+      photoContainer.innerHTML = `
+        <img src="${member.photo}" alt="${escapeHtml(member.name)}" class="w-16 h-20 rounded-xl object-cover border-2 border-white shadow-md bg-white" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
+        <div class="w-16 h-20 rounded-xl bg-gradient-to-br ${colorClass} text-white font-extrabold text-base flex items-center justify-center border-2 border-white shadow-md hidden">${initials}</div>
+      `;
+    } else {
+      photoContainer.innerHTML = `
+        <div class="w-16 h-20 rounded-xl bg-gradient-to-br ${colorClass} text-white font-extrabold text-base flex items-center justify-center border-2 border-white shadow-md">${initials}</div>
+      `;
+    }
+  }
+
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+function closeMemberIdCardModal() {
+  const modal = document.getElementById('memberIdCardModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+function printMemberIdCard() {
+  if (!currentViewedMember) return;
+  const target = document.getElementById('idCardPrintTarget');
+  if (!target) return;
+
+  const printWin = window.open('', '_blank', 'width=450,height=650');
+  printWin.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${escapeHtml(currentViewedMember.name)} - KTP ID Card</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link rel="stylesheet" href="style.css">
+      <style>
+        @page { size: auto; margin: 10mm; }
+        body { margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; background: #fff; font-family: system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        #idCardPrintTarget { width: 85mm !important; max-width: 85mm !important; box-shadow: none !important; border: 2px solid #334155 !important; page-break-inside: avoid; }
+      </style>
+    </head>
+    <body>
+      ${target.outerHTML}
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(function() { window.close(); }, 700);
+        };
+      </script>
+    </body>
+    </html>
+  `);
+  printWin.document.close();
+}
+
+function shareMemberIdCardWhatsApp() {
+  if (!currentViewedMember) return;
+  const m = currentViewedMember;
+  const cleanPhone = (m.phone || '').replace(/\D/g, '');
+  const formattedPhone = cleanPhone.length === 10
+    ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
+    : cleanPhone;
+
+  const text = `🪪 *KRISTIAN ṬHALAI PAWL - MEMBER IDENTITY CARD*
+*Armed Veng South Branch • Armed Veng Bial*
+━━━━━━━━━━━━━━━━━━━━━━━━
+👤 *Hming:* ${m.name || '-'}
+🆔 *ID:* ${(m.id || 'AVS-KTP').toUpperCase()}
+👨‍👩‍👧 *Nu / Pa Hming:* ${m.parentsName || '-'}
+🏷 *Group:* ${m.group || 'Unassigned'}
+⚥ *Gender:* ${m.gender || 'Mipa'}
+🏠 *In No. (H/No.):* ${m.houseNo || '-'}
+📍 *Upa Bial:* ${m.upaBial || '-'}
+📞 *Phone:* ${formattedPhone || '-'}
+━━━━━━━━━━━━━━━━━━━━━━━━
+_"Rawngbawl tura chhandam" (Ephesi 2:10)_`;
+
+  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+// ==================== AUTO-FIXED EXCEL EXPORT (.XLSX) ====================
+
+function exportToExcel() {
+  if (!members || members.length === 0) {
+    showToast('Export tur member record an awm lo.', 'error');
+    return;
+  }
+
+  // 1. If SheetJS is loaded, output real native .xlsx with auto-fit column widths
+  if (typeof XLSX !== 'undefined') {
+    const exportData = members.map((m, index) => {
+      const cleanPhone = (m.phone || '').replace(/\D/g, '');
+      const formattedPhone = cleanPhone.length === 10
+        ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
+        : cleanPhone;
+
+      return {
+        '#': index + 1,
+        'Member ID': (m.id || `ktp-${index + 1}`).toUpperCase(),
+        'Member Name (Hming)': m.name || '',
+        'Nu / Pa Hming': m.parentsName || '',
+        'Group': m.group || 'Unassigned',
+        'Gender': m.gender || '',
+        'In No. (House No.)': m.houseNo || '',
+        'Upa Bial': m.upaBial || '',
+        'Phone Number': formattedPhone,
+        'Branch': 'Armed Veng South Branch',
+        'Bial': 'Armed Veng Bial'
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Auto-fit column widths so NO manual editing is ever needed
+    ws['!cols'] = [
+      { wch: 6 },   // #
+      { wch: 14 },  // Member ID
+      { wch: 28 },  // Member Name (Hming)
+      { wch: 26 },  // Nu / Pa Hming
+      { wch: 14 },  // Group
+      { wch: 12 },  // Gender
+      { wch: 18 },  // In No. (House No.)
+      { wch: 16 },  // Upa Bial
+      { wch: 18 },  // Phone Number
+      { wch: 26 },  // Branch
+      { wch: 18 }   // Bial
+    ];
+
+    // Force Phone Number column (Col index 8) to string format so Excel never turns to 9.86E+09
+    if (ws['!ref']) {
+      const range = XLSX.utils.decode_range(ws['!ref']);
+      for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+        const cellRef = XLSX.utils.encode_cell({ r: R, c: 8 });
+        if (ws[cellRef]) {
+          ws[cellRef].t = 's';
+        }
+      }
+    }
+
+    // Freeze header row
+    ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'KTP Members');
+
+    const fileName = `KTP_Armed_Veng_South_Members_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    showToast(`Excel file auto-fixed fel fai takin a download ta e!`, 'success');
+  } else {
+    // 2. Fallback: Styled HTML/XML based .xls with proper mso-number-format
+    exportToExcelHtmlFallback();
+  }
+}
+
+function exportToExcelHtmlFallback() {
+  let xml = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>KTP Members</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+      <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
+      <style>
+        th { background-color: #9f1239; color: #ffffff; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px 14px; font-family: Calibri, sans-serif; font-size: 11pt; }
+        td { border: 1px solid #cbd5e1; padding: 6px 12px; font-family: Calibri, sans-serif; font-size: 11pt; }
+        .text-cell { mso-number-format:"\\@"; }
+      </style>
+    </head>
+    <body>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Member ID</th>
+            <th>Member Name (Hming)</th>
+            <th>Nu / Pa Hming</th>
+            <th>Group</th>
+            <th>Gender</th>
+            <th>In No. (House No.)</th>
+            <th>Upa Bial</th>
+            <th>Phone Number</th>
+            <th>Branch</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  members.forEach((m, idx) => {
+    xml += `
+      <tr>
+        <td>${idx + 1}</td>
+        <td class="text-cell">${(m.id || `ktp-${idx + 1}`).toUpperCase()}</td>
+        <td>${escapeHtml(m.name || '')}</td>
+        <td>${escapeHtml(m.parentsName || '')}</td>
+        <td>${escapeHtml(m.group || 'Unassigned')}</td>
+        <td>${escapeHtml(m.gender || '')}</td>
+        <td class="text-cell">${escapeHtml(m.houseNo || '')}</td>
+        <td>${escapeHtml(m.upaBial || '')}</td>
+        <td class="text-cell">${escapeHtml(m.phone || '')}</td>
+        <td>Armed Veng South Branch</td>
+      </tr>
+    `;
+  });
+
+  xml += `</tbody></table></body></html>`;
+
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `KTP_Armed_Veng_South_Members_${new Date().toISOString().slice(0, 10)}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Excel file a download ta e!', 'success');
 }

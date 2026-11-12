@@ -13,8 +13,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SheetJS for Auto-fixed Excel (.xlsx) Export -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <!-- Custom Light Styles -->
-  <link rel="stylesheet" href="style.css?v=20261112j">
+  <link rel="stylesheet" href="style.css?v=20261112k">
   <script>
     tailwind.config = {
       theme: {
@@ -106,6 +108,12 @@
               </span>
 
               <!-- + Add Member Button (For Secretary) -->
+              <!-- Export to Excel Button (For Secretary) -->
+              <button onclick="exportToExcel()" title="Export all data to auto-fixed Excel file (.xlsx)" class="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs transition cursor-pointer">
+                <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+                <span>Excel</span>
+              </button>
+
               <button onclick="openAddMemberModal()" class="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-bold rounded-xl bg-rose-900 hover:bg-rose-800 text-white shadow-xs transition">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                 <span class="hidden sm:inline">Add Member</span>
@@ -156,6 +164,11 @@
         </div>
       </div>
       <div class="flex items-center space-x-3 text-xs">
+        <button onclick="exportToExcel()" class="font-semibold text-emerald-800 hover:text-emerald-950 flex items-center gap-1">
+          <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i>
+          <span>Export to Excel (.xlsx)</span>
+        </button>
+        <span class="text-emerald-300">|</span>
         <button onclick="changeSecretaryPassword()" class="font-semibold text-emerald-800 hover:text-emerald-950 flex items-center gap-1">
           <i data-lucide="key" class="w-3.5 h-3.5"></i>
           <span>Change Password</span>
@@ -398,6 +411,7 @@
                 <th class="py-3.5 px-3 w-10 text-center">#</th>
                 <th class="py-3.5 px-3 w-16 text-center">Photo</th>
                 <th class="py-3.5 px-4">Member Name</th>
+                <th class="py-3.5 px-3 min-w-[130px]">Nu / Pa Hming</th>
                 <th class="py-3.5 px-3 w-28">Group</th>
                 <th class="py-3.5 px-3 w-24">H/No.</th>
                 <th class="py-3.5 px-3 w-32">Upa Bial</th>
@@ -609,14 +623,28 @@
           >
         </div>
 
+        <!-- Nu / Pa Hming (Parents / Guardian Name) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Nu / Pa Hming (Parents / Guardian Name)
+          </label>
+          <input 
+            type="text" 
+            id="selfRegParentsName" 
+            placeholder="e.g. Lalnghinglova / Vanlalchhuangi" 
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white font-medium"
+          >
+        </div>
+
         <!-- Group & Contact (Side by Side) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- Group Selection -->
+          <!-- Group Selection (Optional - NOT Mandatory) -->
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Group <span class="text-rose-600">*</span>
+              Group <span class="text-[11px] font-normal text-slate-400 normal-case">(A tul kher lo)</span>
             </label>
-            <select id="selfRegGroup" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white">
+            <select id="selfRegGroup" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white">
+              <option value="">-- Group Thlang Rawh (A tul kher lo) --</option>
               <option value="Sadrak">Sadrak</option>
               <option value="Mesak">Mesak</option>
               <option value="Abednego">Abednego</option>
@@ -778,13 +806,27 @@
           >
         </div>
 
+        <!-- Nu / Pa Hming -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            Nu / Pa Hming (Parents / Guardian Name)
+          </label>
+          <input 
+            type="text" 
+            id="formParentsName" 
+            placeholder="e.g. Lalnghinglova / Vanlalchhuangi" 
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white font-medium"
+          >
+        </div>
+
         <!-- Group & Contact -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Group <span class="text-rose-600">*</span>
+              Group <span class="text-[11px] font-normal text-slate-400 normal-case">(Optional)</span>
             </label>
-            <select id="formGroup" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white">
+            <select id="formGroup" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white">
+              <option value="">-- Group Thlang Rawh (Optional) --</option>
               <option value="Sadrak">Sadrak</option>
               <option value="Mesak">Mesak</option>
               <option value="Abednego">Abednego</option>
@@ -1081,10 +1123,146 @@
     </div>
   </div>
 
+  
+  <!-- 8. MEMBER ID CARD MODAL (Professional, Clean & Elegant) -->
+  <div id="memberIdCardModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop bg-slate-900/60 backdrop-blur-xs">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+      
+      <!-- Top Action Bar -->
+      <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between no-print">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center">
+            <i data-lucide="id-card" class="w-4 h-4"></i>
+          </div>
+          <span class="text-xs font-bold text-slate-800 uppercase tracking-wider">Branch Member ID Card</span>
+        </div>
+        <button onclick="closeMemberIdCardModal()" class="w-7 h-7 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-600 transition cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- The ID Card Body (Target for printing) -->
+      <div class="p-4 sm:p-5 flex justify-center bg-slate-100/50">
+        <div id="idCardPrintTarget" class="w-full max-w-[320px] bg-white rounded-2xl border-2 border-slate-300 shadow-md overflow-hidden relative font-sans">
+          
+          <!-- Top Colored Header Ribbon -->
+          <div id="idCardHeaderRibbon" class="bg-gradient-to-r from-rose-900 via-rose-800 to-rose-950 text-white p-3 text-center relative">
+            <div class="flex items-center justify-center space-x-2">
+              <img src="ktp-logo.png" alt="KTP Logo" class="w-10 h-10 object-contain flex-shrink-0 drop-shadow-sm">
+              <div class="text-left">
+                <h4 class="text-xs font-black tracking-wider uppercase text-white leading-tight">KRISTIAN ṬHALAI PAWL</h4>
+                <p class="text-[9px] font-bold text-rose-200 uppercase tracking-wider leading-tight">Armed Veng South Branch</p>
+                <p class="text-[8px] font-medium text-slate-300 italic">Armed Veng Bial</p>
+              </div>
+            </div>
+            <div class="mt-2 inline-block px-3 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-amber-400 text-slate-950 shadow-xs">
+              MEMBER IDENTITY CARD
+            </div>
+          </div>
+
+          <!-- ID Card Content Area -->
+          <div class="p-3.5 sm:p-4 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/80 space-y-3">
+            
+            <!-- Photo & Basic Identity -->
+            <div class="flex items-center space-x-3 border-b border-slate-200 pb-3">
+              <div id="idCardPhotoContainer" class="relative flex-shrink-0">
+                <!-- Photo injected dynamically -->
+              </div>
+              <div class="min-w-0 flex-1">
+                <span id="idCardMemberIdBadge" class="inline-block px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 mb-1">
+                  AVS-KTP-001
+                </span>
+                <h3 id="idCardMemberName" class="text-sm font-black text-slate-900 leading-tight uppercase truncate">
+                  -
+                </h3>
+                <div class="mt-1 flex items-center gap-1.5 flex-wrap">
+                  <span id="idCardGroupBadge" class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    Sadrak
+                  </span>
+                  <span id="idCardGenderBadge" class="text-[10px] font-semibold text-slate-500">
+                    Mipa
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Structured Personal Details Grid -->
+            <div class="space-y-1.5 text-xs">
+              <!-- Nu / Pa Hming -->
+              <div class="flex items-start justify-between py-0.5 border-b border-slate-100">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Nu / Pa Hming:</span>
+                <span id="idCardParentsName" class="font-bold text-slate-800 text-right text-[11px] truncate max-w-[160px]">-</span>
+              </div>
+
+              <!-- In No. (H/No.) -->
+              <div class="flex items-center justify-between py-0.5 border-b border-slate-100">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">In No. (H/No):</span>
+                <span id="idCardHouseNo" class="font-mono font-bold text-slate-900 text-right text-[11px]">-</span>
+              </div>
+
+              <!-- Upa Bial -->
+              <div class="flex items-center justify-between py-0.5 border-b border-slate-100">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Upa Bial:</span>
+                <span id="idCardUpaBial" class="font-semibold text-slate-800 text-right text-[11px]">-</span>
+              </div>
+
+              <!-- Contact -->
+              <div class="flex items-center justify-between py-0.5 border-b border-slate-100">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Phone:</span>
+                <span id="idCardPhone" class="font-mono font-bold text-slate-900 text-right text-[11px]">-</span>
+              </div>
+            </div>
+
+            <!-- Bottom Card Authentication / Signatures -->
+            <div class="pt-2">
+              <p class="text-[8px] text-center italic text-slate-500 font-medium">
+                "Rawngbawl tura chhandam" (Ephesi 2:10)
+              </p>
+              <div class="mt-2 pt-2 border-t border-dashed border-slate-300 flex items-end justify-between px-2 text-[8px] text-slate-600">
+                <div class="text-center">
+                  <div class="h-3.5 border-b border-slate-400 w-16 mb-0.5"></div>
+                  <span class="font-bold">Branch Secretary</span>
+                </div>
+                <div class="text-center">
+                  <div class="h-3.5 border-b border-slate-400 w-16 mb-0.5"></div>
+                  <span class="font-bold">Branch Leader</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Modal Footer Actions (Print ID Card, WhatsApp Share, Close) -->
+      <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2 no-print">
+        <button type="button" onclick="closeMemberIdCardModal()" class="px-3.5 py-2 text-xs font-semibold rounded-xl text-slate-600 hover:bg-slate-200 transition">
+          Close
+        </button>
+
+        <div class="flex items-center space-x-2">
+          <!-- Print ID Card Button -->
+          <button type="button" onclick="printMemberIdCard()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>Print ID</span>
+          </button>
+
+          <!-- WhatsApp Share ID Details -->
+          <button type="button" onclick="shareMemberIdCardWhatsApp()" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+            <span>Share</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none no-print"></div>
 
   <!-- Application Logic (Cache-busted) -->
-  <script src="app.js?v=20261112j"></script>
+  <script src="app.js?v=20261112k"></script>
 </body>
 </html>
