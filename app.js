@@ -2044,25 +2044,14 @@ function viewMemberIdCard(id) {
     groupBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${groupCfg.dotColor} mr-1"></span>${escapeHtml(member.group || 'Unassigned')}`;
   }
 
-  // Header ribbon color
-  if (ribbon) {
-    if (member.group === 'Sadrak') {
-      ribbon.className = 'bg-gradient-to-r from-red-800 via-rose-700 to-red-900 text-white p-3.5 text-center relative';
-    } else if (member.group === 'Mesak') {
-      ribbon.className = 'bg-gradient-to-r from-amber-700 via-yellow-600 to-amber-800 text-white p-3.5 text-center relative';
-    } else if (member.group === 'Abednego') {
-      ribbon.className = 'bg-gradient-to-r from-emerald-800 via-teal-700 to-emerald-900 text-white p-3.5 text-center relative';
-    } else {
-      ribbon.className = 'bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 text-white p-3.5 text-center relative';
-    }
-  }
+  // Header ribbon keeps permanent light theme gradient with curve lines
 
   // Photo / Avatar
   const { initials, colorClass } = getAvatarData(member.name);
   if (photoContainer) {
     if (member.photo) {
       photoContainer.innerHTML = `
-        <img src="${member.photo}" alt="${escapeHtml(member.name)}" class="w-16 h-20 rounded-xl object-cover border-2 border-amber-400 shadow-md bg-white" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
+        <img src="${member.photo}" alt="${escapeHtml(member.name)}" class="w-16 h-20 rounded-2xl object-cover border-2 border-amber-400/90 shadow-sm bg-white p-0.5" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
         <div class="w-16 h-20 rounded-xl bg-gradient-to-br ${colorClass} text-white font-extrabold text-base flex items-center justify-center border-2 border-white shadow-md hidden">${initials}</div>
       `;
     } else {
@@ -2107,7 +2096,7 @@ function printMemberIdCard() {
       <style>
         @page { size: auto; margin: 10mm; }
         body { margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; background: #fff; font-family: system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        #idCardPrintTarget { width: 85mm !important; max-width: 85mm !important; box-shadow: none !important; border: 2px solid #334155 !important; page-break-inside: avoid; }
+        #idCardPrintTarget { width: 85mm !important; max-width: 85mm !important; box-shadow: none !important; border: 1px solid #cbd5e1 !important; border-radius: 20px !important; page-break-inside: avoid; }
       </style>
     </head>
     <body>
@@ -2139,7 +2128,6 @@ function shareMemberIdCardWhatsApp() {
 🆔 *ID:* ${(m.id || 'AVS-KTP').toUpperCase()}
 👨‍👩‍👧 *Nu / Pa Hming:* ${m.parentsName || '-'}
 🏷 *Group:* ${m.group || 'Unassigned'}
-⚥ *Gender:* ${m.gender || 'Mipa'}
 🏠 *In No. (H/No.):* ${m.houseNo || '-'}
 📍 *Upa Bial:* ${m.upaBial || '-'}
 📞 *Phone:* ${formattedPhone || '-'}
@@ -2151,6 +2139,7 @@ _"Rawngbawl tura chhandam" (Ephesi 2:10)_`;
 }
 
 // ==================== AUTO-FIXED EXCEL EXPORT (.XLSX) ====================
+// Uses 'Mizo Synod Book Times' (Times New Roman), Bold, Centered Headings & Auto-Fit
 
 function exportToExcel() {
   if (!members || members.length === 0) {
@@ -2158,9 +2147,8 @@ function exportToExcel() {
     return;
   }
 
-  // 1. If SheetJS is loaded, output real native .xlsx with auto-fit column widths
+  // 1. If XLSX (with xlsx-js-style support) is loaded, generate native styled .xlsx
   if (typeof XLSX !== 'undefined') {
-    // Array of Arrays for custom title rows
     const wsData = [
       ['Kristian Thalai Pawl'],
       ['Armed Veng South Branch'],
@@ -2178,7 +2166,7 @@ function exportToExcel() {
       ]
     ];
 
-    // Append member rows
+    // Append members
     members.forEach((m, index) => {
       const cleanPhone = (m.phone || '').replace(/\D/g, '');
       const formattedPhone = cleanPhone.length === 10
@@ -2200,13 +2188,21 @@ function exportToExcel() {
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-    // Merge Heading Across All 9 Columns
+    // Merge Headings across all 9 columns (A to I)
     ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, // Kristian Thalai Pawl
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } }  // Armed Veng South Branch
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, // Row 1: Kristian Thalai Pawl
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } }  // Row 2: Armed Veng South Branch
     ];
 
-    // Auto-fit column widths so NO manual editing is ever needed
+    // Row heights (Points)
+    ws['!rows'] = [
+      { hpt: 36 }, // Row 1 (Title)
+      { hpt: 28 }, // Row 2 (Sub-title)
+      { hpt: 12 }, // Row 3 (Blank)
+      { hpt: 26 }  // Row 4 (Table Headers)
+    ];
+
+    // Column widths
     ws['!cols'] = [
       { wch: 12 }, // Serial No.
       { wch: 15 }, // Member ID
@@ -2219,13 +2215,62 @@ function exportToExcel() {
       { wch: 18 }  // Phone Number
     ];
 
-    // Force Phone Number column (Col index 8, rows >= 4) to string format so Excel never turns to 9.86E+09
-    if (ws['!ref']) {
-      const range = XLSX.utils.decode_range(ws['!ref']);
-      for (let R = 4; R <= range.e.r; ++R) {
-        const cellRef = XLSX.utils.encode_cell({ r: R, c: 8 });
+    const borderThin = {
+      top: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      bottom: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+      right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+    };
+
+    // Style Row 1: Kristian Thalai Pawl (CENTERED, 18pt, BOLD, TIMES NEW ROMAN)
+    if (ws['A1']) {
+      ws['A1'].s = {
+        font: { name: 'Times New Roman', sz: 18, bold: true, color: { rgb: '000000' } },
+        alignment: { horizontal: 'center', vertical: 'center' }
+      };
+    }
+
+    // Style Row 2: Armed Veng South Branch (CENTERED, 14pt, BOLD, TIMES NEW ROMAN)
+    if (ws['A2']) {
+      ws['A2'].s = {
+        font: { name: 'Times New Roman', sz: 14, bold: true, color: { rgb: '000000' } },
+        alignment: { horizontal: 'center', vertical: 'center' }
+      };
+    }
+
+    // Style Row 4: Column Headers (CENTERED, 12pt, BOLD, TIMES NEW ROMAN, LIGHT FILL)
+    for (let c = 0; c < 9; c++) {
+      const cellRef = XLSX.utils.encode_cell({ r: 3, c: c });
+      if (ws[cellRef]) {
+        ws[cellRef].s = {
+          font: { name: 'Times New Roman', sz: 12, bold: true, color: { rgb: '0F172A' } },
+          alignment: { horizontal: 'center', vertical: 'center' },
+          fill: { fgColor: { rgb: 'F1F5F9' } },
+          border: borderThin
+        };
+      }
+    }
+
+    // Style Data Rows (Rows >= 4)
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:I4');
+    for (let R = 4; R <= range.e.r; ++R) {
+      // Row height for data
+      if (!ws['!rows'][R]) ws['!rows'][R] = { hpt: 21 };
+
+      for (let C = 0; C <= 8; ++C) {
+        const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
         if (ws[cellRef]) {
-          ws[cellRef].t = 's';
+          const isLeftAligned = (C === 2 || C === 3); // Member Name & Nu/Pa Hming
+          ws[cellRef].s = {
+            font: { name: 'Times New Roman', sz: 11, bold: false, color: { rgb: '000000' } },
+            alignment: { horizontal: isLeftAligned ? 'left' : 'center', vertical: 'center' },
+            border: borderThin
+          };
+
+          // Force text type for IDs, House No, and Phone Number to avoid scientific notation
+          if (C === 1 || C === 6 || C === 8) {
+            ws[cellRef].t = 's';
+          }
         }
       }
     }
@@ -2238,9 +2283,9 @@ function exportToExcel() {
 
     const fileName = `Kristian_Thalai_Pawl_Armed_Veng_South_${new Date().toISOString().slice(0, 10)}.xlsx`;
     XLSX.writeFile(wb, fileName);
-    showToast('Excel file auto-fixed fel fai takin a download ta e!', 'success');
+    showToast('Excel file auto-fixed (Synod Book Times, Centered) a download ta e!', 'success');
   } else {
-    // 2. Fallback: Styled HTML/XML based .xls with proper mso-number-format
+    // Fallback: Styled HTML/XML based .xls with Mizo Synod Book Times font
     exportToExcelHtmlFallback();
   }
 }
@@ -2252,11 +2297,14 @@ function exportToExcelHtmlFallback() {
       <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>KTP Members</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
       <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
       <style>
-        .title-row { font-size: 16pt; font-weight: bold; background-color: #be123c; color: #ffffff; text-align: center; height: 35px; }
-        .sub-row { font-size: 13pt; font-weight: bold; background-color: #9f1239; color: #ffffff; text-align: center; height: 28px; }
-        th { background-color: #f1f5f9; color: #0f172a; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px 14px; font-family: Calibri, sans-serif; font-size: 11pt; }
-        td { border: 1px solid #cbd5e1; padding: 6px 12px; font-family: Calibri, sans-serif; font-size: 11pt; }
-        .text-cell { mso-number-format:"\\@"; }
+        body, table, th, td { font-family: 'Times New Roman', 'Mizo Synod Book Times', Times, serif !important; }
+        .title-row { font-size: 18pt !important; font-weight: bold !important; color: #000000 !important; text-align: center !important; height: 38px; border: none !important; }
+        .sub-row { font-size: 14pt !important; font-weight: bold !important; color: #000000 !important; text-align: center !important; height: 30px; border: none !important; }
+        th { background-color: #f1f5f9 !important; color: #0f172a !important; font-weight: bold !important; border: 1px solid #cbd5e1 !important; padding: 8px 12px !important; font-size: 12pt !important; text-align: center !important; }
+        td { border: 1px solid #cbd5e1 !important; padding: 6px 10px !important; font-size: 11pt !important; }
+        .center-cell { text-align: center !important; }
+        .left-cell { text-align: left !important; }
+        .text-cell { mso-number-format:"\\@"; text-align: center !important; }
       </style>
     </head>
     <body>
@@ -2268,7 +2316,7 @@ function exportToExcelHtmlFallback() {
           <tr>
             <th colspan="9" class="sub-row">Armed Veng South Branch</th>
           </tr>
-          <tr><th colspan="9" style="background:#fff;border:none;height:10px;"></th></tr>
+          <tr style="height: 12px;"><th colspan="9" style="background:#fff;border:none;"></th></tr>
           <tr>
             <th>Serial No.</th>
             <th>Member ID</th>
@@ -2292,14 +2340,14 @@ function exportToExcelHtmlFallback() {
 
     xml += `
       <tr>
-        <td>${idx + 1}</td>
+        <td class="center-cell">${idx + 1}</td>
         <td class="text-cell">${(m.id || `ktp-${idx + 1}`).toUpperCase()}</td>
-        <td>${escapeHtml(m.name || '')}</td>
-        <td>${escapeHtml(m.parentsName || '')}</td>
-        <td>${escapeHtml(m.group || 'Unassigned')}</td>
-        <td>${escapeHtml(m.gender || '')}</td>
+        <td class="left-cell">${escapeHtml(m.name || '')}</td>
+        <td class="left-cell">${escapeHtml(m.parentsName || '')}</td>
+        <td class="center-cell">${escapeHtml(m.group || 'Unassigned')}</td>
+        <td class="center-cell">${escapeHtml(m.gender || '')}</td>
         <td class="text-cell">${escapeHtml(m.houseNo || '')}</td>
-        <td>${escapeHtml(m.upaBial || '')}</td>
+        <td class="center-cell">${escapeHtml(m.upaBial || '')}</td>
         <td class="text-cell">${formattedPhone}</td>
       </tr>
     `;
@@ -2318,7 +2366,6 @@ function exportToExcelHtmlFallback() {
   URL.revokeObjectURL(url);
   showToast('Excel file a download ta e!', 'success');
 }
-
 
 // ==================== SIGNATURE & ID CARD AUTO-INJECTION ====================
 
