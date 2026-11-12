@@ -87,7 +87,7 @@ const DEFAULT_NOTICES = [
   }
 ];
 
-// Group Styling for Sadrak, Mesak, Abednego
+// Group Styling for Sadrak (Red), Mesak (Yellow), Abednego (Green)
 const GROUP_CONFIG = {
   'Sadrak': {
     badgeClass: 'badge-sadrak',
@@ -97,15 +97,15 @@ const GROUP_CONFIG = {
   },
   'Mesak': {
     badgeClass: 'badge-mesak',
-    dotColor: 'bg-emerald-600',
-    avatarBg: 'bg-emerald-700',
-    textColor: 'text-emerald-800'
+    dotColor: 'bg-amber-500',
+    avatarBg: 'bg-amber-500',
+    textColor: 'text-amber-900'
   },
   'Abednego': {
     badgeClass: 'badge-abednego',
-    dotColor: 'bg-blue-600',
-    avatarBg: 'bg-blue-700',
-    textColor: 'text-blue-800'
+    dotColor: 'bg-emerald-600',
+    avatarBg: 'bg-emerald-700',
+    textColor: 'text-emerald-800'
   }
 };
 
@@ -1432,8 +1432,8 @@ function selectGroupFilter(groupName) {
   const tabs = [
     { id: 'tabGroupAll', group: 'All', activeClass: 'bg-slate-900 text-white' },
     { id: 'tabGroupSadrak', group: 'Sadrak', activeClass: 'bg-rose-700 text-white' },
-    { id: 'tabGroupMesak', group: 'Mesak', activeClass: 'bg-emerald-700 text-white' },
-    { id: 'tabGroupAbednego', group: 'Abednego', activeClass: 'bg-blue-700 text-white' }
+    { id: 'tabGroupMesak', group: 'Mesak', activeClass: 'bg-amber-500 text-slate-950 font-extrabold' },
+    { id: 'tabGroupAbednego', group: 'Abednego', activeClass: 'bg-emerald-700 text-white' }
   ];
 
   tabs.forEach(tab => {

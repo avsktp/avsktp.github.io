@@ -5,12 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KTP Armed Veng South Branch - Member Directory & Notice Board</title>
   
+  <!-- Favicon & Mobile Touch Icons -->
+  <link rel="icon" type="image/png" href="ktp-logo.png">
+  <link rel="apple-touch-icon" href="ktp-logo.png">
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Custom Light Styles -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261112h">
   <script>
     tailwind.config = {
       theme: {
@@ -37,9 +41,7 @@
   <!-- PRINT ONLY HEADER (Visible only on printout) -->
   <div class="print-header hidden">
     <div class="flex items-center justify-center space-x-3 mb-2">
-      <div class="w-12 h-12 rounded-full border-2 border-slate-900 flex items-center justify-center font-bold text-slate-900 text-base">
-        KṬP
-      </div>
+      <img src="ktp-logo.png" alt="KTP Logo" class="w-12 h-12 object-contain">
       <div>
         <h1 class="text-xl font-bold uppercase tracking-wider text-slate-900">Kristian Ṭhalai Pawl</h1>
         <h2 class="text-sm font-semibold text-slate-700">Armed Veng South Branch • Armed Veng Bial</h2>
@@ -58,37 +60,29 @@
       <div class="flex items-center justify-between py-3 gap-2">
         
         <!-- Logo & Title -->
-        <div class="flex items-center space-x-3 sm:space-x-4">
-          <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-rose-700 to-rose-900 p-0.5 shadow-sm flex items-center justify-center flex-shrink-0">
-            <div class="w-full h-full bg-white rounded-[10px] flex flex-col items-center justify-center">
-              <span class="text-xs font-black tracking-widest text-rose-900 leading-none">KṬP</span>
-              <span class="text-[8px] font-bold text-slate-500">AVS</span>
+        <div class="flex items-center space-x-2.5 sm:space-x-3.5 min-w-0">
+          <img src="ktp-logo.png" alt="KTP Logo" class="w-10 h-10 sm:w-11 sm:h-11 object-contain flex-shrink-0 drop-shadow-xs">
+          <div class="min-w-0">
+            <h1 class="text-sm sm:text-base md:text-lg font-black tracking-tight text-slate-900 uppercase leading-snug truncate">
+              KRISTIAN ṬHALAI PAWL
+            </h1>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[11px] sm:text-xs font-bold text-rose-800">Armed Veng South Branch</span>
+              <span class="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300"></span>
+              <span class="hidden sm:inline text-[11px] text-slate-500 font-medium">Armed Veng Bial</span>
+              <span class="hidden md:inline text-[11px] text-slate-400 italic">"Rawngbawl tura chhandam"</span>
             </div>
-          </div>
-          <div>
-            <div class="flex items-center space-x-2">
-              <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900">
-                KRISTIAN ṬHALAI PAWL
-              </h1>
-              <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
-                Armed Veng South Branch
-              </span>
-            </div>
-            <p class="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
-              <span class="font-medium text-slate-600">Armed Veng Bial</span>
-              <span class="inline-block w-1 h-1 rounded-full bg-slate-300"></span>
-              <span class="italic text-slate-500">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
-            </p>
           </div>
         </div>
 
         <!-- Right Quick Actions -->
-        <div class="flex items-center space-x-2 sm:space-x-2.5 action-btns flex-wrap justify-end">
+        <div class="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
           
           <!-- SELF REGISTRATION BUTTON (Anyone can add themselves) -->
-          <button id="btnSelfRegisterHeader" onclick="openSelfRegisterModal()" title="Add yourself to branch directory" class="flex items-center space-x-1.5 px-3.5 py-2 text-xs sm:text-sm font-bold rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow-xs transition transform active:scale-95 cursor-pointer">
-            <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>In-ziak lut rawh (+ Add Yourself)</span>
+          <button id="btnSelfRegisterHeader" onclick="openSelfRegisterModal()" title="Add yourself to branch directory" class="flex items-center space-x-1 sm:space-x-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow-xs transition transform active:scale-95 cursor-pointer">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+            <span class="inline sm:hidden font-extrabold">+ In-ziak lut</span>
+            <span class="hidden sm:inline">In-ziak lut rawh (+ Add Yourself)</span>
           </button>
 
           <!-- Export CSV -->
@@ -98,34 +92,34 @@
           </button>
 
           <!-- Print Directory -->
-          <button onclick="window.print()" title="Print Directory" class="hidden sm:flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          <button onclick="window.print()" title="Print Directory" class="hidden lg:flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
             <i data-lucide="printer" class="w-3.5 h-3.5 text-slate-600"></i>
             <span>Print</span>
           </button>
 
           <!-- Secretary Auth Badge & Button -->
-          <div id="secretaryAuthContainer" class="flex items-center space-x-1.5">
+          <div id="secretaryAuthContainer" class="flex items-center space-x-1">
             <!-- Logged out state: Login button -->
-            <button onclick="openSecretaryLoginModal()" id="btnSecretaryLogin" class="flex items-center space-x-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition">
+            <button onclick="openSecretaryLoginModal()" id="btnSecretaryLogin" title="Branch Secretary Login" class="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition">
               <i data-lucide="lock" class="w-3.5 h-3.5 text-slate-500"></i>
-              <span>Secretary Login</span>
+              <span class="hidden sm:inline">Secretary</span>
             </button>
 
             <!-- Logged in state (Hidden by default) -->
-            <div id="secretaryLoggedInBox" class="hidden flex items-center space-x-1.5">
-              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            <div id="secretaryLoggedInBox" class="hidden flex items-center space-x-1 sm:space-x-1.5">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                 <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-600"></i>
                 <span class="hidden sm:inline">Secretary</span>
               </span>
 
               <!-- + Add Member Button (For Secretary) -->
-              <button onclick="openAddMemberModal()" class="flex items-center space-x-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-rose-900 hover:bg-rose-800 text-white shadow-xs transition">
+              <button onclick="openAddMemberModal()" class="flex items-center space-x-1 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs font-bold rounded-xl bg-rose-900 hover:bg-rose-800 text-white shadow-xs transition">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                 <span class="hidden sm:inline">Add Member</span>
               </button>
 
               <!-- Logout Button -->
-              <button onclick="logoutSecretary()" title="Secretary Logout" class="px-2.5 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 border border-slate-200 transition">
+              <button onclick="logoutSecretary()" title="Secretary Logout" class="p-1.5 sm:px-2.5 sm:py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-600 border border-slate-200 transition">
                 <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
               </button>
             </div>
@@ -183,36 +177,36 @@
     <!-- ==================== TAB 1: MEMBER DIRECTORY ==================== -->
     <div id="tabContentDirectory" class="space-y-6">
 
-      <!-- SELF-REGISTRATION HERO BANNER (Big, clear, unmissable) -->
-      <div class="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 text-white rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 no-print">
-        <div class="flex items-center space-x-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center flex-shrink-0 border border-white/25 shadow-xs">
-            <i data-lucide="user-plus" class="w-6 h-6"></i>
+      <!-- SELF-REGISTRATION HERO BANNER (Clean, compact, and tidy) -->
+      <div class="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white rounded-2xl p-3.5 sm:p-4 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 no-print">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-white/15 text-emerald-200 flex items-center justify-center flex-shrink-0 border border-white/20">
+            <i data-lucide="user-plus" class="w-5 h-5"></i>
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <h3 class="text-base sm:text-lg font-bold text-white">Member In-ziahluhna (Self-Registration)</h3>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-400 text-emerald-950">Active</span>
+              <h3 class="text-sm sm:text-base font-bold text-white">Member In-ziahluhna</h3>
+              <span class="px-2 py-0.2 rounded-full text-[9px] font-black uppercase bg-emerald-400 text-emerald-950">Active</span>
             </div>
-            <p class="text-xs text-emerald-100 mt-1 max-w-2xl leading-relaxed">
-              KṬP Armed Veng South Branch member i nih chuan i hming, H/No., Upa Bial leh Passport photo/selfie dah luh nan he laiah hian hmet rawh le.
+            <p class="text-xs text-emerald-100/90 mt-0.5 line-clamp-1 sm:line-clamp-none">
+              KṬP Armed Veng South Branch member-te in-ziahluhna leh thlalak dahna.
             </p>
           </div>
         </div>
-        <button type="button" onclick="openSelfRegisterModal()" class="w-full sm:w-auto px-5 py-3 bg-white text-emerald-900 hover:bg-emerald-50 text-xs sm:text-sm font-extrabold rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer">
+        <button type="button" onclick="openSelfRegisterModal()" class="w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-white text-emerald-900 hover:bg-emerald-50 text-xs sm:text-sm font-extrabold rounded-xl shadow-xs transition transform active:scale-95 flex items-center justify-center gap-1.5 flex-shrink-0 cursor-pointer">
           <i data-lucide="camera" class="w-4 h-4 text-emerald-700"></i>
           <span>In-ziak lut rawh (+ Add Yourself)</span>
         </button>
       </div>
 
       <!-- LATEST NOTICE ALERT BANNER -->
-      <div id="latestNoticeAlert" onclick="switchTab('notices')" class="cursor-pointer bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-3.5 flex items-center justify-between shadow-xs hover:border-amber-300 transition no-print group">
-        <div class="flex items-center space-x-3 overflow-hidden">
-          <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-800 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition">
-            <i data-lucide="megaphone" class="w-4 h-4"></i>
+      <div id="latestNoticeAlert" onclick="switchTab('notices')" class="cursor-pointer bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-3 sm:p-3.5 flex items-center justify-between shadow-xs hover:border-amber-300 transition no-print group">
+        <div class="flex items-center space-x-2.5 sm:space-x-3 overflow-hidden">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-500/20 text-amber-800 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition">
+            <i data-lucide="megaphone" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
           </div>
           <div class="truncate">
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full mr-1.5">Hriattirna Tharlam</span>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-full mr-1.5">HRIATTIRNA</span>
             <span id="alertNoticeTitle" class="text-xs sm:text-sm font-bold text-slate-800 truncate">--</span>
           </div>
         </div>
@@ -222,11 +216,11 @@
         </span>
       </div>
 
-      <!-- DASHBOARD STATS SECTION (SADRAK, MESAK, ABEDNEGO) -->
+      <!-- DASHBOARD STATS SECTION (SADRAK: RED, MESAK: YELLOW, ABEDNEGO: GREEN) -->
       <section id="statsGrid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 no-print">
         
         <!-- Total Members -->
-        <div onclick="selectGroupFilter('All')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-xs border border-slate-200 hover:border-slate-300 transition group">
+        <div onclick="selectGroupFilter('All')" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-slate-200 hover:border-slate-300 transition group">
           <div class="flex items-center justify-between">
             <div>
               <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Members</span>
@@ -236,56 +230,56 @@
                 <span id="statFemale" class="text-slate-800 font-semibold">0</span> Hmeichhia
               </span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
-              <i data-lucide="users" class="w-5 h-5"></i>
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+              <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i>
             </div>
           </div>
         </div>
 
-        <!-- Sadrak Group -->
-        <div onclick="selectGroupFilter('Sadrak')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-xs border border-slate-200 group-card-sadrak transition group">
+        <!-- Sadrak Group (Red) -->
+        <div onclick="selectGroupFilter('Sadrak')" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-slate-200 group-card-sadrak transition group">
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-rose-800 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-rose-600"></span> Sadrak
+              <span class="text-xs font-bold uppercase tracking-wider text-red-700 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-red-600"></span> Sadrak
               </span>
               <h3 id="statSadrak" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">--</h3>
               <span id="statSadrakPct" class="text-[11px] text-slate-500 font-medium">--% of total</span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center">
-              <i data-lucide="flame" class="w-5 h-5"></i>
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+              <i data-lucide="flame" class="w-4 h-4 sm:w-5 sm:h-5"></i>
             </div>
           </div>
         </div>
 
-        <!-- Mesak Group -->
-        <div onclick="selectGroupFilter('Mesak')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-xs border border-slate-200 group-card-mesak transition group">
+        <!-- Mesak Group (Yellow) -->
+        <div onclick="selectGroupFilter('Mesak')" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-slate-200 group-card-mesak transition group">
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Mesak
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Mesak
               </span>
               <h3 id="statMesak" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">--</h3>
               <span id="statMesakPct" class="text-[11px] text-slate-500 font-medium">--% of total</span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <i data-lucide="shield" class="w-5 h-5"></i>
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100/70 text-amber-800 flex items-center justify-center">
+              <i data-lucide="sun" class="w-4 h-4 sm:w-5 sm:h-5"></i>
             </div>
           </div>
         </div>
 
-        <!-- Abednego Group -->
-        <div onclick="selectGroupFilter('Abednego')" class="cursor-pointer bg-white rounded-2xl p-4 shadow-xs border border-slate-200 group-card-abednego transition group">
+        <!-- Abednego Group (Green) -->
+        <div onclick="selectGroupFilter('Abednego')" class="cursor-pointer bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-slate-200 group-card-abednego transition group">
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-blue-800 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-blue-600"></span> Abednego
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Abednego
               </span>
               <h3 id="statAbednego" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">--</h3>
               <span id="statAbednegoPct" class="text-[11px] text-slate-500 font-medium">--% of total</span>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
-              <i data-lucide="award" class="w-5 h-5"></i>
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-4 h-4 sm:w-5 sm:h-5"></i>
             </div>
           </div>
         </div>
@@ -293,27 +287,27 @@
       </section>
 
       <!-- SEARCH & GROUP FILTER BAR (no-print) -->
-      <section id="controlsSection" class="bg-white rounded-2xl shadow-xs border border-slate-200 p-4 space-y-4 no-print">
+      <section id="controlsSection" class="bg-white rounded-2xl shadow-xs border border-slate-200 p-3.5 sm:p-4 space-y-3.5 sm:space-y-4 no-print">
         
-        <!-- Group Tabs: All, Sadrak, Mesak, Abednego -->
+        <!-- Group Tabs: All, Sadrak (Red), Mesak (Yellow), Abednego (Green) -->
         <div class="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
           <div class="flex items-center space-x-1.5 overflow-x-auto w-full sm:w-auto scrollbar-none py-1">
-            <button onclick="selectGroupFilter('All')" id="tabGroupAll" class="group-tab px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-slate-900 text-white shadow-xs">
+            <button onclick="selectGroupFilter('All')" id="tabGroupAll" class="group-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 bg-slate-900 text-white shadow-xs">
               <span>All Members</span>
               <span id="badgeTabAll" class="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">0</span>
             </button>
-            <button onclick="selectGroupFilter('Sadrak')" id="tabGroupSadrak" class="group-tab px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-600 hover:bg-rose-50 hover:text-rose-700">
-              <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+            <button onclick="selectGroupFilter('Sadrak')" id="tabGroupSadrak" class="group-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-600 hover:bg-red-50 hover:text-red-700">
+              <span class="w-2 h-2 rounded-full bg-red-600"></span>
               <span>Sadrak</span>
               <span id="badgeTabSadrak" class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-100 text-slate-600">0</span>
             </button>
-            <button onclick="selectGroupFilter('Mesak')" id="tabGroupMesak" class="group-tab px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700">
-              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+            <button onclick="selectGroupFilter('Mesak')" id="tabGroupMesak" class="group-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-600 hover:bg-amber-50 hover:text-amber-800">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
               <span>Mesak</span>
               <span id="badgeTabMesak" class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-100 text-slate-600">0</span>
             </button>
-            <button onclick="selectGroupFilter('Abednego')" id="tabGroupAbednego" class="group-tab px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-600 hover:bg-blue-50 hover:text-blue-700">
-              <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+            <button onclick="selectGroupFilter('Abednego')" id="tabGroupAbednego" class="group-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
               <span>Abednego</span>
               <span id="badgeTabAbednego" class="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-100 text-slate-600">0</span>
             </button>
@@ -1098,6 +1092,6 @@
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none no-print"></div>
 
   <!-- Application Logic (Cache-busted) -->
-  <script src="app.js?v=20261112g"></script>
+  <script src="app.js?v=20261112h"></script>
 </body>
 </html>
