@@ -194,3 +194,11 @@ h1, h2, h3, h4, .brand-font {
     font-size: 9pt;
   }
 }
+
+/* Ensure signature images always blend transparently without white boxes */
+#idCardLeaderSigArea img,
+#idCardSecretarySigArea img,
+.sig-img {
+  mix-blend-mode: multiply !important;
+  background: transparent !important;
+}

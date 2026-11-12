@@ -2233,11 +2233,11 @@ function printAllMemberCardsA4() {
   const secSig = getSecretarySignature();
 
   const leaderSigImg = leaderSig
-    ? `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply;">`
+    ? `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply; background: transparent;">`
     : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
 
   const secSigImg = secSig
-    ? `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply;">`
+    ? `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply; background: transparent;">`
     : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
 
   // HORIZONTAL / LANDSCAPE A4: 2 ROWS x 4 COLUMNS = 8 CARDS PER PAGE
@@ -2267,125 +2267,72 @@ function printAllMemberCardsA4() {
         : `<div style="width: 42px; height: 50px; border-radius: 4px; background: #0f172a; color: #fff; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 1.2px solid #000000;">${initials}</div>`;
 
       cardsHtml += `
-        <div class="card-item" style="width: 5.8cm; height: 8.8cm; max-width: 5.8cm; max-height: 8.8cm; box-sizing: border-box; background: #ffffff; color: #000000; border: 1px dashed #64748b; border-radius: 6px; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: space-between; page-break-inside: avoid; font-family: system-ui, -apple-system, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+        <div class="card-item" style="width: 5.8cm; height: 8.8cm; max-width: 5.8cm; max-height: 8.8cm; box-sizing: border-box; background: transparent; color: #000000; border: 1px dashed #64748b; border-radius: 6px; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: space-between; page-break-inside: avoid; font-family: system-ui, -apple-system, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
           
           <!-- Fluid Waves SVG Background (Vector graphics that ALWAYS print in color) -->
-          <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;" viewBox="0 0 240 350" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="bgGrad_${globalIdx}" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#ffffff"/>
-                <stop offset="35%" stop-color="#f8fafc"/>
-                <stop offset="70%" stop-color="#f0f6fc"/>
-                <stop offset="100%" stop-color="#e6f0fa"/>
-              </linearGradient>
-              <linearGradient id="wave1Grad_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#f0f7ff" stop-opacity="0.85"/>
-                <stop offset="100%" stop-color="#dbeafe" stop-opacity="0.95"/>
-              </linearGradient>
-              <linearGradient id="wave2Grad_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#e0effe" stop-opacity="0.7"/>
-                <stop offset="100%" stop-color="#bfdbfe" stop-opacity="0.85"/>
-              </linearGradient>
-              <linearGradient id="wave3Grad_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.6"/>
-                <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.75"/>
-              </linearGradient>
-              <linearGradient id="wave4Grad_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.45"/>
-                <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.65"/>
-              </linearGradient>
-              <linearGradient id="lineGrad1_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.4"/>
-                <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.85"/>
-                <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.5"/>
-              </linearGradient>
-              <linearGradient id="lineGrad2_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.3"/>
-                <stop offset="50%" stop-color="#2563eb" stop-opacity="0.8"/>
-                <stop offset="100%" stop-color="#1e40af" stop-opacity="0.5"/>
-              </linearGradient>
-              <linearGradient id="goldAccent_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.6"/>
-                <stop offset="50%" stop-color="#d97706" stop-opacity="0.95"/>
-                <stop offset="100%" stop-color="#b45309" stop-opacity="0.6"/>
-              </linearGradient>
-            </defs>
-            <rect width="240" height="350" fill="url(#bgGrad_${globalIdx})"/>
-            <!-- Layered Silk Wave Ribbons -->
-            <path d="M0,175 C55,160 135,195 240,170 L240,350 L0,350 Z" fill="url(#wave1Grad_${globalIdx})"/>
-            <path d="M0,210 C75,195 155,230 240,205 L240,350 L0,350 Z" fill="url(#wave2Grad_${globalIdx})"/>
-            <path d="M0,245 C65,235 145,265 240,240 L240,350 L0,350 Z" fill="url(#wave3Grad_${globalIdx})"/>
-            <path d="M0,280 C75,275 165,295 240,275 L240,350 L0,350 Z" fill="url(#wave4Grad_${globalIdx})"/>
-            <!-- Silk Crest Curves -->
-            <path d="M0,175 C55,160 135,195 240,170" stroke="url(#lineGrad1_${globalIdx})" stroke-width="1.2" fill="none"/>
-            <path d="M0,210 C75,195 155,230 240,205" stroke="url(#lineGrad2_${globalIdx})" stroke-width="1" fill="none"/>
-            <path d="M0,245 C65,235 145,265 240,240" stroke="url(#lineGrad1_${globalIdx})" stroke-width="0.8" fill="none"/>
-            <path d="M0,90 C80,96 160,82 240,92" stroke="url(#goldAccent_${globalIdx})" stroke-width="1.5" fill="none"/>
-          </svg>
+          ${getFluidSilkSvg(globalIdx)}
 
           <!-- Header Container with 6mm BLANK top space for hole punch (NO LINES, JUST BLANK) -->
           <div style="position: relative; z-index: 2; padding: 6mm 5px 2px 5px; text-align: center; flex-shrink: 0;">
-            
-            <!-- Centered Logo & Heading (Solid Black) -->
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
               <img src="${ktpLogoBase64}" alt="Logo" style="width: 22px; height: 22px; object-fit: contain; margin-bottom: 1px; display: block;">
               <div style="text-align: center; line-height: 1.1; color: #000000;">
-                <div style="font-size: 6.2px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.3px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
-                <div style="font-size: 5.2px; font-style: italic; color: #000000; font-weight: 600; margin-top: 0.5px;">(Presbyterian Church of India)</div>
-                <div style="font-size: 9px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">KRISTIAN ṬHALAI PAWL</div>
-                <div style="font-size: 7.2px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 0.5px;">Armed Veng South Branch</div>
+                <div style="font-size: 6.2px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.2px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
+                <div style="font-size: 5.2px; font-style: italic; color: #000000; margin-top: 0.5px;">(Presbyterian Church of India)</div>
+                <div style="font-size: 6.8px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 1px;">KRISTIAN THALAI PAWL</div>
+                <div style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.2px;">ARMED VENG SOUTH BRANCH</div>
               </div>
             </div>
 
-            <!-- MEMBER CARD (Solid Black) -->
+            <!-- MEMBER CARD BADGE -->
             <div style="margin-top: 2px; text-align: center;">
-              <span style="display: inline-flex; align-items: center; gap: 2px; padding: 1.2px 7px; border-radius: 9999px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; background: rgba(255,255,255,0.95); border: 1.2px solid #000000; color: #000000; box-shadow: 0 1px 2px rgba(0,0,0,0.06);">
-                ★ MEMBER CARD
+              <span style="font-size: 8.5px; font-weight: 900; color: #000000; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1.2px solid #000000; padding-bottom: 0.5px; display: inline-block;">
+                MEMBER CARD
               </span>
             </div>
           </div>
 
-          <!-- Card Body with Subtle Watermark & Wave Background -->
-          <div style="padding: 0 5px 3.5px 5px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; position: relative; z-index: 2; color: #000000;">
+          <!-- Body: Photo + Info + Signatures -->
+          <div style="position: relative; z-index: 2; padding: 0 6px 3px 6px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
             
-            <!-- Watermark -->
-            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0.035;">
-              <img src="${ktpLogoBase64}" alt="Watermark" style="width: 105px; height: 105px; object-fit: contain;">
-            </div>
-
-            <!-- Photo (42px x 50px) + Name + Card No -->
-            <div style="position: relative; z-index: 2; display: flex; align-items: center; gap: 4px; padding-bottom: 2px; border-bottom: 1px solid rgba(0,0,0,0.15);">
-              <div style="flex-shrink: 0;">
+            <!-- Photo + Name + Card No -->
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+              <div style="width: 42px; height: 50px; flex-shrink: 0; border-radius: 4px; overflow: hidden; border: 1.2px solid #000000; background: #fff; display: flex; align-items: center; justify-content: center;">
                 ${photoHtml}
               </div>
-              <div style="min-width: 0; flex: 1; line-height: 1.15; text-align: left;">
-                <div style="font-size: 10px; font-weight: 900; color: #000000; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(m.name || '-')}</div>
-                <div style="display: inline-block; padding: 1px 3.5px; border-radius: 3px; font-family: monospace; font-size: 7.5px; font-weight: 900; background: #f1f5f9; color: #000000; border: 1px solid #94a3b8; margin-top: 1.5px;">
-                  ${cardNo}
+
+              <div style="flex-grow: 1; overflow: hidden; line-height: 1.15;">
+                <div style="font-size: 9px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.2px; white-space: normal; word-break: break-word; line-height: 1.15; max-height: 24px; overflow: hidden;">
+                  ${escapeHtml(m.name)}
+                </div>
+                <div style="margin-top: 2px;">
+                  <span style="font-size: 6.8px; font-family: monospace; font-weight: 900; color: #000000; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.4); border-radius: 3px; padding: 0.5px 3.5px; display: inline-block;">
+                    ${cardNo}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <!-- Personal Details List (Compact, Solid Black) -->
-            <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 1px; margin: 1.5px 0; color: #000000;">
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.85); border: 1px solid rgba(226,232,240,0.9);">
+            <!-- Personal Details List (Translucent Glassy Rows) -->
+            <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 1px; margin: 1px 0; color: #000000;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
                 <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Nu / Pa Hming:</span>
                 <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(m.parentsName || '-')}</span>
               </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.85); border: 1px solid rgba(226,232,240,0.9);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
                 <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">House No:</span>
                 <span style="font-size: 7.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(m.houseNo || '-')}</span>
               </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.85); border: 1px solid rgba(226,232,240,0.9);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
                 <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Upa Bial:</span>
                 <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right;">${escapeHtml(m.upaBial || '-')}</span>
               </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.85); border: 1px solid rgba(226,232,240,0.9);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
                 <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Phone:</span>
                 <span style="font-size: 7.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${formattedPhone || '-'}</span>
               </div>
               <!-- GROUP AT LAST - UNCOLORED SOLID BLACK -->
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.85); border: 1px solid rgba(226,232,240,0.9);">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
                 <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Group:</span>
                 <span style="font-size: 7.2px; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(m.group || '-')}</span>
               </div>
@@ -2461,7 +2408,6 @@ function printAllMemberCardsA4() {
         .card-item {
           page-break-inside: avoid;
         }
-        /* Instruction tip only visible on screen, hidden on printout */
         @media screen {
           .print-tip-bar {
             background: #f0fdf4;
@@ -2499,7 +2445,6 @@ function printAllMemberCardsA4() {
   `);
   printWin.document.close();
 }
-
 
 // ==================== AUTO-FIXED EXCEL EXPORT (.XLSX) ====================
 // Headings: MIZORAM PRESBYTERIAN KOHHRAN / (Presbyterian Church of India) / Kristian Thalai Pawl / Armed Veng South Branch
@@ -2779,6 +2724,75 @@ function exportToExcelHtmlFallback() {
 
 // ==================== SIGNATURE & ID CARD AUTO-INJECTION ====================
 
+// Smart function to automatically remove paper/white/grey background from any signature image
+function makeSignatureBackgroundTransparent(imgElementOrCanvas, callback) {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = imgElementOrCanvas.width || imgElementOrCanvas.videoWidth || 320;
+    canvas.height = imgElementOrCanvas.height || imgElementOrCanvas.videoHeight || 130;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(imgElementOrCanvas, 0, 0, canvas.width, canvas.height);
+
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = imgData.data;
+
+    // Check if the image already has transparency
+    let hasAlpha = false;
+    for (let i = 3; i < d.length; i += 4) {
+      if (d[i] < 240) {
+        hasAlpha = true;
+        break;
+      }
+    }
+
+    if (!hasAlpha) {
+      // Sample paper background color from the 4 corners
+      const cornerIndices = [
+        0,
+        (canvas.width - 1) * 4,
+        (canvas.width * (canvas.height - 1)) * 4,
+        (canvas.width * canvas.height - 1) * 4
+      ];
+      let bgR = 0, bgG = 0, bgB = 0, count = 0;
+      cornerIndices.forEach(idx => {
+        if (idx >= 0 && idx < d.length) {
+          bgR += d[idx];
+          bgG += d[idx + 1];
+          bgB += d[idx + 2];
+          count++;
+        }
+      });
+      bgR = count ? bgR / count : 255;
+      bgG = count ? bgG / count : 255;
+      bgB = count ? bgB / count : 255;
+      const cornerBrightness = (bgR + bgG + bgB) / 3;
+
+      for (let i = 0; i < d.length; i += 4) {
+        const r = d[i], g = d[i + 1], b = d[i + 2];
+        const brightness = (r + g + b) / 3;
+        const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
+        const distToBg = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+
+        // If pixel is paper background (near white or matching corner paper color)
+        if ((distToBg < 45 || brightness > 200) && maxDiff < 40) {
+          d[i + 3] = 0; // Pure transparent
+        } else if (distToBg < 75 && maxDiff < 45) {
+          d[i + 3] = Math.round(((distToBg - 45) / 30) * 255); // Smooth anti-aliased edge
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    const cleanDataUrl = canvas.toDataURL('image/png');
+    if (callback) callback(cleanDataUrl);
+    return cleanDataUrl;
+  } catch (err) {
+    console.warn('Signature transparency conversion error:', err);
+    if (callback) callback(null);
+    return null;
+  }
+}
+
 function getLeaderSignature() {
   return localStorage.getItem('ktp_leader_signature') || '';
 }
@@ -2788,15 +2802,53 @@ function getSecretarySignature() {
 }
 
 function updateIdCardSignatures() {
-  const leaderSig = getLeaderSignature();
-  const secSig = getSecretarySignature();
+  let leaderSig = getLeaderSignature();
+  let secSig = getSecretarySignature();
 
   const leaderArea = document.getElementById('idCardLeaderSigArea');
   const secArea = document.getElementById('idCardSecretarySigArea');
 
+  // Auto clean existing leader signature if it's not transparent yet
+  if (leaderSig && leaderSig.startsWith('data:image')) {
+    const cachedClean = sessionStorage.getItem('ktp_leader_sig_cleaned');
+    if (!cachedClean) {
+      const img = new Image();
+      img.onload = function() {
+        makeSignatureBackgroundTransparent(img, function(cleanUrl) {
+          if (cleanUrl && cleanUrl !== leaderSig) {
+            localStorage.setItem('ktp_leader_signature', cleanUrl);
+            sessionStorage.setItem('ktp_leader_sig_cleaned', '1');
+            const leaderImg = leaderArea ? leaderArea.querySelector('img') : null;
+            if (leaderImg) leaderImg.src = cleanUrl;
+          }
+        });
+      };
+      img.src = leaderSig;
+    }
+  }
+
+  // Auto clean existing secretary signature if it's not transparent yet
+  if (secSig && secSig.startsWith('data:image')) {
+    const cachedClean = sessionStorage.getItem('ktp_sec_sig_cleaned');
+    if (!cachedClean) {
+      const img = new Image();
+      img.onload = function() {
+        makeSignatureBackgroundTransparent(img, function(cleanUrl) {
+          if (cleanUrl && cleanUrl !== secSig) {
+            localStorage.setItem('ktp_secretary_signature', cleanUrl);
+            sessionStorage.setItem('ktp_sec_sig_cleaned', '1');
+            const secImg = secArea ? secArea.querySelector('img') : null;
+            if (secImg) secImg.src = cleanUrl;
+          }
+        });
+      };
+      img.src = secSig;
+    }
+  }
+
   if (leaderArea) {
     if (leaderSig) {
-      leaderArea.innerHTML = `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply;">`;
+      leaderArea.innerHTML = `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply; background: transparent;">`;
     } else {
       leaderArea.innerHTML = `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
     }
@@ -2804,7 +2856,7 @@ function updateIdCardSignatures() {
 
   if (secArea) {
     if (secSig) {
-      secArea.innerHTML = `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply;">`;
+      secArea.innerHTML = `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply; background: transparent;">`;
     } else {
       secArea.innerHTML = `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
     }
@@ -2824,36 +2876,39 @@ function openSignatureUploadModal() {
 
   const leaderImg = document.getElementById('leaderSigPreviewImg');
   const leaderPlh = document.getElementById('leaderSigPlaceholder');
-  const leaderClear = document.getElementById('btnClearLeaderSig');
+  const leaderClr = document.getElementById('btnClearLeaderSig');
 
   const secImg = document.getElementById('secSigPreviewImg');
   const secPlh = document.getElementById('secSigPlaceholder');
-  const secClear = document.getElementById('btnClearSecSig');
+  const secClr = document.getElementById('btnClearSecSig');
 
-  if (leaderSig) {
-    if (leaderImg) { leaderImg.src = leaderSig; leaderImg.classList.remove('hidden'); }
+  if (leaderSig && leaderImg) {
+    leaderImg.src = leaderSig;
+    leaderImg.classList.remove('hidden');
     if (leaderPlh) leaderPlh.classList.add('hidden');
-    if (leaderClear) leaderClear.classList.remove('hidden');
+    if (leaderClr) leaderClr.classList.remove('hidden');
   } else {
-    if (leaderImg) { leaderImg.src = ''; leaderImg.classList.add('hidden'); }
+    if (leaderImg) leaderImg.classList.add('hidden');
     if (leaderPlh) leaderPlh.classList.remove('hidden');
-    if (leaderClear) leaderClear.classList.add('hidden');
+    if (leaderClr) leaderClr.classList.add('hidden');
   }
 
-  if (secSig) {
-    if (secImg) { secImg.src = secSig; secImg.classList.remove('hidden'); }
+  if (secSig && secImg) {
+    secImg.src = secSig;
+    secImg.classList.remove('hidden');
     if (secPlh) secPlh.classList.add('hidden');
-    if (secClear) secClear.classList.remove('hidden');
+    if (secClr) secClr.classList.remove('hidden');
   } else {
-    if (secImg) { secImg.src = ''; secImg.classList.add('hidden'); }
+    if (secImg) secImg.classList.add('hidden');
     if (secPlh) secPlh.classList.remove('hidden');
-    if (secClear) secClear.classList.add('hidden');
+    if (secClr) secClr.classList.add('hidden');
   }
 
   if (modal) {
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
   }
+  if (window.lucide) lucide.createIcons();
 }
 
 function closeSignatureUploadModal() {
@@ -2895,60 +2950,32 @@ function handleSignatureUpload(event, type) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
 
-      // Auto-remove paper/white background if uploaded image is not already transparent
-      try {
-        const imgData = ctx.getImageData(0, 0, w, h);
-        const d = imgData.data;
-        let hasAlpha = false;
-        for (let i = 3; i < d.length; i += 4) {
-          if (d[i] < 240) {
-            hasAlpha = true;
-            break;
-          }
+      // Clean background automatically so paper/white becomes 100% transparent
+      makeSignatureBackgroundTransparent(canvas, function(dataUrl) {
+        const finalUrl = dataUrl || canvas.toDataURL('image/png');
+
+        if (type === 'leader') {
+          localStorage.setItem('ktp_leader_signature', finalUrl);
+          const imgEl = document.getElementById('leaderSigPreviewImg');
+          const plhEl = document.getElementById('leaderSigPlaceholder');
+          const clrBtn = document.getElementById('btnClearLeaderSig');
+          if (imgEl) { imgEl.src = finalUrl; imgEl.classList.remove('hidden'); }
+          if (plhEl) plhEl.classList.add('hidden');
+          if (clrBtn) clrBtn.classList.remove('hidden');
+          showToast('Branch Leader signature dah luh a ni ta! ID Card zawng zawngah a lang nghal ang.', 'success');
+        } else {
+          localStorage.setItem('ktp_secretary_signature', finalUrl);
+          const imgEl = document.getElementById('secSigPreviewImg');
+          const plhEl = document.getElementById('secSigPlaceholder');
+          const clrBtn = document.getElementById('btnClearSecSig');
+          if (imgEl) { imgEl.src = finalUrl; imgEl.classList.remove('hidden'); }
+          if (plhEl) plhEl.classList.add('hidden');
+          if (clrBtn) clrBtn.classList.remove('hidden');
+          showToast('Branch Secretary signature dah luh a ni ta! ID Card zawng zawngah a lang nghal ang.', 'success');
         }
-        if (!hasAlpha) {
-          // Detect solid white / off-white paper background and make it 100% transparent
-          for (let i = 0; i < d.length; i += 4) {
-            const r = d[i], g = d[i + 1], b = d[i + 2];
-            const brightness = (r + g + b) / 3;
-            const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
-            if (brightness > 210 && maxDiff < 30) {
-              d[i + 3] = 0; // Pure transparent
-            } else if (brightness > 175 && maxDiff < 35) {
-              // Smooth edge anti-aliasing
-              d[i + 3] = Math.round(((210 - brightness) / 35) * 255);
-            }
-          }
-          ctx.putImageData(imgData, 0, 0);
-        }
-      } catch (err) {
-        console.warn('Auto transparency check skipped:', err);
-      }
 
-      // Clean PNG data URL (preserves full alpha transparency)
-      let dataUrl = canvas.toDataURL('image/png');
-
-      if (type === 'leader') {
-        localStorage.setItem('ktp_leader_signature', dataUrl);
-        const imgEl = document.getElementById('leaderSigPreviewImg');
-        const plhEl = document.getElementById('leaderSigPlaceholder');
-        const clrBtn = document.getElementById('btnClearLeaderSig');
-        if (imgEl) { imgEl.src = dataUrl; imgEl.classList.remove('hidden'); }
-        if (plhEl) plhEl.classList.add('hidden');
-        if (clrBtn) clrBtn.classList.remove('hidden');
-        showToast('Branch Leader signature dah luh a ni ta! ID Card zawng zawngah a lang nghal ang.', 'success');
-      } else {
-        localStorage.setItem('ktp_secretary_signature', dataUrl);
-        const imgEl = document.getElementById('secSigPreviewImg');
-        const plhEl = document.getElementById('secSigPlaceholder');
-        const clrBtn = document.getElementById('btnClearSecSig');
-        if (imgEl) { imgEl.src = dataUrl; imgEl.classList.remove('hidden'); }
-        if (plhEl) plhEl.classList.add('hidden');
-        if (clrBtn) clrBtn.classList.remove('hidden');
-        showToast('Branch Secretary signature dah luh a ni ta! ID Card zawng zawngah a lang nghal ang.', 'success');
-      }
-
-      updateIdCardSignatures();
+        updateIdCardSignatures();
+      });
     };
     img.src = e.target.result;
   };
@@ -2977,46 +3004,4 @@ function clearSignature(type) {
     showToast('Branch Secretary signature paih a ni ta.', 'info');
   }
   updateIdCardSignatures();
-}
-
-function openNoticeModalWithPhoto() {
-  if (!isSecretaryLoggedIn) {
-    showToast('Secretary chauhvin Notice Flyer a upload thei.', 'error');
-    openSecretaryLoginModal();
-    return;
-  }
-  openNoticeModal();
-  setTimeout(() => {
-    const uploadBox = document.getElementById('noticePhotoUploadBox');
-    if (uploadBox) {
-      uploadBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, 200);
-}
-
-
-async function backgroundServerSync() {
-  try {
-    const [resM, resN] = await Promise.all([
-      fetch('/api/members').then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch('/api/notices').then(r => r.ok ? r.json() : null).catch(() => null)
-    ]);
-    let updated = false;
-    if (resM && resM.data && Array.isArray(resM.data) && resM.data.length > 0) {
-      members = resM.data;
-      saveToLocalStorage(members);
-      updated = true;
-    }
-    if (resN && resN.data && Array.isArray(resN.data) && resN.data.length > 0) {
-      notices = resN.data;
-      saveNoticesToLocalStorage(notices);
-      updated = true;
-    }
-    if (updated) {
-      renderMembers();
-      renderNotices();
-      updateStats();
-      if (window.lucide) lucide.createIcons();
-    }
-  } catch (e) {}
 }
