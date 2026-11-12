@@ -2061,7 +2061,7 @@ function viewMemberIdCard(id) {
   if (photoContainer) {
     if (member.photo) {
       photoContainer.innerHTML = `
-        <img src="${member.photo}" alt="${escapeHtml(member.name)}" class="w-16 h-20 rounded-xl object-cover border-2 border-white shadow-md bg-white" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
+        <img src="${member.photo}" alt="${escapeHtml(member.name)}" class="w-16 h-20 rounded-xl object-cover border-2 border-amber-400 shadow-md bg-white" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
         <div class="w-16 h-20 rounded-xl bg-gradient-to-br ${colorClass} text-white font-extrabold text-base flex items-center justify-center border-2 border-white shadow-md hidden">${initials}</div>
       `;
     } else {
@@ -2159,48 +2159,69 @@ function exportToExcel() {
 
   // 1. If SheetJS is loaded, output real native .xlsx with auto-fit column widths
   if (typeof XLSX !== 'undefined') {
-    const exportData = members.map((m, index) => {
+    // Array of Arrays for custom title rows
+    const wsData = [
+      ['Kristian Thalai Pawl'],
+      ['Armed Veng South Branch'],
+      [], // blank line
+      [
+        'Serial No.',
+        'Member ID',
+        'Member Name (Hming)',
+        'Nu / Pa Hming',
+        'Group',
+        'Gender',
+        'House No.',
+        'Upa Bial',
+        'Phone Number'
+      ]
+    ];
+
+    // Append member rows
+    members.forEach((m, index) => {
       const cleanPhone = (m.phone || '').replace(/\D/g, '');
       const formattedPhone = cleanPhone.length === 10
         ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
         : cleanPhone;
 
-      return {
-        '#': index + 1,
-        'Member ID': (m.id || `ktp-${index + 1}`).toUpperCase(),
-        'Member Name (Hming)': m.name || '',
-        'Nu / Pa Hming': m.parentsName || '',
-        'Group': m.group || 'Unassigned',
-        'Gender': m.gender || '',
-        'In No. (House No.)': m.houseNo || '',
-        'Upa Bial': m.upaBial || '',
-        'Phone Number': formattedPhone,
-        'Branch': 'Armed Veng South Branch',
-        'Bial': 'Armed Veng Bial'
-      };
+      wsData.push([
+        index + 1,
+        (m.id || `ktp-${index + 1}`).toUpperCase(),
+        m.name || '',
+        m.parentsName || '',
+        m.group || 'Unassigned',
+        m.gender || '',
+        m.houseNo || '',
+        m.upaBial || '',
+        formattedPhone
+      ]);
     });
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Merge Heading Across All 9 Columns
+    ws['!merges'] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, // Kristian Thalai Pawl
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } }  // Armed Veng South Branch
+    ];
 
     // Auto-fit column widths so NO manual editing is ever needed
     ws['!cols'] = [
-      { wch: 6 },   // #
-      { wch: 14 },  // Member ID
-      { wch: 28 },  // Member Name (Hming)
-      { wch: 26 },  // Nu / Pa Hming
-      { wch: 14 },  // Group
-      { wch: 12 },  // Gender
-      { wch: 18 },  // In No. (House No.)
-      { wch: 16 },  // Upa Bial
-      { wch: 18 },  // Phone Number
-      { wch: 26 },  // Branch
-      { wch: 18 }   // Bial
+      { wch: 12 }, // Serial No.
+      { wch: 15 }, // Member ID
+      { wch: 28 }, // Member Name (Hming)
+      { wch: 26 }, // Nu / Pa Hming
+      { wch: 15 }, // Group
+      { wch: 12 }, // Gender
+      { wch: 16 }, // House No.
+      { wch: 16 }, // Upa Bial
+      { wch: 18 }  // Phone Number
     ];
 
-    // Force Phone Number column (Col index 8) to string format so Excel never turns to 9.86E+09
+    // Force Phone Number column (Col index 8, rows >= 4) to string format so Excel never turns to 9.86E+09
     if (ws['!ref']) {
       const range = XLSX.utils.decode_range(ws['!ref']);
-      for (let R = range.s.r + 1; R <= range.e.r; ++R) {
+      for (let R = 4; R <= range.e.r; ++R) {
         const cellRef = XLSX.utils.encode_cell({ r: R, c: 8 });
         if (ws[cellRef]) {
           ws[cellRef].t = 's';
@@ -2208,15 +2229,15 @@ function exportToExcel() {
       }
     }
 
-    // Freeze header row
-    ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+    // Freeze header row at row 4
+    ws['!freeze'] = { xSplit: 0, ySplit: 4 };
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'KTP Members');
 
-    const fileName = `KTP_Armed_Veng_South_Members_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    const fileName = `Kristian_Thalai_Pawl_Armed_Veng_South_${new Date().toISOString().slice(0, 10)}.xlsx`;
     XLSX.writeFile(wb, fileName);
-    showToast(`Excel file auto-fixed fel fai takin a download ta e!`, 'success');
+    showToast('Excel file auto-fixed fel fai takin a download ta e!', 'success');
   } else {
     // 2. Fallback: Styled HTML/XML based .xls with proper mso-number-format
     exportToExcelHtmlFallback();
@@ -2230,7 +2251,9 @@ function exportToExcelHtmlFallback() {
       <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>KTP Members</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
       <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
       <style>
-        th { background-color: #9f1239; color: #ffffff; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px 14px; font-family: Calibri, sans-serif; font-size: 11pt; }
+        .title-row { font-size: 16pt; font-weight: bold; background-color: #be123c; color: #ffffff; text-align: center; height: 35px; }
+        .sub-row { font-size: 13pt; font-weight: bold; background-color: #9f1239; color: #ffffff; text-align: center; height: 28px; }
+        th { background-color: #f1f5f9; color: #0f172a; font-weight: bold; border: 1px solid #cbd5e1; padding: 8px 14px; font-family: Calibri, sans-serif; font-size: 11pt; }
         td { border: 1px solid #cbd5e1; padding: 6px 12px; font-family: Calibri, sans-serif; font-size: 11pt; }
         .text-cell { mso-number-format:"\\@"; }
       </style>
@@ -2239,22 +2262,33 @@ function exportToExcelHtmlFallback() {
       <table>
         <thead>
           <tr>
-            <th>#</th>
+            <th colspan="9" class="title-row">Kristian Thalai Pawl</th>
+          </tr>
+          <tr>
+            <th colspan="9" class="sub-row">Armed Veng South Branch</th>
+          </tr>
+          <tr><th colspan="9" style="background:#fff;border:none;height:10px;"></th></tr>
+          <tr>
+            <th>Serial No.</th>
             <th>Member ID</th>
             <th>Member Name (Hming)</th>
             <th>Nu / Pa Hming</th>
             <th>Group</th>
             <th>Gender</th>
-            <th>In No. (House No.)</th>
+            <th>House No.</th>
             <th>Upa Bial</th>
             <th>Phone Number</th>
-            <th>Branch</th>
           </tr>
         </thead>
         <tbody>
   `;
 
   members.forEach((m, idx) => {
+    const cleanPhone = (m.phone || '').replace(/\D/g, '');
+    const formattedPhone = cleanPhone.length === 10
+      ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
+      : cleanPhone;
+
     xml += `
       <tr>
         <td>${idx + 1}</td>
@@ -2265,8 +2299,7 @@ function exportToExcelHtmlFallback() {
         <td>${escapeHtml(m.gender || '')}</td>
         <td class="text-cell">${escapeHtml(m.houseNo || '')}</td>
         <td>${escapeHtml(m.upaBial || '')}</td>
-        <td class="text-cell">${escapeHtml(m.phone || '')}</td>
-        <td>Armed Veng South Branch</td>
+        <td class="text-cell">${formattedPhone}</td>
       </tr>
     `;
   });
@@ -2277,7 +2310,7 @@ function exportToExcelHtmlFallback() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `KTP_Armed_Veng_South_Members_${new Date().toISOString().slice(0, 10)}.xls`;
+  a.download = `Kristian_Thalai_Pawl_Armed_Veng_South_${new Date().toISOString().slice(0, 10)}.xls`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
