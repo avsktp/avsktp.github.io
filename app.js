@@ -609,11 +609,25 @@ async function handleSelfRegisterSubmit(e) {
     showToast('Khawngaihin i hming pum ziak rawh.', 'error');
     return;
   }
-
+  if (!parentsName) {
+    showToast('Khawngaihin Nu / Pa hming ziak rawh.', 'error');
+    return;
+  }
+  if (!gender) {
+    showToast('Khawngaihin Gender (Mipa/Hmeichhia) thlang rawh.', 'error');
+    return;
+  }
+  if (!houseNo) {
+    showToast('Khawngaihin In No. (House No.) ziak rawh.', 'error');
+    return;
+  }
+  if (!upaBial) {
+    showToast('Khawngaihin Upa Bial thlang rawh.', 'error');
+    return;
+  }
   if (phone.length === 12 && phone.startsWith('91')) {
     phone = phone.slice(2);
   }
-
   if (!phone || phone.length < 10) {
     showToast('Khawngaihin contact number dik (10 digits) chhu rawh.', 'error');
     return;
@@ -941,12 +955,10 @@ _"Rawngbawl tura chhandam" (Ephesi 2:10)_`;
 
 function openNoticeModal(id = null) {
   if (!isSecretaryLoggedIn) {
+    showToast('Secretary chauhvin Notice a siam / edit thei.', 'error');
     openSecretaryLoginModal();
     return;
   }
-
-  clearNoticePhoto();
-
   const modal = document.getElementById('noticeModal');
   const titleInput = document.getElementById('formNoticeTitle');
   const idInput = document.getElementById('formNoticeId');
@@ -1660,11 +1672,25 @@ async function handleSecretaryMemberSubmit(e) {
     showToast('Khawngaihin member hming ziak rawh.', 'error');
     return;
   }
-
+  if (!parentsName) {
+    showToast('Khawngaihin Nu / Pa hming ziak rawh.', 'error');
+    return;
+  }
+  if (!gender) {
+    showToast('Khawngaihin Gender (Mipa/Hmeichhia) thlang rawh.', 'error');
+    return;
+  }
+  if (!houseNo) {
+    showToast('Khawngaihin In No. (House No.) ziak rawh.', 'error');
+    return;
+  }
+  if (!upaBial) {
+    showToast('Khawngaihin Upa Bial thlang rawh.', 'error');
+    return;
+  }
   if (phone.length === 12 && phone.startsWith('91')) {
     phone = phone.slice(2);
   }
-
   if (!phone || phone.length < 10) {
     showToast('Contact number dik lo: 10 digits a tling tur a ni.', 'error');
     return;
@@ -2055,11 +2081,10 @@ function viewMemberIdCard(id) {
     : cleanPhone;
   if (phoneEl) phoneEl.textContent = formattedPhone || '-';
 
-  // Group config at the very last of the list
-  const groupCfg = GROUP_CONFIG[member.group] || GROUP_CONFIG['Unassigned'];
-  if (groupBadge) {
-    groupBadge.className = `inline-flex items-center px-1.5 py-0.2 rounded-full text-[8px] font-bold ${groupCfg.badgeClass}`;
-    groupBadge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full ${groupCfg.dotColor} mr-1"></span>${escapeHtml(member.group || 'Unassigned')}`;
+  // Group at last - uncolored like other fields
+  const groupEl = document.getElementById('idCardGroup');
+  if (groupEl) {
+    groupEl.textContent = member.group || '-';
   }
 
   // Photo
@@ -2207,9 +2232,9 @@ function printAllMemberCardsA4() {
       cardsHtml += `
         <div class="card-item" style="width: 6.7cm; height: 9.6cm; max-width: 6.7cm; max-height: 9.6cm; box-sizing: border-box; background: linear-gradient(150deg, #ffffff 0%, #fbfcfe 45%, #f6f8fb 100%); border: 1px dashed #cbd5e1; border-radius: 8px; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: space-between; page-break-inside: avoid; font-family: system-ui, -apple-system, sans-serif;">
           
-          <!-- Curved Header -->
-          <div style="position: relative; overflow: hidden; padding: 5px 6px 3px 6px; text-align: center; flex-shrink: 0;">
-            <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 250 80" preserveAspectRatio="none">
+          <!-- Curved Header - Centered & Lowered for Hole Punch Clearance -->
+          <div style="position: relative; overflow: hidden; padding: 14px 6px 3px 6px; text-align: center; flex-shrink: 0;">
+            <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 250 95" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="cwFill_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#ffffff"/>
@@ -2223,21 +2248,27 @@ function printAllMemberCardsA4() {
                   <stop offset="100%" stop-color="#b45309"/>
                 </linearGradient>
               </defs>
-              <path d="M0,0 L250,0 L250,56 C180,74 100,40 0,62 Z" fill="url(#cwFill_${globalIdx})"/>
-              <path d="M0,62 C100,40 180,74 250,56" stroke="url(#gcStroke_${globalIdx})" stroke-width="2" fill="none"/>
+              <path d="M0,0 L250,0 L250,68 C180,86 100,48 0,74 Z" fill="url(#cwFill_${globalIdx})"/>
+              <path d="M0,74 C100,48 180,86 250,68" stroke="url(#gcStroke_${globalIdx})" stroke-width="2" fill="none"/>
             </svg>
 
-            <div style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 5px;">
-              <img src="${ktpLogoBase64}" alt="Logo" style="width: 26px; height: 26px; object-fit: contain; flex-shrink: 0;">
-              <div style="text-align: left; line-height: 1;">
-                <div style="font-size: 6.5px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.4px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
-                <div style="font-size: 5.5px; font-style: italic; color: #64748b; font-weight: 500; margin-top: 1px;">(Presbyterian Church of India)</div>
-                <div style="font-size: 9px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-top: 1px;">KRISTIAN ṬHALAI PAWL</div>
-                <div style="font-size: 7.5px; font-weight: 800; color: #78350f; text-transform: uppercase;">Armed Veng South Branch</div>
+            <!-- Hole Punch Clearance Guide Slot -->
+            <div style="position: relative; z-index: 2; width: 100%; display: flex; justify-content: center; margin-bottom: 3px;">
+              <div style="width: 18px; height: 3px; border: 1px dashed #cbd5e1; border-radius: 9999px;"></div>
+            </div>
+
+            <!-- Fully Centered Logo & Heading -->
+            <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+              <img src="${ktpLogoBase64}" alt="Logo" style="width: 24px; height: 24px; object-fit: contain; margin-bottom: 2px;">
+              <div style="text-align: center; line-height: 1.1;">
+                <div style="font-size: 6.8px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.4px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
+                <div style="font-size: 5.5px; font-style: italic; color: #64748b; font-weight: 500; margin-top: 0.5px;">(Presbyterian Church of India)</div>
+                <div style="font-size: 9.5px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-top: 1px;">KRISTIAN ṬHALAI PAWL</div>
+                <div style="font-size: 8px; font-weight: 800; color: #78350f; text-transform: uppercase;">Armed Veng South Branch</div>
               </div>
             </div>
 
-            <!-- MEMBER CARD (BIGGER) -->
+            <!-- MEMBER CARD (BIGGER BADGE) -->
             <div style="margin-top: 3px; text-align: center; position: relative; z-index: 2;">
               <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 9999px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; background: rgba(255,255,255,0.95); border: 1px solid #fde047; color: #451a03;">
                 ★ MEMBER CARD
@@ -2261,56 +2292,53 @@ function printAllMemberCardsA4() {
               </div>
             </div>
 
-            <!-- Details List (GROUP AT LAST) -->
-            <div style="display: flex; flex-direction: column; gap: 1.5px; font-size: 7.5px; margin: 2px 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 1px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #f1f5f9;">
-                <span style="font-weight: 700; text-transform: uppercase; color: #64748b; font-size: 6.5px;">Nu / Pa Hming:</span>
-                <span style="font-weight: 800; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 125px;">${escapeHtml(m.parentsName || '-')}</span>
+            <!-- Personal Details List (GROUP IS AT LAST, UNCOLORED LIKE OTHER FIELDS) -->
+            <div style="display: flex; flex-direction: column; gap: 2px; margin: 3px 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
+                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Nu / Pa Hming:</span>
+                <span style="font-size: 8px; font-weight: 800; color: #1e293b; text-align: right; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(m.parentsName || '-')}</span>
               </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 1px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #f1f5f9;">
-                <span style="font-weight: 700; text-transform: uppercase; color: #64748b; font-size: 6.5px;">House No:</span>
-                <span style="font-family: monospace; font-weight: 800; color: #0f172a;">${escapeHtml(m.houseNo || '-')}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
+                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">House No:</span>
+                <span style="font-size: 8px; font-family: monospace; font-weight: 800; color: #0f172a; text-align: right;">${escapeHtml(m.houseNo || '-')}</span>
               </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 1px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #f1f5f9;">
-                <span style="font-weight: 700; text-transform: uppercase; color: #64748b; font-size: 6.5px;">Upa Bial:</span>
-                <span style="font-weight: 700; color: #1e293b;">${escapeHtml(m.upaBial || '-')}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
+                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Upa Bial:</span>
+                <span style="font-size: 8px; font-weight: 700; color: #334155; text-align: right;">${escapeHtml(m.upaBial || '-')}</span>
               </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 1px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #f1f5f9;">
-                <span style="font-weight: 700; text-transform: uppercase; color: #64748b; font-size: 6.5px;">Phone:</span>
-                <span style="font-family: monospace; font-weight: 800; color: #0f172a;">${formattedPhone || '-'}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
+                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Phone:</span>
+                <span style="font-size: 8px; font-family: monospace; font-weight: 800; color: #0f172a; text-align: right;">${formattedPhone || '-'}</span>
               </div>
-              <!-- GROUP AT LAST! -->
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 1px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #f1f5f9;">
-                <span style="font-weight: 700; text-transform: uppercase; color: #64748b; font-size: 6.5px;">Group:</span>
-                <span style="font-weight: 800; font-size: 7px;">${escapeHtml(m.group || 'Unassigned')}</span>
+              <!-- GROUP AT LAST - UNCOLORED LIKE OTHERS! -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
+                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Group:</span>
+                <span style="font-size: 8px; font-weight: 800; color: #1e293b; text-align: right;">${escapeHtml(m.group || '-')}</span>
               </div>
             </div>
 
             <!-- Motto -->
-            <div style="text-align: center; padding: 0.5px 0;">
-              <span style="font-size: 6.5px; font-style: italic; color: #475569; font-weight: 600;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
+            <div style="text-align: center; margin: 1px 0;">
+              <span style="font-size: 6.8px; font-style: italic; color: #475569; font-weight: 600;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
             </div>
 
-            <!-- Signatures (Leader on Left, Secretary on Right) -->
-            <div style="padding-top: 2px; border-top: 1px solid #e2e8f0; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; text-align: center;">
+            <!-- Signatures: LEADER ON LEFT, SECRETARY ON RIGHT -->
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 2px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center;">
               <div style="display: flex; flex-direction: column; align-items: center;">
-                <div style="height: 18px; width: 100%; display: flex; align-items: center; justify-content: center;">
+                <div style="height: 20px; display: flex; align-items: center; justify-content: center;">
                   ${leaderSigImg}
                 </div>
-                <div style="font-size: 6px; font-weight: 900; color: #0f172a; text-transform: uppercase; line-height: 1;">( LALHRUAITLUANGA )</div>
-                <div style="font-size: 5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Branch Leader</div>
+                <span style="font-size: 6.8px; font-weight: 800; color: #475569; text-transform: uppercase; margin-top: 1px;">Branch Leader</span>
               </div>
               <div style="display: flex; flex-direction: column; align-items: center;">
-                <div style="height: 18px; width: 100%; display: flex; align-items: center; justify-content: center;">
+                <div style="height: 20px; display: flex; align-items: center; justify-content: center;">
                   ${secSigImg}
                 </div>
-                <div style="font-size: 6px; font-weight: 900; color: #0f172a; text-transform: uppercase; line-height: 1;">( C. LALRINSANGA )</div>
-                <div style="font-size: 5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Branch Secretary</div>
+                <span style="font-size: 6.8px; font-weight: 800; color: #475569; text-transform: uppercase; margin-top: 1px;">Branch Secretary</span>
               </div>
             </div>
 
           </div>
-
         </div>
       `;
     });
@@ -2846,7 +2874,7 @@ function clearSignature(type) {
 
 function openNoticeModalWithPhoto() {
   if (!isSecretaryLoggedIn) {
-    showToast('Notice Flyer / Photo upload turin Secretary Login a ngai.', 'info');
+    showToast('Secretary chauhvin Notice Flyer a upload thei.', 'error');
     openSecretaryLoginModal();
     return;
   }
