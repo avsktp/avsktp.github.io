@@ -2233,11 +2233,11 @@ function printAllMemberCardsA4() {
   const secSig = getSecretarySignature();
 
   const leaderSigImg = leaderSig
-    ? `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain;">`
+    ? `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply;">`
     : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
 
   const secSigImg = secSig
-    ? `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain;">`
+    ? `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply;">`
     : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
 
   // HORIZONTAL / LANDSCAPE A4: 2 ROWS x 4 COLUMNS = 8 CARDS PER PAGE
@@ -2796,7 +2796,7 @@ function updateIdCardSignatures() {
 
   if (leaderArea) {
     if (leaderSig) {
-      leaderArea.innerHTML = `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain;">`;
+      leaderArea.innerHTML = `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply;">`;
     } else {
       leaderArea.innerHTML = `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
     }
@@ -2804,7 +2804,7 @@ function updateIdCardSignatures() {
 
   if (secArea) {
     if (secSig) {
-      secArea.innerHTML = `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain;">`;
+      secArea.innerHTML = `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply;">`;
     } else {
       secArea.innerHTML = `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
     }
@@ -2895,7 +2895,37 @@ function handleSignatureUpload(event, type) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
 
-      // Clean WebP / PNG data URL
+      // Auto-remove paper/white background if uploaded image is not already transparent
+      try {
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const d = imgData.data;
+        let hasAlpha = false;
+        for (let i = 3; i < d.length; i += 4) {
+          if (d[i] < 240) {
+            hasAlpha = true;
+            break;
+          }
+        }
+        if (!hasAlpha) {
+          // Detect solid white / off-white paper background and make it 100% transparent
+          for (let i = 0; i < d.length; i += 4) {
+            const r = d[i], g = d[i + 1], b = d[i + 2];
+            const brightness = (r + g + b) / 3;
+            const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
+            if (brightness > 210 && maxDiff < 30) {
+              d[i + 3] = 0; // Pure transparent
+            } else if (brightness > 175 && maxDiff < 35) {
+              // Smooth edge anti-aliasing
+              d[i + 3] = Math.round(((210 - brightness) / 35) * 255);
+            }
+          }
+          ctx.putImageData(imgData, 0, 0);
+        }
+      } catch (err) {
+        console.warn('Auto transparency check skipped:', err);
+      }
+
+      // Clean PNG data URL (preserves full alpha transparency)
       let dataUrl = canvas.toDataURL('image/png');
 
       if (type === 'leader') {
