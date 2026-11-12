@@ -2092,12 +2092,12 @@ function viewMemberIdCard(id) {
   if (photoContainer) {
     if (member.photo) {
       photoContainer.innerHTML = `
-        <img src="${member.photo}" alt="${escapeHtml(member.name)}" class="w-10 h-12 rounded-lg object-cover border border-amber-400 shadow-2xs bg-white" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
-        <div class="w-10 h-12 rounded-lg bg-gradient-to-br ${colorClass} text-white font-extrabold text-xs flex items-center justify-center border border-white shadow-2xs hidden">${initials}</div>
+        <img src="${member.photo}" alt="${escapeHtml(member.name)}" style="width: 52px; height: 65px; border-radius: 6px; object-fit: cover; border: 1.5px solid #000000; background: #fff;" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
+        <div style="width: 52px; height: 65px; border-radius: 6px; background: #334155; color: #fff; font-weight: 900; font-size: 14px; display: none; align-items: center; justify-content: center; border: 1.5px solid #000000;">${initials}</div>
       `;
     } else {
       photoContainer.innerHTML = `
-        <div class="w-10 h-12 rounded-lg bg-gradient-to-br ${colorClass} text-white font-extrabold text-xs flex items-center justify-center border border-white shadow-2xs">${initials}</div>
+        <div style="width: 52px; height: 65px; border-radius: 6px; background: #1e293b; color: #fff; font-weight: 900; font-size: 14px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000000;">${initials}</div>
       `;
     }
   }
@@ -2198,14 +2198,15 @@ function printAllMemberCardsA4() {
   const secSig = getSecretarySignature();
 
   const leaderSigImg = leaderSig
-    ? `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 20px; max-width: 80px; object-fit: contain;">`
-    : `<div style="border-bottom: 1px dashed #cbd5e1; width: 55px; height: 12px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 6px; color: #94a3b8; font-style: italic;">Signature</span></div>`;
+    ? `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 22px; max-width: 80px; object-fit: contain;">`
+    : `<div style="border-bottom: 1px dashed #000000; width: 60px; height: 14px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 6.5px; color: #000000; font-style: italic;">Signature</span></div>`;
 
   const secSigImg = secSig
-    ? `<img src="${secSig}" alt="Secretary Signature" style="max-height: 20px; max-width: 80px; object-fit: contain;">`
-    : `<div style="border-bottom: 1px dashed #cbd5e1; width: 55px; height: 12px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 6px; color: #94a3b8; font-style: italic;">Signature</span></div>`;
+    ? `<img src="${secSig}" alt="Secretary Signature" style="max-height: 22px; max-width: 80px; object-fit: contain;">`
+    : `<div style="border-bottom: 1px dashed #000000; width: 60px; height: 14px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 6.5px; color: #000000; font-style: italic;">Signature</span></div>`;
 
-  const cardsPerPage = 9;
+  // HORIZONTAL / LANDSCAPE A4: 2 ROWS x 4 COLUMNS = 8 CARDS PER PAGE
+  const cardsPerPage = 8;
   const totalPages = Math.ceil(members.length / cardsPerPage);
 
   let pagesHtml = '';
@@ -2224,117 +2225,101 @@ function printAllMemberCardsA4() {
 
       const { initials } = getAvatarData(m.name);
 
+      // LARGER PHOTO (52px wide x 65px high)
       const photoHtml = m.photo
-        ? `<img src="${m.photo}" alt="${escapeHtml(m.name)}" style="width: 36px; height: 44px; border-radius: 6px; object-fit: cover; border: 1px solid #f59e0b; background: #fff;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-           <div style="width: 36px; height: 44px; border-radius: 6px; background: #94a3b8; color: #fff; font-weight: 800; font-size: 11px; display: none; align-items: center; justify-content: center;">${initials}</div>`
-        : `<div style="width: 36px; height: 44px; border-radius: 6px; background: #64748b; color: #fff; font-weight: 800; font-size: 11px; display: flex; align-items: center; justify-content: center;">${initials}</div>`;
+        ? `<img src="${m.photo}" alt="${escapeHtml(m.name)}" style="width: 52px; height: 65px; border-radius: 6px; object-fit: cover; border: 1.5px solid #000000; background: #fff;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+           <div style="width: 52px; height: 65px; border-radius: 6px; background: #1e293b; color: #fff; font-weight: 900; font-size: 14px; display: none; align-items: center; justify-content: center; border: 1.5px solid #000000;">${initials}</div>`
+        : `<div style="width: 52px; height: 65px; border-radius: 6px; background: #0f172a; color: #fff; font-weight: 900; font-size: 14px; display: flex; align-items: center; justify-content: center; border: 1.5px solid #000000;">${initials}</div>`;
 
       cardsHtml += `
-        <div class="card-item" style="width: 6.7cm; height: 9.6cm; max-width: 6.7cm; max-height: 9.6cm; box-sizing: border-box; background: linear-gradient(150deg, #ffffff 0%, #fbfcfe 45%, #f6f8fb 100%); border: 1px dashed #cbd5e1; border-radius: 8px; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: space-between; page-break-inside: avoid; font-family: system-ui, -apple-system, sans-serif;">
+        <div class="card-item" style="width: 6.7cm; height: 9.6cm; max-width: 6.7cm; max-height: 9.6cm; box-sizing: border-box; background: #ffffff; color: #000000; border: 1px dashed #64748b; border-radius: 6px; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: space-between; page-break-inside: avoid; font-family: system-ui, -apple-system, sans-serif;">
           
-          <!-- Curved Header - Centered & Lowered for Hole Punch Clearance -->
-          <div style="position: relative; overflow: hidden; padding: 14px 6px 3px 6px; text-align: center; flex-shrink: 0;">
-            <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 250 95" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="cwFill_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#ffffff"/>
-                  <stop offset="60%" stop-color="#f8fafc"/>
-                  <stop offset="100%" stop-color="#f1f5f9"/>
-                </linearGradient>
-                <linearGradient id="gcStroke_${globalIdx}" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#d97706"/>
-                  <stop offset="35%" stop-color="#f59e0b"/>
-                  <stop offset="70%" stop-color="#fbbf24"/>
-                  <stop offset="100%" stop-color="#b45309"/>
-                </linearGradient>
-              </defs>
-              <path d="M0,0 L250,0 L250,68 C180,86 100,48 0,74 Z" fill="url(#cwFill_${globalIdx})"/>
-              <path d="M0,74 C100,48 180,86 250,68" stroke="url(#gcStroke_${globalIdx})" stroke-width="2" fill="none"/>
-            </svg>
-
-            <!-- Hole Punch Clearance Guide Slot -->
-            <div style="position: relative; z-index: 2; width: 100%; display: flex; justify-content: center; margin-bottom: 3px;">
-              <div style="width: 18px; height: 3px; border: 1px dashed #cbd5e1; border-radius: 9999px;"></div>
+          <!-- Curved Header with 1CM CLEARANCE FOR HOLE PUNCH -->
+          <div style="position: relative; overflow: hidden; padding: 10mm 6px 3px 6px; text-align: center; flex-shrink: 0; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);">
+            
+            <!-- Hole Punch Guideline Slot in top 1cm zone -->
+            <div style="position: absolute; top: 2.5mm; left: 0; right: 0; display: flex; justify-content: center;">
+              <div style="width: 18px; height: 3.5px; border: 1px dashed #94a3b8; border-radius: 9999px;"></div>
             </div>
 
-            <!-- Fully Centered Logo & Heading -->
+            <!-- Fully Centered Logo & Heading (ALL WORDS SOLID BLACK) -->
             <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-              <img src="${ktpLogoBase64}" alt="Logo" style="width: 24px; height: 24px; object-fit: contain; margin-bottom: 2px;">
-              <div style="text-align: center; line-height: 1.1;">
-                <div style="font-size: 6.8px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.4px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
-                <div style="font-size: 5.5px; font-style: italic; color: #64748b; font-weight: 500; margin-top: 0.5px;">(Presbyterian Church of India)</div>
-                <div style="font-size: 9.5px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-top: 1px;">KRISTIAN ṬHALAI PAWL</div>
-                <div style="font-size: 8px; font-weight: 800; color: #78350f; text-transform: uppercase;">Armed Veng South Branch</div>
+              <img src="${ktpLogoBase64}" alt="Logo" style="width: 26px; height: 26px; object-fit: contain; margin-bottom: 2px;">
+              <div style="text-align: center; line-height: 1.15; color: #000000;">
+                <div style="font-size: 7.2px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.4px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
+                <div style="font-size: 5.8px; font-style: italic; color: #000000; font-weight: 600; margin-top: 0.5px;">(Presbyterian Church of India)</div>
+                <div style="font-size: 10.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px; letter-spacing: 0.2px;">KRISTIAN ṬHALAI PAWL</div>
+                <div style="font-size: 8.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 0.5px;">Armed Veng South Branch</div>
               </div>
             </div>
 
-            <!-- MEMBER CARD (BIGGER BADGE) -->
+            <!-- MEMBER CARD (BIGGER BADGE - SOLID BLACK) -->
             <div style="margin-top: 3px; text-align: center; position: relative; z-index: 2;">
-              <span style="display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 9999px; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; background: rgba(255,255,255,0.95); border: 1px solid #fde047; color: #451a03;">
+              <span style="display: inline-flex; align-items: center; gap: 3px; padding: 2px 10px; border-radius: 9999px; font-size: 9.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; background: #ffffff; border: 1.5px solid #000000; color: #000000;">
                 ★ MEMBER CARD
               </span>
             </div>
           </div>
 
-          <!-- Card Body -->
-          <div style="padding: 0 7px 5px 7px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; position: relative; background: rgba(255,255,255,0.92);">
+          <!-- Card Body with Subtle Watermark -->
+          <div style="padding: 0 7px 4px 7px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; position: relative; background: #ffffff; color: #000000;">
             
-            <!-- Photo + Name + Card No (No group here) -->
-            <div style="display: flex; align-items: center; gap: 5px; padding-bottom: 2px; border-bottom: 1px solid #f1f5f9;">
+            <!-- Photo (LARGER: 52px x 65px) + Name + Card No -->
+            <div style="display: flex; align-items: center; gap: 6px; padding-bottom: 2px; border-bottom: 1px solid #cbd5e1;">
               <div style="flex-shrink: 0;">
                 ${photoHtml}
               </div>
-              <div style="min-width: 0; flex: 1; line-height: 1.1;">
-                <div style="font-size: 10px; font-weight: 900; color: #0f172a; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(m.name || '-')}</div>
-                <div style="display: inline-block; padding: 1px 4px; border-radius: 3px; font-family: monospace; font-size: 8px; font-weight: 800; background: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; margin-top: 2px;">
+              <div style="min-width: 0; flex: 1; line-height: 1.15; text-align: left;">
+                <div style="font-size: 11px; font-weight: 900; color: #000000; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(m.name || '-')}</div>
+                <div style="display: inline-block; padding: 1.5px 5px; border-radius: 3px; font-family: monospace; font-size: 8.5px; font-weight: 900; background: #f1f5f9; color: #000000; border: 1px solid #94a3b8; margin-top: 2px;">
                   ${cardNo}
                 </div>
               </div>
             </div>
 
-            <!-- Personal Details List (GROUP IS AT LAST, UNCOLORED LIKE OTHER FIELDS) -->
-            <div style="display: flex; flex-direction: column; gap: 2px; margin: 3px 0;">
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
-                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Nu / Pa Hming:</span>
-                <span style="font-size: 8px; font-weight: 800; color: #1e293b; text-align: right; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(m.parentsName || '-')}</span>
+            <!-- Personal Details List (ALL WORDS SOLID BLACK) -->
+            <div style="display: flex; flex-direction: column; gap: 2px; margin: 2px 0; color: #000000;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                <span style="font-size: 7.5px; font-weight: 800; color: #000000; text-transform: uppercase;">Nu / Pa Hming:</span>
+                <span style="font-size: 8.2px; font-weight: 800; color: #000000; text-align: right; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(m.parentsName || '-')}</span>
               </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
-                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">House No:</span>
-                <span style="font-size: 8px; font-family: monospace; font-weight: 800; color: #0f172a; text-align: right;">${escapeHtml(m.houseNo || '-')}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                <span style="font-size: 7.5px; font-weight: 800; color: #000000; text-transform: uppercase;">House No:</span>
+                <span style="font-size: 8.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(m.houseNo || '-')}</span>
               </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
-                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Upa Bial:</span>
-                <span style="font-size: 8px; font-weight: 700; color: #334155; text-align: right;">${escapeHtml(m.upaBial || '-')}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                <span style="font-size: 7.5px; font-weight: 800; color: #000000; text-transform: uppercase;">Upa Bial:</span>
+                <span style="font-size: 8.2px; font-weight: 800; color: #000000; text-align: right;">${escapeHtml(m.upaBial || '-')}</span>
               </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
-                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Phone:</span>
-                <span style="font-size: 8px; font-family: monospace; font-weight: 800; color: #0f172a; text-align: right;">${formattedPhone || '-'}</span>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                <span style="font-size: 7.5px; font-weight: 800; color: #000000; text-transform: uppercase;">Phone:</span>
+                <span style="font-size: 8.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${formattedPhone || '-'}</span>
               </div>
-              <!-- GROUP AT LAST - UNCOLORED LIKE OTHERS! -->
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: rgba(248,250,252,0.9); border: 1px solid #f1f5f9;">
-                <span style="font-size: 7.5px; font-weight: 700; color: #64748b; text-transform: uppercase;">Group:</span>
-                <span style="font-size: 8px; font-weight: 800; color: #1e293b; text-align: right;">${escapeHtml(m.group || '-')}</span>
+              <!-- GROUP AT LAST - UNCOLORED SOLID BLACK -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.5px 4px; border-radius: 3px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                <span style="font-size: 7.5px; font-weight: 800; color: #000000; text-transform: uppercase;">Group:</span>
+                <span style="font-size: 8.2px; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(m.group || '-')}</span>
               </div>
             </div>
 
-            <!-- Motto -->
+            <!-- Motto (SOLID BLACK) -->
             <div style="text-align: center; margin: 1px 0;">
-              <span style="font-size: 6.8px; font-style: italic; color: #475569; font-weight: 600;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
+              <span style="font-size: 7px; font-style: italic; color: #000000; font-weight: 700;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
             </div>
 
-            <!-- Signatures: LEADER ON LEFT, SECRETARY ON RIGHT -->
-            <div style="border-top: 1px solid #e2e8f0; padding-top: 2px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center;">
+            <!-- Signatures: LEADER ON LEFT, SECRETARY ON RIGHT (SOLID BLACK) -->
+            <div style="border-top: 1px solid #000000; padding-top: 2px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; color: #000000;">
               <div style="display: flex; flex-direction: column; align-items: center;">
                 <div style="height: 20px; display: flex; align-items: center; justify-content: center;">
                   ${leaderSigImg}
                 </div>
-                <span style="font-size: 6.8px; font-weight: 800; color: #475569; text-transform: uppercase; margin-top: 1px;">Branch Leader</span>
+                <span style="font-size: 7px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">Branch Leader</span>
               </div>
               <div style="display: flex; flex-direction: column; align-items: center;">
                 <div style="height: 20px; display: flex; align-items: center; justify-content: center;">
                   ${secSigImg}
                 </div>
-                <span style="font-size: 6.8px; font-weight: 800; color: #475569; text-transform: uppercase; margin-top: 1px;">Branch Secretary</span>
+                <span style="font-size: 7px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">Branch Secretary</span>
               </div>
             </div>
 
@@ -2343,102 +2328,54 @@ function printAllMemberCardsA4() {
       `;
     });
 
+    // Page Wrapper: A4 Landscape (297mm x 210mm) holding 4 columns x 2 rows = 8 cards
     pagesHtml += `
-      <div class="a4-page" style="width: 210mm; min-height: 297mm; max-height: 297mm; box-sizing: border-box; padding: 4.5mm; margin: 15px auto; background: #ffffff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); page-break-after: always; display: grid; grid-template-columns: repeat(3, 6.7cm); grid-template-rows: repeat(3, 9.6cm); justify-content: center; align-content: center; gap: 2.5mm;">
+      <div class="a4-page" style="width: 277mm; height: 196mm; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 6.7cm); grid-template-rows: repeat(2, 9.6cm); gap: 2.5mm 3mm; justify-content: center; align-content: center; page-break-after: always; box-sizing: border-box;">
         ${cardsHtml}
       </div>
     `;
   }
 
-  const printWin = window.open('', '_blank', 'width=1000,height=900');
+  const printWin = window.open('', '_blank');
   printWin.document.write(`
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>KTP Member Cards - A4 Print (${members.length} Cards)</title>
+      <title>KTP Member Cards - A4 Landscape Batch Print (8 Cards Per Page)</title>
       <style>
         @page {
-          size: A4 portrait;
-          margin: 4.5mm;
+          size: A4 landscape;
+          margin: 6mm 10mm;
         }
-        * { box-sizing: border-box; }
+        * {
+          box-sizing: border-box;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
         body {
           margin: 0;
           padding: 0;
-          background: #f1f5f9;
+          background: #ffffff;
           font-family: system-ui, -apple-system, sans-serif;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
+          color: #000000;
         }
-        .top-action-bar {
-          position: sticky;
-          top: 0;
-          z-index: 999;
-          background: #0f172a;
-          color: #fff;
-          padding: 12px 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        .a4-page {
+          page-break-after: always;
         }
-        .btn-print {
-          background: #2563eb;
-          color: #fff;
-          border: none;
-          padding: 8px 18px;
-          border-radius: 8px;
-          font-weight: 700;
-          font-size: 13px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 6px;
+        .a4-page:last-child {
+          page-break-after: auto;
         }
-        .btn-print:hover { background: #1d4ed8; }
-        .btn-close {
-          background: #334155;
-          color: #fff;
-          border: none;
-          padding: 8px 14px;
-          border-radius: 8px;
-          font-size: 12px;
-          cursor: pointer;
-        }
-        @media print {
-          body { background: #fff !important; }
-          .no-print { display: none !important; }
-          .a4-page {
-            box-shadow: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            page-break-after: always !important;
-          }
+        .card-item {
+          page-break-inside: avoid;
         }
       </style>
     </head>
     <body>
-      <div class="top-action-bar no-print">
-        <div>
-          <div style="font-weight: 800; font-size: 14px;">MIZORAM PRESBYTERIAN KOHHRAN - Member Cards (A4 Auto-Fix)</div>
-          <div style="font-size: 11.5px; color: #94a3b8;">Card Size: <strong>6.7 cm × 9.6 cm</strong> • Total: <strong>${members.length} Members</strong> • Layout: <strong>9 Cards per A4 Sheet</strong></div>
-        </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <button class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF (A4)</button>
-          <button class="btn-close" onclick="window.close()">✕ Close</button>
-        </div>
-      </div>
-
       ${pagesHtml}
-
       <script>
         window.onload = function() {
-          setTimeout(function() {
-            window.print();
-          }, 600);
+          window.print();
         };
       </script>
     </body>
