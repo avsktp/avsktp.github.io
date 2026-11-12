@@ -53,10 +53,10 @@ const DEFAULT_MEMBERS = [
   { id: "ktp-022", name: "H. Lalduhsaka", group: "Sadrak", phone: "9862541092", gender: "Mipa", houseNo: "H-33", upaBial: "Upa Bial 5", photo: "" },
   { id: "ktp-023", name: "Angela Lalhmangaihi", group: "Mesak", phone: "9436892014", gender: "Hmeichhia", houseNo: "A-02", upaBial: "Upa Bial 1", photo: "" },
   { id: "ktp-024", name: "Ruth Lalthazuali", group: "Abednego", phone: "8794382910", gender: "Hmeichhia", houseNo: "H-48", upaBial: "Upa Bial 2", photo: "" },
-  { id: "ktp-025", name: "T. Malsawmtluanga", group: "Sadrak", phone: "7085491028", gender: "Mipa", houseNo: "H-71", upaBial: "Upa Bial 6", photo: "" },
-  { id: "ktp-026", name: "Esther Lalrempuii", group: "Mesak", phone: "9862890123", gender: "Hmeichhia", houseNo: "B-35", upaBial: "Upa Bial 4", photo: "" },
-  { id: "ktp-027", name: "PC Lalhlimpuii", group: "Abednego", phone: "9436781290", gender: "Hmeichhia", houseNo: "A-20", upaBial: "Upa Bial 3", photo: "" },
-  { id: "ktp-028", name: "K. Lalrinpuii", group: "Sadrak", phone: "8794901827", gender: "Hmeichhia", houseNo: "H-10", upaBial: "Upa Bial 5", photo: "" }
+  { id: "ktp-025", name: "T. Malsawmtluanga", group: "Sadrak", phone: "7085491028", gender: "Mipa", houseNo: "H-71", upaBial: "Upa Bial 7", photo: "" },
+  { id: "ktp-026", name: "Esther Lalrempuii", group: "Mesak", phone: "9862890123", gender: "Hmeichhia", houseNo: "B-35", upaBial: "Upa Bial 8", photo: "" },
+  { id: "ktp-027", name: "PC Lalhlimpuii", group: "Abednego", phone: "9436781290", gender: "Hmeichhia", houseNo: "A-20", upaBial: "Upa Bial 9", photo: "" },
+  { id: "ktp-028", name: "K. Lalrinpuii", group: "Sadrak", phone: "8794901827", gender: "Hmeichhia", houseNo: "H-10", upaBial: "Upa Bial 10", photo: "" }
 ];
 
 // Built-in Seed Notices for Armed Veng South Branch Notice Board
