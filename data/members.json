@@ -1,0 +1,282 @@
+[
+  {
+    "id": "ktp-001",
+    "name": "Lalhruaitluanga",
+    "group": "Sadrak",
+    "phone": "9862345120",
+    "gender": "Mipa",
+    "houseNo": "H-14",
+    "upaBial": "Upa Bial 1",
+    "photo": ""
+  },
+  {
+    "id": "ktp-002",
+    "name": "Vanlalpeka Sailo",
+    "group": "Mesak",
+    "phone": "9436152084",
+    "gender": "Mipa",
+    "houseNo": "H-28",
+    "upaBial": "Upa Bial 2",
+    "photo": ""
+  },
+  {
+    "id": "ktp-003",
+    "name": "C. Lalrinsanga",
+    "group": "Abednego",
+    "phone": "8794102938",
+    "gender": "Mipa",
+    "houseNo": "A-05",
+    "upaBial": "Upa Bial 3",
+    "photo": ""
+  },
+  {
+    "id": "ktp-004",
+    "name": "Lalnunmawii",
+    "group": "Sadrak",
+    "phone": "9862981240",
+    "gender": "Hmeichhia",
+    "houseNo": "H-42",
+    "upaBial": "Upa Bial 1",
+    "photo": ""
+  },
+  {
+    "id": "ktp-005",
+    "name": "R. Lalrintluangi",
+    "group": "Mesak",
+    "phone": "7085129481",
+    "gender": "Hmeichhia",
+    "houseNo": "B-19",
+    "upaBial": "Upa Bial 4",
+    "photo": ""
+  },
+  {
+    "id": "ktp-006",
+    "name": "H. Malsawmtluanga",
+    "group": "Abednego",
+    "phone": "8974561230",
+    "gender": "Mipa",
+    "houseNo": "H-63",
+    "upaBial": "Upa Bial 2",
+    "photo": ""
+  },
+  {
+    "id": "ktp-007",
+    "name": "Zodinpuia",
+    "group": "Sadrak",
+    "phone": "9862145890",
+    "gender": "Mipa",
+    "houseNo": "H-09",
+    "upaBial": "Upa Bial 5",
+    "photo": ""
+  },
+  {
+    "id": "ktp-008",
+    "name": "C. Vanlalruati",
+    "group": "Mesak",
+    "phone": "9436378291",
+    "gender": "Hmeichhia",
+    "houseNo": "A-31",
+    "upaBial": "Upa Bial 3",
+    "photo": ""
+  },
+  {
+    "id": "ktp-009",
+    "name": "Samuel Lalhmingmawia",
+    "group": "Abednego",
+    "phone": "8794827103",
+    "gender": "Mipa",
+    "houseNo": "H-77",
+    "upaBial": "Upa Bial 6",
+    "photo": ""
+  },
+  {
+    "id": "ktp-010",
+    "name": "Deborah Malsawmdawngi",
+    "group": "Sadrak",
+    "phone": "7085938102",
+    "gender": "Hmeichhia",
+    "houseNo": "H-22",
+    "upaBial": "Upa Bial 1",
+    "photo": ""
+  },
+  {
+    "id": "ktp-011",
+    "name": "Lalremruata",
+    "group": "Mesak",
+    "phone": "9862789401",
+    "gender": "Mipa",
+    "houseNo": "B-04",
+    "upaBial": "Upa Bial 4",
+    "photo": ""
+  },
+  {
+    "id": "ktp-012",
+    "name": "Jerry Lalbiaknunga",
+    "group": "Abednego",
+    "phone": "9774123890",
+    "gender": "Mipa",
+    "houseNo": "H-51",
+    "upaBial": "Upa Bial 2",
+    "photo": ""
+  },
+  {
+    "id": "ktp-013",
+    "name": "Melody Lalramchuani",
+    "group": "Sadrak",
+    "phone": "9436192847",
+    "gender": "Hmeichhia",
+    "houseNo": "A-18",
+    "upaBial": "Upa Bial 3",
+    "photo": ""
+  },
+  {
+    "id": "ktp-014",
+    "name": "F. Lalawmpuia",
+    "group": "Mesak",
+    "phone": "8794617283",
+    "gender": "Mipa",
+    "houseNo": "H-39",
+    "upaBial": "Upa Bial 5",
+    "photo": ""
+  },
+  {
+    "id": "ktp-015",
+    "name": "Jenny Zothanpuii",
+    "group": "Abednego",
+    "phone": "7085348291",
+    "gender": "Hmeichhia",
+    "houseNo": "H-84",
+    "upaBial": "Upa Bial 6",
+    "photo": ""
+  },
+  {
+    "id": "ktp-016",
+    "name": "K. Lalmuanpuia",
+    "group": "Sadrak",
+    "phone": "9862451928",
+    "gender": "Mipa",
+    "houseNo": "B-27",
+    "upaBial": "Upa Bial 4",
+    "photo": ""
+  },
+  {
+    "id": "ktp-017",
+    "name": "David Laltanpuia",
+    "group": "Mesak",
+    "phone": "9436284710",
+    "gender": "Mipa",
+    "houseNo": "H-16",
+    "upaBial": "Upa Bial 1",
+    "photo": ""
+  },
+  {
+    "id": "ktp-018",
+    "name": "Lalhminghlui",
+    "group": "Abednego",
+    "phone": "8794209182",
+    "gender": "Hmeichhia",
+    "houseNo": "A-44",
+    "upaBial": "Upa Bial 3",
+    "photo": ""
+  },
+  {
+    "id": "ktp-019",
+    "name": "R. Lalpekhlua",
+    "group": "Sadrak",
+    "phone": "9862671930",
+    "gender": "Mipa",
+    "houseNo": "H-60",
+    "upaBial": "Upa Bial 2",
+    "photo": ""
+  },
+  {
+    "id": "ktp-020",
+    "name": "Mary Lalhriatpuii",
+    "group": "Mesak",
+    "phone": "7085781920",
+    "gender": "Hmeichhia",
+    "houseNo": "H-93",
+    "upaBial": "Upa Bial 6",
+    "photo": ""
+  },
+  {
+    "id": "ktp-021",
+    "name": "Benjamin Lalrintluanga",
+    "group": "Abednego",
+    "phone": "9774650192",
+    "gender": "Mipa",
+    "houseNo": "B-11",
+    "upaBial": "Upa Bial 4",
+    "photo": ""
+  },
+  {
+    "id": "ktp-022",
+    "name": "H. Lalduhsaka",
+    "group": "Sadrak",
+    "phone": "9862541092",
+    "gender": "Mipa",
+    "houseNo": "H-33",
+    "upaBial": "Upa Bial 5",
+    "photo": ""
+  },
+  {
+    "id": "ktp-023",
+    "name": "Angela Lalhmangaihi",
+    "group": "Mesak",
+    "phone": "9436892014",
+    "gender": "Hmeichhia",
+    "houseNo": "A-02",
+    "upaBial": "Upa Bial 1",
+    "photo": ""
+  },
+  {
+    "id": "ktp-024",
+    "name": "Ruth Lalthazuali",
+    "group": "Abednego",
+    "phone": "8794382910",
+    "gender": "Hmeichhia",
+    "houseNo": "H-48",
+    "upaBial": "Upa Bial 2",
+    "photo": ""
+  },
+  {
+    "id": "ktp-025",
+    "name": "T. Malsawmtluanga",
+    "group": "Sadrak",
+    "phone": "7085491028",
+    "gender": "Mipa",
+    "houseNo": "H-71",
+    "upaBial": "Upa Bial 6",
+    "photo": ""
+  },
+  {
+    "id": "ktp-026",
+    "name": "Esther Lalrempuii",
+    "group": "Mesak",
+    "phone": "9862890123",
+    "gender": "Hmeichhia",
+    "houseNo": "B-35",
+    "upaBial": "Upa Bial 4",
+    "photo": ""
+  },
+  {
+    "id": "ktp-027",
+    "name": "PC Lalhlimpuii",
+    "group": "Abednego",
+    "phone": "9436781290",
+    "gender": "Hmeichhia",
+    "houseNo": "A-20",
+    "upaBial": "Upa Bial 3",
+    "photo": ""
+  },
+  {
+    "id": "ktp-028",
+    "name": "K. Lalrinpuii",
+    "group": "Sadrak",
+    "phone": "8794901827",
+    "gender": "Hmeichhia",
+    "houseNo": "H-10",
+    "upaBial": "Upa Bial 5",
+    "photo": ""
+  }
+]
