@@ -245,6 +245,7 @@ function openSecretaryLoginModal() {
   const input = document.getElementById('secretaryPasswordInput');
   if (input) input.value = '';
   const modal = document.getElementById('secretaryLoginModal');
+  updateIdCardSignatures();
   if (modal) {
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
@@ -2316,4 +2317,192 @@ function exportToExcelHtmlFallback() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('Excel file a download ta e!', 'success');
+}
+
+
+// ==================== SIGNATURE & ID CARD AUTO-INJECTION ====================
+
+function getLeaderSignature() {
+  return localStorage.getItem('ktp_leader_signature') || '';
+}
+
+function getSecretarySignature() {
+  return localStorage.getItem('ktp_secretary_signature') || '';
+}
+
+function updateIdCardSignatures() {
+  const leaderSig = getLeaderSignature();
+  const secSig = getSecretarySignature();
+
+  const leaderArea = document.getElementById('idCardLeaderSigArea');
+  const secArea = document.getElementById('idCardSecretarySigArea');
+
+  if (leaderArea) {
+    if (leaderSig) {
+      leaderArea.innerHTML = `<img src="${leaderSig}" alt="Leader Signature" class="max-h-9 max-w-[105px] object-contain drop-shadow-2xs">`;
+    } else {
+      leaderArea.innerHTML = `<div class="border-b border-dashed border-slate-300 w-24 h-4 mb-0.5 flex items-center justify-center"><span class="text-[8px] text-slate-300 italic select-none">Signature</span></div>`;
+    }
+  }
+
+  if (secArea) {
+    if (secSig) {
+      secArea.innerHTML = `<img src="${secSig}" alt="Secretary Signature" class="max-h-9 max-w-[105px] object-contain drop-shadow-2xs">`;
+    } else {
+      secArea.innerHTML = `<div class="border-b border-dashed border-slate-300 w-24 h-4 mb-0.5 flex items-center justify-center"><span class="text-[8px] text-slate-300 italic select-none">Signature</span></div>`;
+    }
+  }
+}
+
+function openSignatureUploadModal() {
+  if (!isSecretaryLoggedIn) {
+    showToast('Signature upload turin Secretary Login a ngai.', 'info');
+    openSecretaryLoginModal();
+    return;
+  }
+
+  const modal = document.getElementById('signatureUploadModal');
+  const leaderSig = getLeaderSignature();
+  const secSig = getSecretarySignature();
+
+  const leaderImg = document.getElementById('leaderSigPreviewImg');
+  const leaderPlh = document.getElementById('leaderSigPlaceholder');
+  const leaderClear = document.getElementById('btnClearLeaderSig');
+
+  const secImg = document.getElementById('secSigPreviewImg');
+  const secPlh = document.getElementById('secSigPlaceholder');
+  const secClear = document.getElementById('btnClearSecSig');
+
+  if (leaderSig) {
+    if (leaderImg) { leaderImg.src = leaderSig; leaderImg.classList.remove('hidden'); }
+    if (leaderPlh) leaderPlh.classList.add('hidden');
+    if (leaderClear) leaderClear.classList.remove('hidden');
+  } else {
+    if (leaderImg) { leaderImg.src = ''; leaderImg.classList.add('hidden'); }
+    if (leaderPlh) leaderPlh.classList.remove('hidden');
+    if (leaderClear) leaderClear.classList.add('hidden');
+  }
+
+  if (secSig) {
+    if (secImg) { secImg.src = secSig; secImg.classList.remove('hidden'); }
+    if (secPlh) secPlh.classList.add('hidden');
+    if (secClear) secClear.classList.remove('hidden');
+  } else {
+    if (secImg) { secImg.src = ''; secImg.classList.add('hidden'); }
+    if (secPlh) secPlh.classList.remove('hidden');
+    if (secClear) secClear.classList.add('hidden');
+  }
+
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+}
+
+function closeSignatureUploadModal() {
+  const modal = document.getElementById('signatureUploadModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+  updateIdCardSignatures();
+}
+
+function handleSignatureUpload(event, type) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Scale down to max 320x130
+      const maxW = 320;
+      const maxH = 130;
+      let w = img.width;
+      let h = img.height;
+
+      if (w > maxW || h > maxH) {
+        if (w / maxW > h / maxH) {
+          h = Math.round((h * maxW) / w);
+          w = maxW;
+        } else {
+          w = Math.round((w * maxH) / h);
+          h = maxH;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      // Clean WebP / PNG data URL
+      let dataUrl = canvas.toDataURL('image/png');
+
+      if (type === 'leader') {
+        localStorage.setItem('ktp_leader_signature', dataUrl);
+        const imgEl = document.getElementById('leaderSigPreviewImg');
+        const plhEl = document.getElementById('leaderSigPlaceholder');
+        const clrBtn = document.getElementById('btnClearLeaderSig');
+        if (imgEl) { imgEl.src = dataUrl; imgEl.classList.remove('hidden'); }
+        if (plhEl) plhEl.classList.add('hidden');
+        if (clrBtn) clrBtn.classList.remove('hidden');
+        showToast('Branch Leader signature dah luh a ni ta! ID Card zawng zawngah a lang nghal ang.', 'success');
+      } else {
+        localStorage.setItem('ktp_secretary_signature', dataUrl);
+        const imgEl = document.getElementById('secSigPreviewImg');
+        const plhEl = document.getElementById('secSigPlaceholder');
+        const clrBtn = document.getElementById('btnClearSecSig');
+        if (imgEl) { imgEl.src = dataUrl; imgEl.classList.remove('hidden'); }
+        if (plhEl) plhEl.classList.add('hidden');
+        if (clrBtn) clrBtn.classList.remove('hidden');
+        showToast('Branch Secretary signature dah luh a ni ta! ID Card zawng zawngah a lang nghal ang.', 'success');
+      }
+
+      updateIdCardSignatures();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function clearSignature(type) {
+  if (type === 'leader') {
+    localStorage.removeItem('ktp_leader_signature');
+    const imgEl = document.getElementById('leaderSigPreviewImg');
+    const plhEl = document.getElementById('leaderSigPlaceholder');
+    const clrBtn = document.getElementById('btnClearLeaderSig');
+    if (imgEl) { imgEl.src = ''; imgEl.classList.add('hidden'); }
+    if (plhEl) plhEl.classList.remove('hidden');
+    if (clrBtn) clrBtn.classList.add('hidden');
+    showToast('Branch Leader signature paih a ni ta.', 'info');
+  } else {
+    localStorage.removeItem('ktp_secretary_signature');
+    const imgEl = document.getElementById('secSigPreviewImg');
+    const plhEl = document.getElementById('secSigPlaceholder');
+    const clrBtn = document.getElementById('btnClearSecSig');
+    if (imgEl) { imgEl.src = ''; imgEl.classList.add('hidden'); }
+    if (plhEl) plhEl.classList.remove('hidden');
+    if (clrBtn) clrBtn.classList.add('hidden');
+    showToast('Branch Secretary signature paih a ni ta.', 'info');
+  }
+  updateIdCardSignatures();
+}
+
+function openNoticeModalWithPhoto() {
+  if (!isSecretaryLoggedIn) {
+    showToast('Notice Flyer / Photo upload turin Secretary Login a ngai.', 'info');
+    openSecretaryLoginModal();
+    return;
+  }
+  openNoticeModal();
+  setTimeout(() => {
+    const uploadBox = document.getElementById('noticePhotoUploadBox');
+    if (uploadBox) {
+      uploadBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 200);
 }
