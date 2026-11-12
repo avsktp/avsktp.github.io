@@ -147,7 +147,37 @@ const NOTICE_CAT_CONFIG = {
 };
 
 // Initialize App
-async function initApp() {
+
+// ==================== INSTANT DATA LOADERS (0ms Delay) ====================
+function loadMembersSync() {
+  const local = localStorage.getItem('ktp_members_data_v3');
+  if (local) {
+    try {
+      const parsed = JSON.parse(local);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        members = parsed;
+        return;
+      }
+    } catch (e) {}
+  }
+  members = JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
+}
+
+function loadNoticesSync() {
+  const local = localStorage.getItem('ktp_notices_data_v2');
+  if (local) {
+    try {
+      const parsed = JSON.parse(local);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        notices = parsed;
+        return;
+      }
+    } catch (e) {}
+  }
+  notices = JSON.parse(JSON.stringify(DEFAULT_NOTICES));
+}
+
+function initApp() {
   setPrintDate();
   checkSecretaryAuth();
 
@@ -156,18 +186,23 @@ async function initApp() {
     setViewMode('cards');
   }
 
-  // Load both Members and Notices
-  await Promise.all([
-    loadMembersData(),
-    loadNoticesData()
-  ]);
+  // 1. INSTANT LOCAL LOAD - 0 MILLISECOND DELAY!
+  loadMembersSync();
+  loadNoticesSync();
 
+  // 2. IMMEDIATE RENDER - User sees everything instantly!
   renderMembers();
   renderNotices();
   updateStats();
 
   if (window.lucide) {
     lucide.createIcons();
+  }
+
+  // 3. BACKGROUND SYNC (ONLY if running on local server, never on github.io)
+  const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  if (isLocalServer) {
+    setTimeout(backgroundServerSync, 100);
   }
 }
 
@@ -2389,12 +2424,36 @@ function printAllMemberCardsA4() {
 // Headings: MIZORAM PRESBYTERIAN KOHHRAN / (Presbyterian Church of India) / Kristian Thalai Pawl / Armed Veng South Branch
 // Font: Mizo Synod Book Times (Times New Roman), Bold, Centered Headings & Card No (ktp001/2026)
 
+function ensureXlsxLoaded(callback) {
+  if (typeof XLSX !== 'undefined') {
+    callback();
+    return;
+  }
+  showToast('Excel library download mek a ni, nghak lawk...', 'info');
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js';
+  script.onload = () => {
+    callback();
+  };
+  script.onerror = () => {
+    showToast('Online Excel library lak theih loh, CSV/Excel fallback hmangin a export dawn.', 'warning');
+    exportToExcelFallback();
+  };
+  document.head.appendChild(script);
+}
+
 function exportToExcel() {
   if (!members || members.length === 0) {
     showToast('Export tur member record an awm lo.', 'error');
     return;
   }
 
+  ensureXlsxLoaded(() => {
+    runActualExcelExport();
+  });
+}
+
+function runActualExcelExport() {
   // 1. If XLSX (with xlsx-js-style) is loaded, generate styled .xlsx
   if (typeof XLSX !== 'undefined') {
     const wsData = [
@@ -2822,4 +2881,31 @@ function openNoticeModalWithPhoto() {
       uploadBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, 200);
+}
+
+
+async function backgroundServerSync() {
+  try {
+    const [resM, resN] = await Promise.all([
+      fetch('/api/members').then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch('/api/notices').then(r => r.ok ? r.json() : null).catch(() => null)
+    ]);
+    let updated = false;
+    if (resM && resM.data && Array.isArray(resM.data) && resM.data.length > 0) {
+      members = resM.data;
+      saveToLocalStorage(members);
+      updated = true;
+    }
+    if (resN && resN.data && Array.isArray(resN.data) && resN.data.length > 0) {
+      notices = resN.data;
+      saveNoticesToLocalStorage(notices);
+      updated = true;
+    }
+    if (updated) {
+      renderMembers();
+      renderNotices();
+      updateStats();
+      if (window.lucide) lucide.createIcons();
+    }
+  } catch (e) {}
 }
