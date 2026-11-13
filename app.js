@@ -639,6 +639,8 @@ async function handleSelfRegisterSubmit(e) {
   const gender = document.getElementById('selfRegGender').value;
   const houseNo = document.getElementById('selfRegHouseNo').value.trim();
   const upaBial = document.getElementById('selfRegUpaBial').value;
+  const thalaiKantu = document.querySelector('input[name="selfRegThalaiKantu"]:checked')?.value || 'Aw';
+  const kristianThalai = document.querySelector('input[name="selfRegKristianThalai"]:checked')?.value || 'Aw';
 
   if (!name) {
     showToast('Khawngaihin i hming pum ziak rawh.', 'error');
@@ -677,7 +679,9 @@ async function handleSelfRegisterSubmit(e) {
     gender,
     houseNo: houseNo || '-',
     upaBial: upaBial || 'Upa Bial 1',
-    photo: currentSelfRegPhoto || ''
+    photo: currentSelfRegPhoto || '',
+    thalaiKantu: thalaiKantu || 'Aw',
+    kristianThalai: kristianThalai || 'Aw'
   };
 
   members.unshift(newMember);
@@ -1256,7 +1260,11 @@ function renderTableRows() {
         <td class="py-3 px-4">
           <div class="min-w-0">
             <span class="font-bold text-slate-900 text-sm block">${escapeHtml(member.name)}</span>
-            <span class="text-[11px] text-slate-500 font-medium">${member.gender === 'Mipa' ? 'Mipa' : 'Hmeichhia'}</span>
+            <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
+              <span class="text-[11px] text-slate-500 font-medium">${member.gender === 'Mipa' ? 'Mipa' : 'Hmeichhia'}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${member.thalaiKantu === 'Aih' ? 'bg-slate-100 text-slate-400 line-through' : 'bg-emerald-100 text-emerald-800'}" title="Thalai Kantu: ${member.thalaiKantu || 'Aw'}">TK: ${member.thalaiKantu || 'Aw'}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${member.kristianThalai === 'Aih' ? 'bg-slate-100 text-slate-400 line-through' : 'bg-indigo-100 text-indigo-800'}" title="Kristian Thalai: ${member.kristianThalai || 'Aw'}">KT: ${member.kristianThalai || 'Aw'}</span>
+            </div>
           </div>
         </td>
 
@@ -1651,6 +1659,13 @@ function openEditMemberModal(id) {
   document.getElementById('formGender').value = member.gender || 'Mipa';
   document.getElementById('formHouseNo').value = member.houseNo || '';
   document.getElementById('formUpaBial').value = member.upaBial || 'Upa Bial 1';
+  // Subscriptions
+  const tkVal = member.thalaiKantu === 'Aih' ? 'Aih' : 'Aw';
+  const ktVal = member.kristianThalai === 'Aih' ? 'Aih' : 'Aw';
+  const tkRadio = document.querySelector(`input[name="formThalaiKantu"][value="${tkVal}"]`);
+  if (tkRadio) tkRadio.checked = true;
+  const ktRadio = document.querySelector(`input[name="formKristianThalai"][value="${ktVal}"]`);
+  if (ktRadio) ktRadio.checked = true;
 
   if (member.photo) {
     currentFormPhoto = member.photo;
@@ -1702,6 +1717,8 @@ async function handleSecretaryMemberSubmit(e) {
   const gender = document.getElementById('formGender').value;
   const houseNo = document.getElementById('formHouseNo').value.trim();
   const upaBial = document.getElementById('formUpaBial').value;
+  const thalaiKantu = document.querySelector('input[name="formThalaiKantu"]:checked')?.value || 'Aw';
+  const kristianThalai = document.querySelector('input[name="formKristianThalai"]:checked')?.value || 'Aw';
 
   if (!name) {
     showToast('Khawngaihin member hming ziak rawh.', 'error');
@@ -1744,7 +1761,9 @@ async function handleSecretaryMemberSubmit(e) {
         gender,
         houseNo: houseNo || '-',
         upaBial: upaBial || 'Upa Bial 1',
-        photo: currentFormPhoto || members[index].photo || ''
+        photo: currentFormPhoto || members[index].photo || '',
+        thalaiKantu: thalaiKantu || members[index].thalaiKantu || 'Aw',
+        kristianThalai: kristianThalai || members[index].kristianThalai || 'Aw'
       };
       saveToLocalStorage(members);
       syncToServer(members);
@@ -1761,7 +1780,9 @@ async function handleSecretaryMemberSubmit(e) {
       gender,
       houseNo: houseNo || '-',
       upaBial: upaBial || 'Upa Bial 1',
-      photo: currentFormPhoto || ''
+      photo: currentFormPhoto || '',
+      thalaiKantu: thalaiKantu || 'Aw',
+      kristianThalai: kristianThalai || 'Aw'
     };
     members.unshift(newMember);
     saveToLocalStorage(members);
@@ -2157,223 +2178,45 @@ function closeMemberIdCardModal() {
   }
 }
 
-function printMemberIdCard() {
-  if (!currentViewedMember) return;
-  const target = document.getElementById('idCardPrintTarget');
-  if (!target) return;
 
-  const printWin = window.open('', '_blank', 'width=450,height=650');
-  printWin.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>${escapeHtml(currentViewedMember.name)} - KTP Member Card</title>
-      <script src="https://cdn.tailwindcss.com"></script>
-      <link rel="stylesheet" href="style.css">
-      <style>
-        @page { size: auto; margin: 10mm; }
-        body { margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; background: #fff; font-family: system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        #idCardPrintTarget { width: 5.8cm !important; height: 8.8cm !important; max-width: 5.8cm !important; max-height: 8.8cm !important; box-shadow: none !important; border: 1px solid #cbd5e1 !important; border-radius: 12px !important; page-break-inside: avoid; }
-      </style>
-    </head>
-    <body>
-      ${target.outerHTML}
-      <script>
-        window.onload = function() {
-          window.print();
-          setTimeout(function() { window.close(); }, 700);
-        };
-      </script>
-    </body>
-    </html>
-  `);
-  printWin.document.close();
-}
+// ==================== BULLETPROOF PRINTING (NEVER BLOCKED BY POPUP BLOCKERS) ====================
+function printViaIframeOrWindow(title, htmlContent) {
+  // 1. Try hidden iframe first (100% bypasses popup blocker on all computers)
+  try {
+    let frame = document.getElementById('printExecutionIframe');
+    if (!frame) {
+      frame = document.createElement('iframe');
+      frame.id = 'printExecutionIframe';
+      frame.style.cssText = 'position:fixed;right:100%;bottom:100%;width:0;height:0;border:0;opacity:0;pointer-events:none;';
+      document.body.appendChild(frame);
+    }
 
-function shareMemberIdCardWhatsApp() {
-  if (!currentViewedMember) return;
-  const m = currentViewedMember;
-  const idx = members.findIndex(mem => mem.id === m.id);
-  const cardNo = getMemberCardNo(m, idx);
-  const cleanPhone = (m.phone || '').replace(/\D/g, '');
-  const formattedPhone = cleanPhone.length === 10
-    ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
-    : cleanPhone;
+    const doc = frame.contentWindow.document;
+    doc.open();
+    doc.write(htmlContent);
+    doc.close();
 
-  const text = `🪪 *MIZORAM PRESBYTERIAN KOHHRAN*
-_(Presbyterian Church of India)_
-*KRISTIAN ṬHALAI PAWL*
-*Armed Veng South Branch*
-━━━━━━━━━━━━━━━━━━━━━━━━
-👤 *Hming:* ${m.name || '-'}
-🆔 *Card No:* ${cardNo}
-👨‍👩‍👧 *Nu / Pa Hming:* ${m.parentsName || '-'}
-🏠 *House No:* ${m.houseNo || '-'}
-📍 *Upa Bial:* ${m.upaBial || '-'}
-📞 *Phone:* ${formattedPhone || '-'}
-🏷 *Group:* ${m.group || 'Unassigned'}
-━━━━━━━━━━━━━━━━━━━━━━━━
-_"Rawngbawl tura chhandam" (Ephesi 2:10)_`;
-
-  const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-  window.open(url, '_blank');
-}
-
-// ==================== PRINT / DOWNLOAD ALL MEMBER CARDS (A4 AUTO-FIX) ====================
-// Exactly 6.7 cm width, 9.6 cm height - 9 Cards per A4 Page (3x3 grid)
-
-function printAllMemberCardsA4() {
-  if (!members || members.length === 0) {
-    showToast('Print tur member record an awm lo.', 'error');
+    // Give browser time to parse SVG, styles, and images
+    setTimeout(() => {
+      try {
+        frame.contentWindow.focus();
+        frame.contentWindow.print();
+      } catch (err) {
+        console.warn('Iframe print error, falling back to window.open:', err);
+        fallbackPrintWindow(title, htmlContent);
+      }
+    }, 450);
     return;
+  } catch (e) {
+    console.warn('Iframe setup failed, falling back:', e);
   }
 
-  const leaderSig = getLeaderSignature();
-  const secSig = getSecretarySignature();
+  // 2. Fallback window.open
+  fallbackPrintWindow(title, htmlContent);
+}
 
-  const leaderSigImg = leaderSig
-    ? `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply; background: transparent;">`
-    : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
-
-  const secSigImg = secSig
-    ? `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply; background: transparent;">`
-    : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
-
-  // HORIZONTAL / LANDSCAPE A4: 2 ROWS x 4 COLUMNS = 8 CARDS PER PAGE
-  // EXACT SIZE: 5.8cm width, 8.8cm height
-  const cardsPerPage = 8;
-  const totalPages = Math.ceil(members.length / cardsPerPage);
-
-  let pagesHtml = '';
-
-  for (let page = 0; page < totalPages; page++) {
-    const pageMembers = members.slice(page * cardsPerPage, (page + 1) * cardsPerPage);
-    let cardsHtml = '';
-
-    pageMembers.forEach((m, idxInPage) => {
-      const globalIdx = page * cardsPerPage + idxInPage;
-      const cardNo = getMemberCardNo(m, globalIdx);
-      const cleanPhone = (m.phone || '').replace(/\D/g, '');
-      const formattedPhone = cleanPhone.length === 10
-        ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
-        : cleanPhone;
-
-      const { initials } = getAvatarData(m.name);
-
-      const photoHtml = m.photo
-        ? `<img src="${m.photo}" alt="${escapeHtml(m.name)}" style="width: 42px; height: 50px; border-radius: 4px; object-fit: cover; border: 1.2px solid #000000; background: #fff;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-           <div style="width: 42px; height: 50px; border-radius: 4px; background: #1e293b; color: #fff; font-weight: 900; font-size: 12px; display: none; align-items: center; justify-content: center; border: 1.2px solid #000000;">${initials}</div>`
-        : `<div style="width: 42px; height: 50px; border-radius: 4px; background: #0f172a; color: #fff; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 1.2px solid #000000;">${initials}</div>`;
-
-      cardsHtml += `
-        <div class="card-item" style="width: 5.8cm; height: 8.8cm; max-width: 5.8cm; max-height: 8.8cm; box-sizing: border-box; background: transparent; color: #000000; border: 1px dashed #64748b; border-radius: 6px; overflow: hidden; position: relative; display: flex; flex-direction: column; justify-content: space-between; page-break-inside: avoid; font-family: system-ui, -apple-system, sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-          
-          <!-- Fluid Waves SVG Background (Vector graphics that ALWAYS print in color) -->
-          ${getFluidSilkSvg(globalIdx)}
-
-          <!-- Header Container with 6mm BLANK top space for hole punch (NO LINES, JUST BLANK) -->
-          <div style="position: relative; z-index: 2; padding: 6mm 5px 2px 5px; text-align: center; flex-shrink: 0;">
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-              <img src="${ktpLogoBase64}" alt="Logo" style="width: 22px; height: 22px; object-fit: contain; margin-bottom: 1px; display: block;">
-              <div style="text-align: center; line-height: 1.1; color: #000000;">
-                <div style="font-size: 6.2px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.2px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
-                <div style="font-size: 5.2px; font-style: italic; color: #000000; margin-top: 0.5px;">(Presbyterian Church of India)</div>
-                <div style="font-size: 6.8px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 1px;">KRISTIAN THALAI PAWL</div>
-                <div style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.2px;">ARMED VENG SOUTH BRANCH</div>
-              </div>
-            </div>
-
-            <!-- MEMBER CARD BADGE -->
-            <div style="margin-top: 2px; text-align: center;">
-              <span style="font-size: 8.5px; font-weight: 900; color: #000000; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1.2px solid #000000; padding-bottom: 0.5px; display: inline-block;">
-                MEMBER CARD
-              </span>
-            </div>
-          </div>
-
-          <!-- Body: Photo + Info + Signatures -->
-          <div style="position: relative; z-index: 2; padding: 0 6px 3px 6px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
-            
-            <!-- Photo + Name + Card No -->
-            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
-              <div style="width: 42px; height: 50px; flex-shrink: 0; border-radius: 4px; overflow: hidden; border: 1.2px solid #000000; background: #fff; display: flex; align-items: center; justify-content: center;">
-                ${photoHtml}
-              </div>
-
-              <div style="flex-grow: 1; overflow: hidden; line-height: 1.15;">
-                <div style="font-size: 9px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.2px; white-space: normal; word-break: break-word; line-height: 1.15; max-height: 24px; overflow: hidden;">
-                  ${escapeHtml(m.name)}
-                </div>
-                <div style="margin-top: 2px;">
-                  <span style="font-size: 6.8px; font-family: monospace; font-weight: 900; color: #000000; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.4); border-radius: 3px; padding: 0.5px 3.5px; display: inline-block;">
-                    ${cardNo}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Personal Details List (Translucent Glassy Rows) -->
-            <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 1px; margin: 1px 0; color: #000000;">
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
-                <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Nu / Pa Hming:</span>
-                <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(m.parentsName || '-')}</span>
-              </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
-                <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">House No:</span>
-                <span style="font-size: 7.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(m.houseNo || '-')}</span>
-              </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
-                <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Upa Bial:</span>
-                <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right;">${escapeHtml(m.upaBial || '-')}</span>
-              </div>
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
-                <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Phone:</span>
-                <span style="font-size: 7.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${formattedPhone || '-'}</span>
-              </div>
-              <!-- GROUP AT LAST - UNCOLORED SOLID BLACK -->
-              <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.7);">
-                <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Group:</span>
-                <span style="font-size: 7.2px; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(m.group || '-')}</span>
-              </div>
-            </div>
-
-            <!-- Motto -->
-            <div style="position: relative; z-index: 2; text-align: center; margin: 1px 0;">
-              <span style="font-size: 6.2px; font-style: italic; color: #000000; font-weight: 700;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
-            </div>
-
-            <!-- Signatures: LEADER ON LEFT, SECRETARY ON RIGHT (100% VISIBLE!) -->
-            <div style="position: relative; z-index: 2; border-top: 1px solid #000000; padding-top: 1px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; color: #000000;">
-              <div style="display: flex; flex-direction: column; align-items: center;">
-                <div style="height: 16px; display: flex; align-items: center; justify-content: center;">
-                  ${leaderSigImg}
-                </div>
-                <span style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">Branch Leader</span>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center;">
-                <div style="height: 16px; display: flex; align-items: center; justify-content: center;">
-                  ${secSigImg}
-                </div>
-                <span style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">Branch Secretary</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      `;
-    });
-
-    // Page Wrapper: A4 Landscape (297mm x 210mm) holding 4 columns x 2 rows = 8 cards (5.8cm x 8.8cm each)
-    pagesHtml += `
-      <div class="a4-page" style="width: 250mm; height: 185mm; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 5.8cm); grid-template-rows: repeat(2, 8.8cm); gap: 4mm 3mm; justify-content: center; align-content: center; page-break-after: always; box-sizing: border-box;">
-        ${cardsHtml}
-      </div>
-    `;
-  }
-
-  const printWin = window.open('', '_blank');
-  printWin.document.write(`
+function fallbackPrintWindow(title, htmlContent) {
+  const printHtml = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -2435,15 +2278,11 @@ function printAllMemberCardsA4() {
         💡 <b>Print Tip:</b> Print dialog-ah khan <b>"Background graphics"</b> (e.g. More settings -> Background graphics) hi check / on tur a ni a, tichuan card background design leh color zawng zawng a fiah em em ang!
       </div>
       ${pagesHtml}
-      <script>
-        window.onload = function() {
-          setTimeout(function() { window.print(); }, 300);
-        };
-      </script>
     </body>
     </html>
-  `);
-  printWin.document.close();
+  `;
+
+  printViaIframeOrWindow('KTP Member Cards A4 Batch Print', printHtml);
 }
 
 // ==================== AUTO-FIXED EXCEL EXPORT (.XLSX) ====================
@@ -2497,7 +2336,9 @@ function runActualExcelExport() {
         'Upa Bial',
         'Phone Number',
         'Gender',
-        'Group'
+        'Group',
+        'Thalai Kantu',
+        'Kristian Thalai'
       ]
     ];
 
@@ -2518,7 +2359,9 @@ function runActualExcelExport() {
         m.upaBial || '',
         formattedPhone,
         m.gender || '',
-        m.group || 'Unassigned'
+        m.group || 'Unassigned',
+        m.thalaiKantu || 'Aw',
+        m.kristianThalai || 'Aw'
       ]);
     });
 
@@ -2526,10 +2369,10 @@ function runActualExcelExport() {
 
     // Merge Headings across all 9 columns (A to I)
     ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, // Row 1: MIZORAM PRESBYTERIAN KOHHRAN
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } }, // Row 2: (Presbyterian Church of India)
-      { s: { r: 2, c: 0 }, e: { r: 2, c: 8 } }, // Row 3: Kristian Thalai Pawl
-      { s: { r: 3, c: 0 }, e: { r: 3, c: 8 } }  // Row 4: Armed Veng South Branch
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // Row 1: MIZORAM PRESBYTERIAN KOHHRAN
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Row 2: (Presbyterian Church of India)
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 10 } }, // Row 3: Kristian Thalai Pawl
+      { s: { r: 3, c: 0 }, e: { r: 3, c: 10 } }  // Row 4: Armed Veng South Branch
     ];
 
     // Row heights (Points)
@@ -3004,4 +2847,145 @@ function clearSignature(type) {
     showToast('Branch Secretary signature paih a ni ta.', 'info');
   }
   updateIdCardSignatures();
+}
+
+
+
+// ==================== CLOUD DATABASE SYNC & DEVICE TRANSFER ====================
+
+function getCloudDbUrl() {
+  return localStorage.getItem('ktp_cloud_db_url') || '';
+}
+
+function setCloudDbUrl(url) {
+  if (url) {
+    // Normalize url
+    let cleanUrl = url.trim().replace(/\/$/, '');
+    if (!cleanUrl.endsWith('.json')) {
+      cleanUrl = cleanUrl + '/ktp_data.json';
+    }
+    localStorage.setItem('ktp_cloud_db_url', cleanUrl);
+  } else {
+    localStorage.removeItem('ktp_cloud_db_url');
+  }
+}
+
+function openDataSyncModal() {
+  const modal = document.getElementById('dataSyncModal');
+  const input = document.getElementById('cloudDbUrlInput');
+  if (input) {
+    input.value = getCloudDbUrl();
+  }
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeDataSyncModal() {
+  const modal = document.getElementById('dataSyncModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+function saveCloudDbUrl() {
+  const input = document.getElementById('cloudDbUrlInput');
+  const url = (input ? input.value : '').trim();
+  setCloudDbUrl(url);
+  showToast(url ? 'Cloud Database URL vawn ṭhat a ni ta!' : 'Cloud URL paih a ni ta.', 'success');
+}
+
+async function testCloudDbSync() {
+  const url = getCloudDbUrl();
+  if (!url) {
+    showToast('Khawngaihin Firebase Database URL dah rawh le.', 'error');
+    return;
+  }
+  showToast('Cloud database sync mek a ni...', 'info');
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.members)) {
+        members = data.members;
+        saveToLocalStorage(members);
+        renderMembers();
+        updateStats();
+        showToast(`Cloud aṭangin member ${members.length} hlawhtling takin a rawn in-sync ta e!`, 'success');
+        return;
+      }
+    }
+    showToast('Cloud database aṭangin data a la awm lo emaw a la ruak.', 'warning');
+  } catch (err) {
+    showToast('Cloud database connect theih loh: ' + err.message, 'error');
+  }
+}
+
+// 1-Click Export All Data Backup (.JSON)
+function exportAllDataBackup() {
+  const backupData = {
+    appName: 'Kristian Thalai Pawl - Armed Veng South Branch',
+    exportedAt: new Date().toISOString(),
+    totalMembers: members.length,
+    members: members,
+    leaderSignature: getLeaderSignature(),
+    secretarySignature: getSecretarySignature()
+  };
+
+  const jsonStr = JSON.stringify(backupData, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `KTP_Armed_Veng_South_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('Data backup file a download ta e! Phone-ah thawnin i import thei ang.', 'success');
+}
+
+// 1-Click Import Data Backup (.JSON)
+function importDataBackup(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const json = JSON.parse(e.target.result);
+      const importedMembers = Array.isArray(json) ? json : (json.members || []);
+
+      if (importedMembers.length === 0) {
+        showToast('File-ah hian member record hmuh a ni lo.', 'error');
+        return;
+      }
+
+      // Merge or replace
+      members = importedMembers;
+      saveToLocalStorage(members);
+      syncToServer(members);
+
+      if (json.leaderSignature) {
+        localStorage.setItem('ktp_leader_signature', json.leaderSignature);
+      }
+      if (json.secretarySignature) {
+        localStorage.setItem('ktp_secretary_signature', json.secretarySignature);
+      }
+      updateIdCardSignatures();
+
+      renderMembers();
+      updateStats();
+      showToast(`Hlawhtling takin member ${members.length} lak luh a ni ta!`, 'success');
+      closeDataSyncModal();
+    } catch (err) {
+      showToast('File chhiar theih loh: JSON file dik lo a ni.', 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
 }

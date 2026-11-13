@@ -364,7 +364,7 @@
           </div>
           <div class="flex items-center gap-2">
             <!-- Print All Member Cards (A4 Auto-Fix) -->
-            <button onclick="printAllMemberCardsA4()" title="Print / Download All Member Cards auto-fixed in A4 (6.7cm x 9.6cm)" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer">
+            <button onclick="printAllMemberCardsA4()" title="Print / Download All Member Cards auto-fixed in A4 (5.8cm x 8.8cm)" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer">
               <i data-lucide="printer" class="w-3.5 h-3.5 text-indigo-700"></i>
               <span>Print All Cards (A4)</span>
             </button>
@@ -372,6 +372,11 @@
             <button onclick="openSignatureUploadModal()" title="Upload Branch Signatures (Leader & Secretary)" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer">
               <i data-lucide="pen-tool" class="w-3.5 h-3.5 text-amber-700"></i>
               <span>Upload Signature</span>
+            </button>
+            <!-- Sync Data Button -->
+            <button onclick="openDataSyncModal()" title="Sync Data across Phone & PC" class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-blue-700"></i>
+              <span>Sync Data</span>
             </button>
             <div id="secretaryToolsLink" class="hidden">
               <button onclick="openImportModal()" class="text-xs text-slate-500 hover:text-rose-900 flex items-center gap-1 font-medium">
@@ -529,29 +534,30 @@
   <!-- ==================== MODALS ==================== -->
 
   <!-- 1. SELF REGISTRATION MODAL (For branch members to add themselves) -->
-  <div id="selfRegisterModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop">
-    <div class="bg-white rounded-3xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+  <div id="selfRegisterModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 hidden modal-backdrop">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
       
-      <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white px-6 py-4 flex items-center justify-between">
+      <!-- Modal Header (Bigger Font) -->
+      <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white px-6 py-5 flex items-center justify-between">
         <div>
-          <h3 class="text-base font-bold text-white">Member In-ziahluhna (Register Yourself)</h3>
-          <p class="text-xs text-emerald-200">KṬP Armed Veng South Branch Member Tharna</p>
+          <h3 class="text-xl sm:text-2xl font-black text-white tracking-tight">Member In-ziahluhna</h3>
+          <p class="text-sm font-medium text-emerald-200 mt-0.5">KṬP Armed Veng South Branch Member Tharna Form</p>
         </div>
-        <button onclick="closeSelfRegisterModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition">
-          <i data-lucide="x" class="w-4 h-4"></i>
+        <button onclick="closeSelfRegisterModal()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <form onsubmit="handleSelfRegisterSubmit(event)" class="p-6 space-y-4 max-h-[82vh] overflow-y-auto">
+      <form onsubmit="handleSelfRegisterSubmit(event)" class="p-6 sm:p-7 space-y-5 max-h-[82vh] overflow-y-auto font-sans">
         
         <!-- Passport Photo / Selfie Section -->
-        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+        <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 sm:p-5 space-y-3">
           <div class="flex items-center justify-between">
-            <label class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <i data-lucide="camera" class="w-4 h-4 text-emerald-700"></i>
-              <span>Passport Photo / Selfie (Auto WebP)</span>
+            <label class="text-sm sm:text-base font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="camera" class="w-5 h-5 text-emerald-700"></i>
+              <span>Passport Photo / Selfie</span>
             </label>
-            <span id="selfRegPhotoSizeBadge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+            <span id="selfRegPhotoSizeBadge" class="hidden px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
               WebP Compressed
             </span>
           </div>
@@ -559,20 +565,20 @@
           <div class="flex flex-col sm:flex-row items-center gap-4">
             <!-- Photo Box Preview -->
             <div class="relative flex-shrink-0">
-              <img id="selfRegPhotoPreview" src="" alt="Passport Preview" class="passport-box bg-white shadow-2xs hidden">
-              <div id="selfRegPhotoPlaceholder" class="passport-box bg-slate-100 border-2 border-dashed border-slate-300 text-slate-400 flex flex-col items-center justify-center text-center p-2">
+              <img id="selfRegPhotoPreview" src="" alt="Passport Preview" class="passport-box bg-white shadow-sm hidden" style="width: 100px; height: 120px; object-fit: cover; border-radius: 12px; border: 2px solid #cbd5e1;">
+              <div id="selfRegPhotoPlaceholder" class="passport-box bg-slate-100 border-2 border-dashed border-slate-300 text-slate-400 flex flex-col items-center justify-center text-center p-2" style="width: 100px; height: 120px; border-radius: 12px;">
                 <i data-lucide="camera" class="w-8 h-8 mb-1 text-slate-400"></i>
-                <span class="text-[10px] font-bold text-slate-500 leading-tight">Thlalak A Awm Lo</span>
-                <span class="text-[9px] text-slate-400 mt-0.5">(Passport Size)</span>
+                <span class="text-xs font-bold text-slate-600 leading-tight">Thlalak</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">(Passport Size)</span>
               </div>
-              <button type="button" onclick="clearSelfRegPhoto()" id="selfRegRemovePhotoBtn" class="hidden absolute -top-2 -right-2 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-md hover:bg-rose-700 transition" title="Paih rawh">
-                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              <button type="button" onclick="clearSelfRegPhoto()" id="selfRegRemovePhotoBtn" class="hidden absolute -top-2 -right-2 w-7 h-7 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-md hover:bg-rose-700 transition" title="Paih rawh">
+                <i data-lucide="x" class="w-4 h-4"></i>
               </button>
             </div>
 
             <!-- Upload Controls & Description -->
             <div class="flex-1 space-y-2.5 text-center sm:text-left w-full">
-              <p class="text-xs text-slate-600 leading-relaxed">
+              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
                 Phone camera aṭangin <b>Selfie</b> la la emaw i phone/computer aṭangin passport photo upload rawh. Automatic-in <b>WebP format (~15 KB)</b> ah a convert dawn a ni.
               </p>
 
@@ -580,14 +586,14 @@
               <input type="file" id="selfRegCameraInput" accept="image/*" capture="user" onchange="handlePhotoUpload(event, 'selfReg')" style="display: none;">
               <input type="file" id="selfRegGalleryInput" accept="image/*" onchange="handlePhotoUpload(event, 'selfReg')" style="display: none;">
 
-              <!-- Two prominent action buttons that trigger click on the inputs -->
-              <div class="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
-                <button type="button" onclick="document.getElementById('selfRegCameraInput').click()" class="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer">
+              <!-- Action buttons -->
+              <div class="flex items-center gap-2.5 justify-center sm:justify-start flex-wrap pt-1">
+                <button type="button" onclick="document.getElementById('selfRegCameraInput').click()" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs active:scale-95 cursor-pointer">
                   <i data-lucide="camera" class="w-4 h-4"></i>
                   <span>Selfie Camera</span>
                 </button>
 
-                <button type="button" onclick="document.getElementById('selfRegGalleryInput').click()" class="px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer">
+                <button type="button" onclick="document.getElementById('selfRegGalleryInput').click()" class="px-4 py-2.5 bg-white border-2 border-slate-300 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer">
                   <i data-lucide="upload" class="w-4 h-4 text-slate-500"></i>
                   <span>Gallery / File Upload</span>
                 </button>
@@ -596,53 +602,56 @@
           </div>
         </div>
 
-        <!-- Full Name -->
+        <!-- 1. Full Name (Bigger font) -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          <label class="block text-sm sm:text-base font-bold text-slate-800 uppercase tracking-wider mb-1.5">
             Member Hming (Full Name) <span class="text-rose-600">*</span>
           </label>
           <input 
             type="text" 
             id="selfRegName" 
             required 
-            placeholder="e.g. Lalhruaitluanga / Vanlalpeka" 
-            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white font-medium"
+            placeholder="e.g. Lalhruaitluanga" 
+            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-base sm:text-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:border-emerald-500 transition shadow-2xs placeholder:text-slate-400"
           >
         </div>
 
-        <!-- Nu / Pa Hming (Parents / Guardian Name) -->
+        <!-- 2. Nu / Pa Hming (Parents Name) -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          <label class="block text-sm sm:text-base font-bold text-slate-800 uppercase tracking-wider mb-1.5">
             Nu / Pa Hming (Parents Name) <span class="text-rose-600">*</span>
           </label>
           <input 
             type="text" 
-            id="selfRegParentsName" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white font-medium"
+            id="selfRegParentsName" 
+            required 
+            placeholder="e.g. R. Lalmuana"
+            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-base sm:text-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:border-emerald-500 transition shadow-2xs placeholder:text-slate-400"
           >
         </div>
 
-        <!-- Group & Contact (Side by Side) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- Group Selection (Optional - NOT Mandatory) -->
+        <!-- Group & Contact Number (Side by Side) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- Group (Optional) -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Group (Ziak Rawh / Optional)
+            <label class="block text-sm sm:text-base font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+              Group <span class="text-xs text-slate-500 font-normal">(Optional)</span>
             </label>
             <input 
-            type="text" 
-            id="selfRegGroup" 
-            placeholder="e.g. Sadrak / Mesak / Abednego (A tul lo)" 
-            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white font-medium"
-          >
+              type="text" 
+              id="selfRegGroup" 
+              placeholder="e.g. Sadrak / Mesak / Abednego" 
+              class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-base sm:text-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:border-emerald-500 transition shadow-2xs placeholder:text-slate-400"
+            >
           </div>
 
           <!-- Contact (Phone) -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label class="block text-sm sm:text-base font-bold text-slate-800 uppercase tracking-wider mb-1.5">
               Contact Number <span class="text-rose-600">*</span>
             </label>
             <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">+91</span>
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">+91</span>
               <input 
                 type="tel" 
                 id="selfRegPhone" 
@@ -650,40 +659,46 @@
                 placeholder="9862XXXXXX" 
                 pattern="[0-9]{10}"
                 title="10 digits phone number chhu rawh"
-                class="w-full pl-11 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white font-medium"
+                class="w-full pl-12 pr-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-base sm:text-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:border-emerald-500 transition shadow-2xs font-mono"
               >
             </div>
           </div>
         </div>
 
-        <!-- Gender Selection -->
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-            Gender (Mipa / Hmeichhia) <span class="text-rose-600">*</span>
-          </label>
-          <select id="selfRegGender" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white">
-            <option value="Mipa">Mipa (Male)</option>
-            <option value="Hmeichhia">Hmeichhia (Female)</option>
-          </select>
+        <!-- Gender & In No. (Side by Side) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- Gender -->
+          <div>
+            <label class="block text-sm sm:text-base font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+              Gender <span class="text-rose-600">*</span>
+            </label>
+            <select id="selfRegGender" required class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-base sm:text-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:border-emerald-500 transition shadow-2xs">
+              <option value="Mipa">Mipa (Male)</option>
+              <option value="Hmeichhia">Hmeichhia (Female)</option>
+            </select>
+          </div>
+
+          <!-- In No. (House No.) -->
+          <div>
+            <label class="block text-sm sm:text-base font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+              In No. (House No.) <span class="text-rose-600">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="selfRegHouseNo" 
+              required 
+              placeholder="e.g. H-14"
+              class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-base sm:text-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:border-emerald-500 transition shadow-2xs"
+            >
+          </div>
         </div>
 
-        <!-- 1. In No. (House No.) - SEPARATE FIELD -->
+        <!-- Upa Bial -->
         <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-            In No. (House No.) <span class="text-rose-600">*</span>
-          </label>
-          <input 
-            type="text" 
-            id="selfRegHouseNo" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white font-medium"
-          >
-        </div>
-
-        <!-- 2. Upa Bial - SEPARATE FIELD -->
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+          <label class="block text-sm sm:text-base font-bold text-slate-800 uppercase tracking-wider mb-1.5">
             Upa Bial (Elder Section) <span class="text-rose-600">*</span>
           </label>
-          <select id="selfRegUpaBial" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white">
+          <select id="selfRegUpaBial" required class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl text-base sm:text-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white focus:border-emerald-500 transition shadow-2xs">
             <option value="Upa Bial 1">Upa Bial 1</option>
             <option value="Upa Bial 2">Upa Bial 2</option>
             <option value="Upa Bial 3">Upa Bial 3</option>
@@ -697,12 +712,55 @@
           </select>
         </div>
 
-        <div class="pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
-          <button type="button" onclick="closeSelfRegisterModal()" class="px-4 py-2 text-xs font-semibold rounded-xl text-slate-600 hover:bg-slate-100 transition">
+        <!-- NEW: Thalai Kantu & Kristian Thalai Subscriptions (Aw / Aih) -->
+        <div class="p-4 sm:p-5 bg-gradient-to-r from-emerald-50/80 to-teal-50/80 border-2 border-emerald-300 rounded-2xl space-y-4 shadow-xs">
+          <div class="text-xs sm:text-sm font-black uppercase tracking-wider text-emerald-950 flex items-center gap-2">
+            <i data-lucide="book-open" class="w-5 h-5 text-emerald-700"></i>
+            <span>Chanchinbu Lak Duhna (Subscriptions)</span>
+          </div>
+
+          <!-- Thalai Kantu -->
+          <div>
+            <label class="block text-sm sm:text-base font-bold text-slate-800 mb-1.5">
+              Thalai Kantu i la dawn em? <span class="text-rose-600">*</span>
+            </label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <label class="flex items-center justify-center gap-2 py-3 px-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-emerald-500 transition has-checked:border-emerald-600 has-checked:bg-emerald-100/70 font-bold text-sm sm:text-base text-slate-800">
+                <input type="radio" name="selfRegThalaiKantu" value="Aw" checked class="w-4 h-4 accent-emerald-600">
+                <span>Aw</span>
+              </label>
+              <label class="flex items-center justify-center gap-2 py-3 px-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-rose-400 transition has-checked:border-rose-600 has-checked:bg-rose-100/70 font-bold text-sm sm:text-base text-slate-800">
+                <input type="radio" name="selfRegThalaiKantu" value="Aih" class="w-4 h-4 accent-rose-600">
+                <span>Aih</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Kristian Thalai -->
+          <div>
+            <label class="block text-sm sm:text-base font-bold text-slate-800 mb-1.5">
+              Kristian Thalai i la dawn em? <span class="text-rose-600">*</span>
+            </label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <label class="flex items-center justify-center gap-2 py-3 px-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-emerald-500 transition has-checked:border-emerald-600 has-checked:bg-emerald-100/70 font-bold text-sm sm:text-base text-slate-800">
+                <input type="radio" name="selfRegKristianThalai" value="Aw" checked class="w-4 h-4 accent-emerald-600">
+                <span>Aw</span>
+              </label>
+              <label class="flex items-center justify-center gap-2 py-3 px-4 bg-white border-2 border-slate-200 rounded-xl cursor-pointer hover:border-rose-400 transition has-checked:border-rose-600 has-checked:bg-rose-100/70 font-bold text-sm sm:text-base text-slate-800">
+                <input type="radio" name="selfRegKristianThalai" value="Aih" class="w-4 h-4 accent-rose-600">
+                <span>Aih</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="pt-3 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
+          <button type="button" onclick="closeSelfRegisterModal()" class="w-full sm:w-auto px-5 py-3 text-sm font-semibold rounded-2xl text-slate-600 hover:bg-slate-100 transition cursor-pointer">
             Cancel
           </button>
-          <button type="submit" class="px-6 py-2.5 text-xs font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white transition shadow-sm flex items-center gap-1.5">
-            <i data-lucide="check" class="w-4 h-4"></i>
+          <button type="submit" class="w-full sm:w-auto px-8 py-3.5 text-base sm:text-lg font-black rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white transition shadow-md flex items-center justify-center gap-2 active:scale-98 cursor-pointer">
+            <i data-lucide="check-circle" class="w-5 h-5"></i>
             <span>In-ziak lut rawh (Submit Registration)</span>
           </button>
         </div>
@@ -1454,5 +1512,98 @@
 
   <!-- Application Logic (Cache-busted) -->
   <script src="app.js?v=20261112_fast" defer></script>
+  <!-- Hidden Iframe for 100% Reliable Printing (Bypasses popup blocker on all computers) -->
+  <iframe id="printExecutionIframe" style="position: fixed; right: 100%; bottom: 100%; width: 0; height: 0; border: 0; opacity: 0; pointer-events: none;" aria-hidden="true"></iframe>
+
+  <!-- 10. DATA SYNC & CLOUD DATABASE MODAL (For Secretary to sync PC & Phone) -->
+  <div id="dataSyncModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 hidden modal-backdrop">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150 font-sans">
+      
+      <div class="bg-gradient-to-r from-indigo-900 to-blue-900 text-white px-6 py-5 flex items-center justify-between">
+        <div>
+          <h3 class="text-xl font-black text-white flex items-center gap-2">
+            <i data-lucide="refresh-cw" class="w-5 h-5 text-indigo-300"></i>
+            <span>Data Sync & Device Transfer</span>
+          </h3>
+          <p class="text-xs text-indigo-200 mt-0.5">Phone leh Computer data in-ṭawm theihna</p>
+        </div>
+        <button onclick="closeDataSyncModal()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
+        <!-- Option 1: Instant Backup / Transfer -->
+        <div class="p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl space-y-3">
+          <div class="flex items-center gap-2 text-slate-800 font-bold text-sm">
+            <i data-lucide="download" class="w-4 h-4 text-indigo-600"></i>
+            <span>1. Instant File Transfer (Offline / Anytime)</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Computer-a member awm zawng zawng hi file-ah download la, phone-ah WhatsApp-in thawn la, phone aṭangin <b>"Import Data"</b> hmetin 1-second chhungin a rawn lut vek ang!
+          </p>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button type="button" onclick="exportAllDataBackup()" class="py-2.5 px-3 bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>Export Data (JSON)</span>
+            </button>
+            <label class="py-2.5 px-3 bg-white border-2 border-indigo-300 hover:bg-indigo-50 text-indigo-900 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition cursor-pointer">
+              <i data-lucide="upload" class="w-4 h-4 text-indigo-700"></i>
+              <span>Import Data</span>
+              <input type="file" accept=".json" onchange="importDataBackup(event)" style="display: none;">
+            </label>
+          </div>
+        </div>
+
+        <!-- Option 2: 24/7 Cloud Database (Firebase) -->
+        <div class="p-4 bg-blue-50/70 border-2 border-blue-200 rounded-2xl space-y-3">
+          <div class="flex items-center gap-2 text-blue-900 font-bold text-sm">
+            <i data-lucide="cloud" class="w-4 h-4 text-blue-600"></i>
+            <span>2. 24/7 Cloud Database Sync (Firebase)</span>
+          </div>
+          <p class="text-xs text-blue-950 leading-relaxed">
+            Firebase Realtime Database (Free) URL i dah chuan, <b>avsktp.github.io</b> aṭangin phone leh computer zawng zawngin data in-sync vek nghal ang!
+          </p>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Firebase Database URL</label>
+            <input 
+              type="url" 
+              id="cloudDbUrlInput" 
+              placeholder="https://your-ktp-db-default-rtdb.firebaseio.com" 
+              class="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-1">
+            <button type="button" onclick="saveCloudDbUrl()" class="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer">
+              Save Cloud URL
+            </button>
+            <button type="button" onclick="testCloudDbSync()" class="px-3 py-2 bg-white border border-blue-300 text-blue-800 font-bold text-xs rounded-xl hover:bg-blue-50 transition cursor-pointer">
+              Sync / Fetch Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Option 3: Local Server start.bat -->
+        <div class="p-4 bg-emerald-50/70 border-2 border-emerald-200 rounded-2xl space-y-2 text-xs text-emerald-950">
+          <div class="font-bold text-emerald-900 flex items-center gap-1.5 text-sm">
+            <i data-lucide="zap" class="w-4 h-4 text-emerald-700"></i>
+            <span>3. start.bat (Computer aṭanga Phone connect-na)</span>
+          </div>
+          <p>
+            I computer-ah <b>start.bat</b> kha double-click la, Cloudflare link (e.g. <code>https://...trycloudflare.com</code>) a rawn pe ang che. Chu link chu phone-ah i hawn chuan, computer leh phone-in <b>data pakhat chiah</b> in-ṭawmin a sync nghal vek a ni!
+          </p>
+        </div>
+
+      </div>
+
+      <div class="p-4 bg-slate-100 border-t border-slate-200 flex justify-end">
+        <button type="button" onclick="closeDataSyncModal()" class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition cursor-pointer">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+  
 </body>
 </html>
