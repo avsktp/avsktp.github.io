@@ -199,11 +199,123 @@ function initApp() {
     lucide.createIcons();
   }
 
-  // 3. BACKGROUND SYNC (ONLY if running on local server, never on github.io)
-  const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  if (isLocalServer) {
-    setTimeout(backgroundServerSync, 100);
+  // 3. START REAL-TIME AUTO-SYNC ENGINE (Syncs phone, computer, laptop automatically every ~1.8s)
+  startAutoSyncEngine();
+}
+
+// ==================== REAL-TIME AUTO-SYNC ENGINE (NO BUTTON PRESS, NO REFRESH) ====================
+let currentServerVersion = 0;
+let autoSyncIntervalTimer = null;
+let isSyncingFromServer = false;
+
+async function startAutoSyncEngine() {
+  if (autoSyncIntervalTimer) {
+    clearInterval(autoSyncIntervalTimer);
+    autoSyncIntervalTimer = null;
   }
+
+  // Load server signatures on startup
+  loadServerSignatures();
+
+  // Run initial version check
+  checkServerVersionForSync();
+
+  // Poll version every 1800ms (1.8s) across all devices
+  autoSyncIntervalTimer = setInterval(checkServerVersionForSync, 1800);
+}
+
+async function checkServerVersionForSync() {
+  if (isSyncingFromServer) return;
+  try {
+    const res = await fetch('/api/version', { cache: 'no-store' });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json || !json.success) return;
+
+    if (currentServerVersion === 0) {
+      currentServerVersion = json.version;
+      return;
+    }
+
+    if (json.version !== currentServerVersion) {
+      currentServerVersion = json.version;
+      await syncDataFromServer();
+    }
+  } catch (err) {}
+}
+
+async function syncDataFromServer() {
+  isSyncingFromServer = true;
+  try {
+    const [memRes, sigRes] = await Promise.all([
+      fetch('/api/members', { cache: 'no-store' }),
+      fetch('/api/signatures', { cache: 'no-store' })
+    ]);
+
+    if (memRes.ok) {
+      const memJson = await memRes.json();
+      if (memJson && memJson.data && Array.isArray(memJson.data)) {
+        members = memJson.data;
+        saveToLocalStorage(members);
+        renderMembers();
+        updateStats();
+      }
+    }
+
+    if (sigRes.ok) {
+      const sigJson = await sigRes.json();
+      if (sigJson && sigJson.data) {
+        if (sigJson.data.leaderSignature !== undefined) {
+          localStorage.setItem('ktp_leader_signature', sigJson.data.leaderSignature || '');
+        }
+        if (sigJson.data.secretarySignature !== undefined) {
+          localStorage.setItem('ktp_secretary_signature', sigJson.data.secretarySignature || '');
+        }
+        updateIdCardSignatures();
+      }
+    }
+  } catch (err) {
+    console.warn('[AutoSync] Server sync warning:', err);
+  } finally {
+    isSyncingFromServer = false;
+  }
+}
+
+async function loadServerSignatures() {
+  try {
+    const res = await fetch('/api/signatures', { cache: 'no-store' });
+    if (!res.ok) return;
+    const json = await res.json();
+    if (json && json.data) {
+      if (json.data.leaderSignature) {
+        localStorage.setItem('ktp_leader_signature', json.data.leaderSignature);
+      }
+      if (json.data.secretarySignature) {
+        localStorage.setItem('ktp_secretary_signature', json.data.secretarySignature);
+      }
+      updateIdCardSignatures();
+    }
+  } catch (e) {}
+}
+
+async function syncSignaturesToServer() {
+  try {
+    const payload = {
+      leaderSignature: getLeaderSignature(),
+      secretarySignature: getSecretarySignature()
+    };
+    const res = await fetch('/api/signatures', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.version) {
+        currentServerVersion = json.version;
+      }
+    }
+  } catch (e) {}
 }
 
 if (document.readyState === 'loading') {
@@ -594,7 +706,6 @@ function openSelfRegisterModal() {
     const phoneEl = document.getElementById('selfRegPhone');
     const houseEl = document.getElementById('selfRegHouseNo');
     const groupEl = document.getElementById('selfRegGroup');
-    const genderEl = document.getElementById('selfRegGender');
     const bialEl = document.getElementById('selfRegUpaBial');
     const modalEl = document.getElementById('selfRegisterModal');
 
@@ -602,7 +713,6 @@ function openSelfRegisterModal() {
     if (phoneEl) phoneEl.value = '';
     if (houseEl) houseEl.value = '';
     if (groupEl) groupEl.value = (activeGroupFilter && activeGroupFilter !== 'All') ? activeGroupFilter : 'Sadrak';
-    if (genderEl) genderEl.value = 'Mipa';
     if (bialEl) bialEl.value = 'Upa Bial 1';
 
     if (modalEl) {
@@ -636,7 +746,6 @@ async function handleSelfRegisterSubmit(e) {
   const parentsName = (document.getElementById('selfRegParentsName')?.value || '').trim();
   const group = document.getElementById('selfRegGroup').value || 'Unassigned';
   let phone = document.getElementById('selfRegPhone').value.trim().replace(/\D/g, '');
-  const gender = document.getElementById('selfRegGender').value;
   const houseNo = document.getElementById('selfRegHouseNo').value.trim();
   const upaBial = document.getElementById('selfRegUpaBial').value;
   const thalaiKantu = document.querySelector('input[name="selfRegThalaiKantu"]:checked')?.value || 'Aw';
@@ -648,10 +757,6 @@ async function handleSelfRegisterSubmit(e) {
   }
   if (!parentsName) {
     showToast('Khawngaihin Nu / Pa hming ziak rawh.', 'error');
-    return;
-  }
-  if (!gender) {
-    showToast('Khawngaihin Gender (Mipa/Hmeichhia) thlang rawh.', 'error');
     return;
   }
   if (!houseNo) {
@@ -676,7 +781,6 @@ async function handleSelfRegisterSubmit(e) {
     parentsName,
     group,
     phone,
-    gender,
     houseNo: houseNo || '-',
     upaBial: upaBial || 'Upa Bial 1',
     photo: currentSelfRegPhoto || '',
@@ -752,11 +856,17 @@ function saveToLocalStorage(data) {
 
 async function syncToServer(data) {
   try {
-    await fetch('/api/members', {
+    const res = await fetch('/api/members', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ members: data })
     });
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.version) {
+        currentServerVersion = json.version;
+      }
+    }
   } catch (e) {}
 }
 
@@ -1261,7 +1371,6 @@ function renderTableRows() {
           <div class="min-w-0">
             <span class="font-bold text-slate-900 text-sm block">${escapeHtml(member.name)}</span>
             <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
-              <span class="text-[11px] text-slate-500 font-medium">${member.gender === 'Mipa' ? 'Mipa' : 'Hmeichhia'}</span>
               <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${member.thalaiKantu === 'Aih' ? 'bg-slate-100 text-slate-400 line-through' : 'bg-emerald-100 text-emerald-800'}" title="Thalai Kantu: ${member.thalaiKantu || 'Aw'}">TK: ${member.thalaiKantu || 'Aw'}</span>
               <span class="text-[10px] px-1.5 py-0.5 rounded-md font-bold ${member.kristianThalai === 'Aih' ? 'bg-slate-100 text-slate-400 line-through' : 'bg-indigo-100 text-indigo-800'}" title="Kristian Thalai: ${member.kristianThalai || 'Aw'}">KT: ${member.kristianThalai || 'Aw'}</span>
             </div>
@@ -1422,7 +1531,6 @@ function renderCardsGrid() {
             ${photoHtml}
             <div class="min-w-0 flex-1">
               <h4 class="font-bold text-slate-900 text-sm truncate">${escapeHtml(member.name)}</h4>
-              <p class="text-[11px] text-slate-500">${member.gender === 'Mipa' ? 'Mipa' : 'Hmeichhia'}</p>
               <!-- Distinct separate rows for Nu/Pa, H/No., Upa Bial -->
               <div class="mt-2 space-y-1 text-[11px]">
                 <div class="flex items-center justify-between bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
@@ -1478,8 +1586,6 @@ function renderCardsGrid() {
 // Update Top Statistics (Total, Sadrak, Mesak, Abednego)
 function updateStats() {
   const total = members.length;
-  let male = 0;
-  let female = 0;
 
   const counts = {
     'Sadrak': 0,
@@ -1488,23 +1594,17 @@ function updateStats() {
   };
 
   members.forEach(m => {
-    if (m.gender === 'Mipa') male++;
-    if (m.gender === 'Hmeichhia') female++;
     if (counts.hasOwnProperty(m.group)) {
       counts[m.group]++;
     }
   });
 
   const elTotal = document.getElementById('statTotal');
-  const elMale = document.getElementById('statMale');
-  const elFemale = document.getElementById('statFemale');
   const elSadrak = document.getElementById('statSadrak');
   const elMesak = document.getElementById('statMesak');
   const elAbednego = document.getElementById('statAbednego');
 
   if (elTotal) elTotal.textContent = total;
-  if (elMale) elMale.textContent = male;
-  if (elFemale) elFemale.textContent = female;
 
   if (elSadrak) elSadrak.textContent = counts['Sadrak'];
   if (elMesak) elMesak.textContent = counts['Mesak'];
@@ -1627,7 +1727,6 @@ function openAddMemberModal() {
   if (document.getElementById('formParentsName')) document.getElementById('formParentsName').value = '';
   document.getElementById('formGroup').value = activeGroupFilter !== 'All' ? activeGroupFilter : 'Sadrak';
   document.getElementById('formPhone').value = '';
-  document.getElementById('formGender').value = 'Mipa';
   document.getElementById('formHouseNo').value = '';
   document.getElementById('formUpaBial').value = 'Upa Bial 1';
 
@@ -1656,7 +1755,6 @@ function openEditMemberModal(id) {
   if (document.getElementById('formParentsName')) document.getElementById('formParentsName').value = member.parentsName || '';
   document.getElementById('formGroup').value = member.group || '';
   document.getElementById('formPhone').value = member.phone || '';
-  document.getElementById('formGender').value = member.gender || 'Mipa';
   document.getElementById('formHouseNo').value = member.houseNo || '';
   document.getElementById('formUpaBial').value = member.upaBial || 'Upa Bial 1';
   // Subscriptions
@@ -1714,7 +1812,6 @@ async function handleSecretaryMemberSubmit(e) {
   const parentsName = (document.getElementById('formParentsName')?.value || '').trim();
   const group = document.getElementById('formGroup').value || 'Unassigned';
   let phone = document.getElementById('formPhone').value.trim().replace(/\D/g, '');
-  const gender = document.getElementById('formGender').value;
   const houseNo = document.getElementById('formHouseNo').value.trim();
   const upaBial = document.getElementById('formUpaBial').value;
   const thalaiKantu = document.querySelector('input[name="formThalaiKantu"]:checked')?.value || 'Aw';
@@ -1726,10 +1823,6 @@ async function handleSecretaryMemberSubmit(e) {
   }
   if (!parentsName) {
     showToast('Khawngaihin Nu / Pa hming ziak rawh.', 'error');
-    return;
-  }
-  if (!gender) {
-    showToast('Khawngaihin Gender (Mipa/Hmeichhia) thlang rawh.', 'error');
     return;
   }
   if (!houseNo) {
@@ -1758,7 +1851,6 @@ async function handleSecretaryMemberSubmit(e) {
         parentsName,
         group,
         phone,
-        gender,
         houseNo: houseNo || '-',
         upaBial: upaBial || 'Upa Bial 1',
         photo: currentFormPhoto || members[index].photo || '',
@@ -1777,7 +1869,6 @@ async function handleSecretaryMemberSubmit(e) {
       parentsName,
       group,
       phone,
-      gender,
       houseNo: houseNo || '-',
       upaBial: upaBial || 'Upa Bial 1',
       photo: currentFormPhoto || '',
@@ -1908,15 +1999,17 @@ function exportToCSV() {
     return;
   }
 
-  const headers = ['#', 'Name', 'Group', 'Contact', 'Gender', 'House No', 'Upa Bial'];
+  const headers = ['#', 'Name', 'Nu / Pa Hming', 'Group', 'Contact', 'House No', 'Upa Bial', 'Thalai Kantu', 'Kristian Thalai'];
   const rows = members.map((m, i) => [
     i + 1,
     `"${(m.name || '').replace(/"/g, '""')}"`,
+    `"${(m.parentsName || '').replace(/"/g, '""')}"`,
     `"${(m.group || '').replace(/"/g, '""')}"`,
     `"${m.phone || ''}"`,
-    m.gender || '',
     `"${(m.houseNo || '').replace(/"/g, '""')}"`,
-    `"${(m.upaBial || '').replace(/"/g, '""')}"`
+    `"${(m.upaBial || '').replace(/"/g, '""')}"`,
+    `"${m.thalaiKantu || 'Aw'}"`,
+    `"${m.kristianThalai || 'Aw'}"`
   ]);
 
   const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
@@ -1989,11 +2082,13 @@ function handleImportFile() {
               newMembers.push({
                 id: 'ktp-' + Date.now() + '-' + i,
                 name: cols[1],
-                group: cols[2] || 'Sadrak',
-                phone: cols[3],
-                gender: cols[4] || 'Mipa',
+                parentsName: cols[2] || '',
+                group: cols[3] || 'Sadrak',
+                phone: cols[4] || '',
                 houseNo: cols[5] || '-',
                 upaBial: cols[6] || 'Upa Bial 1',
+                thalaiKantu: cols[7] || 'Aw',
+                kristianThalai: cols[8] || 'Aw',
                 photo: ''
               });
             }
@@ -2116,49 +2211,11 @@ function viewMemberIdCard(id) {
   currentViewedMember = member;
 
   const modal = document.getElementById('memberIdCardModal');
-  const nameEl = document.getElementById('idCardMemberName');
-  const idBadge = document.getElementById('idCardMemberIdBadge');
-  const groupBadge = document.getElementById('idCardGroupBadge');
-  const parentsEl = document.getElementById('idCardParentsName');
-  const houseEl = document.getElementById('idCardHouseNo');
-  const upaBialEl = document.getElementById('idCardUpaBial');
-  const phoneEl = document.getElementById('idCardPhone');
-  const photoContainer = document.getElementById('idCardPhotoContainer');
+  const wrapper = document.getElementById('idCardModalBodyWrapper');
 
-  if (nameEl) nameEl.textContent = member.name || '-';
-  if (idBadge) idBadge.textContent = getMemberCardNo(member, idx);
-  if (parentsEl) parentsEl.textContent = member.parentsName || '-';
-  if (houseEl) houseEl.textContent = member.houseNo || '-';
-  if (upaBialEl) upaBialEl.textContent = member.upaBial || '-';
-
-  const cleanPhone = (member.phone || '').replace(/\D/g, '');
-  const formattedPhone = cleanPhone.length === 10
-    ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
-    : cleanPhone;
-  if (phoneEl) phoneEl.textContent = formattedPhone || '-';
-
-  // Group at last - uncolored like other fields
-  const groupEl = document.getElementById('idCardGroup');
-  if (groupEl) {
-    groupEl.textContent = member.group || '-';
+  if (wrapper) {
+    wrapper.innerHTML = `<div id="idCardPrintTarget" class="rounded-xl shadow-xl overflow-hidden relative" style="width: 6.4cm; height: 9.4cm; min-height: 9.4cm; max-width: 6.4cm; box-sizing: border-box;">${buildCardHtml(member, idx)}</div>`;
   }
-
-  // Photo
-  const { initials, colorClass } = getAvatarData(member.name);
-  if (photoContainer) {
-    if (member.photo) {
-      photoContainer.innerHTML = `
-        <img src="${member.photo}" alt="${escapeHtml(member.name)}" style="width: 42px; height: 50px; border-radius: 4px; object-fit: cover; border: 1.2px solid #000000; background: #fff;" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
-        <div style="width: 42px; height: 50px; border-radius: 4px; background: #334155; color: #fff; font-weight: 900; font-size: 12px; display: none; align-items: center; justify-content: center; border: 1.2px solid #000000;">${initials}</div>
-      `;
-    } else {
-      photoContainer.innerHTML = `
-        <div style="width: 42px; height: 50px; border-radius: 4px; background: #1e293b; color: #fff; font-weight: 900; font-size: 12px; display: flex; align-items: center; justify-content: center; border: 1.2px solid #000000;">${initials}</div>
-      `;
-    }
-  }
-
-  updateIdCardSignatures();
 
   if (modal) {
     modal.classList.remove('hidden');
@@ -2178,6 +2235,391 @@ function closeMemberIdCardModal() {
   }
 }
 
+
+// ==================== MEMBER ID CARD BUILDER & BULLETPROOF PRINT ENGINE ====================
+
+function buildCardHtml(member, index) {
+  if (!member) return '';
+  const cardNo = getMemberCardNo(member, index);
+  const uid = 'card_' + (member.id ? String(member.id).replace(/\W/g, '_') : index);
+
+  const cleanPhone = (member.phone || '').replace(/\D/g, '');
+  const formattedPhone = cleanPhone.length === 10
+    ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
+    : cleanPhone;
+
+  const { initials } = getAvatarData(member.name);
+  const photoHtml = member.photo
+    ? `<div style="width: 42px; height: 50px; flex-shrink: 0; border-radius: 4px; overflow: hidden; border: 1.2px solid #000000; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+         <img src="${member.photo}" alt="${escapeHtml(member.name)}" style="width: 100%; height: 100%; object-fit: cover;">
+       </div>`
+    : `<div style="width: 42px; height: 50px; flex-shrink: 0; border-radius: 4px; overflow: hidden; border: 1.2px solid #000000; background: #1e293b; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+         ${initials}
+       </div>`;
+
+  const leaderSig = getLeaderSignature();
+  const secSig = getSecretarySignature();
+
+  const leaderSigHtml = leaderSig
+    ? `<img src="${leaderSig}" alt="Leader Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply; background: transparent;">`
+    : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
+
+  const secSigHtml = secSig
+    ? `<img src="${secSig}" alt="Secretary Signature" style="max-height: 16px; max-width: 55px; object-fit: contain; mix-blend-mode: multiply; background: transparent;">`
+    : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
+
+  return `
+    <div class="card-item" style="width: 6.4cm; height: 9.4cm; min-height: 9.4cm; max-height: 9.4cm; position: relative; overflow: hidden; border: 1px solid #94a3b8; border-radius: 8px; box-sizing: border-box; background: transparent; color: #000000; font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; justify-content: space-between; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+      
+      <!-- Fluid Waves SVG Background (Light theme soft blue gradients matching sample image) -->
+      <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;" viewBox="0 0 240 365" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="bgGrad_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="30%" stop-color="#f0f7ff"/>
+            <stop offset="65%" stop-color="#e0effe"/>
+            <stop offset="100%" stop-color="#cfe5fc"/>
+          </linearGradient>
+
+          <linearGradient id="silk1_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+            <stop offset="0%" stop-color="#cfe5fc" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#e2f0fe" stop-opacity="0.95"/>
+          </linearGradient>
+          <linearGradient id="silk2_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+            <stop offset="0%" stop-color="#b4d7fa" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#d5ebfd" stop-opacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="silk3_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+            <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.88"/>
+            <stop offset="100%" stop-color="#bfe0fc" stop-opacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="silk4_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+            <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.82"/>
+            <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.88"/>
+          </linearGradient>
+          <linearGradient id="silk5_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+            <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.78"/>
+            <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.82"/>
+          </linearGradient>
+          <linearGradient id="silk6_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+            <stop offset="0%" stop-color="#2563eb" stop-opacity="0.75"/>
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.78"/>
+          </linearGradient>
+
+          <linearGradient id="goldAccent_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.7"/>
+            <stop offset="50%" stop-color="#d97706" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#b45309" stop-opacity="0.7"/>
+          </linearGradient>
+          <linearGradient id="ridgeLight_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.3"/>
+          </linearGradient>
+          <linearGradient id="ridgeDark_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#1e40af" stop-opacity="0.5"/>
+            <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.1"/>
+          </linearGradient>
+        </defs>
+
+        <rect width="240" height="365" fill="url(#bgGrad_${uid})"/>
+        <path d="M0,75 C60,65 140,115 240,90 L240,365 L0,365 Z" fill="url(#silk1_${uid})"/>
+        <path d="M0,75 C60,65 140,115 240,90" stroke="url(#ridgeLight_${uid})" stroke-width="1" fill="none"/>
+
+        <path d="M0,115 C55,100 135,155 240,130 L240,365 L0,365 Z" fill="url(#silk2_${uid})"/>
+        <path d="M0,115 C55,100 135,155 240,130" stroke="url(#ridgeLight_${uid})" stroke-width="0.8" fill="none"/>
+
+        <path d="M0,160 C65,145 145,195 240,175 L240,365 L0,365 Z" fill="url(#silk3_${uid})"/>
+        <path d="M0,160 C65,145 145,195 240,175" stroke="url(#ridgeDark_${uid})" stroke-width="0.9" fill="none"/>
+
+        <path d="M0,205 C55,190 140,240 240,220 L240,365 L0,365 Z" fill="url(#silk4_${uid})"/>
+        <path d="M0,205 C55,190 140,240 240,220" stroke="url(#ridgeLight_${uid})" stroke-width="0.7" fill="none"/>
+
+        <path d="M0,250 C70,240 150,285 240,265 L240,365 L0,365 Z" fill="url(#silk5_${uid})"/>
+        <path d="M0,250 C70,240 150,285 240,265" stroke="url(#ridgeDark_${uid})" stroke-width="0.8" fill="none"/>
+
+        <path d="M0,295 C60,285 155,325 240,305 L240,365 L0,365 Z" fill="url(#silk6_${uid})"/>
+        <path d="M0,295 C60,285 155,325 240,305" stroke="url(#ridgeLight_${uid})" stroke-width="0.6" fill="none"/>
+
+        <path d="M0,86 C70,92 160,78 240,88" stroke="url(#goldAccent_${uid})" stroke-width="1.3" fill="none"/>
+      </svg>
+
+      <!-- Blank Top Hole Punch Space (7mm BLANK - NO LINES) & Church Header -->
+      <div style="position: relative; z-index: 2; padding: 7mm 5px 1px 5px; text-align: center; flex-shrink: 0;">
+        <img src="${ktpLogoBase64}" alt="Logo" style="width: 22px; height: 22px; object-fit: contain; margin: 0 auto 1px auto; display: block;">
+        <div style="text-align: center; line-height: 1.1; color: #000000;">
+          <div style="font-size: 6.2px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
+          <div style="font-size: 5.2px; font-style: italic; margin-top: 0.5px;">(Presbyterian Church of India)</div>
+          <div style="font-size: 6.8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 1px;">KRISTIAN THALAI PAWL</div>
+          <div style="font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2px;">ARMED VENG SOUTH BRANCH</div>
+        </div>
+        <div style="margin-top: 1.5px; text-align: center;">
+          <span style="font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1.2px solid #000000; padding-bottom: 0.5px; display: inline-block;">
+            MEMBER CARD
+          </span>
+        </div>
+      </div>
+
+      <!-- Member Details Body (Photo + Info + Signatures) -->
+      <div style="position: relative; z-index: 2; padding: 0 6px 4px 6px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
+        
+        <!-- Top Section: Photo on Left, Name & Card ID on Right -->
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+          ${photoHtml}
+          <div style="flex-grow: 1; overflow: hidden; line-height: 1.15;">
+            <div style="font-size: 9px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.2px; line-height: 1.15; max-height: 24px; overflow: hidden;">
+              ${escapeHtml(member.name || '-')}
+            </div>
+            <div style="margin-top: 2px;">
+              <span style="font-size: 6.8px; font-family: monospace; font-weight: 900; color: #000000; background: rgba(255,255,255,0.75); border: 1px solid rgba(0,0,0,0.4); border-radius: 3px; padding: 0.5px 3.5px; display: inline-block;">
+                ${cardNo}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal Details List (Translucent Glassy Rows so waves show through) -->
+        <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 1px; margin: 1px 0; color: #000000;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
+            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Nu / Pa Hming:</span>
+            <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(member.parentsName || '-')}</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
+            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">House No:</span>
+            <span style="font-size: 7.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(member.houseNo || '-')}</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
+            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Upa Bial:</span>
+            <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right;">${escapeHtml(member.upaBial || '-')}</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
+            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Phone:</span>
+            <span style="font-size: 7.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${formattedPhone || '-'}</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
+            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Group:</span>
+            <span style="font-size: 7.2px; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(member.group || '-')}</span>
+          </div>
+        </div>
+
+        <!-- Motto -->
+        <div style="position: relative; z-index: 2; text-align: center; margin: 1px 0;">
+          <span style="font-size: 6.2px; font-style: italic; color: #000000; font-weight: 700;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
+        </div>
+
+        <!-- Signatures (Leader on left, Secretary on right) -->
+        <div style="position: relative; z-index: 2; border-top: 1px solid #000000; padding-top: 1px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; color: #000000;">
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div style="height: 16px; display: flex; align-items: center; justify-content: center;">
+              ${leaderSigHtml}
+            </div>
+            <span style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">Branch Leader</span>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center;">
+            <div style="height: 16px; display: flex; align-items: center; justify-content: center;">
+              ${secSigHtml}
+            </div>
+            <span style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">Branch Secretary</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  `;
+}
+
+// Print All Member Cards in A4 Landscape (8 Cards per page: 4 cols x 2 rows, 6.4cm x 9.4cm)
+function printAllMemberCardsA4() {
+  const targetMembers = (filteredMembers && filteredMembers.length > 0) ? filteredMembers : members;
+  if (!targetMembers || targetMembers.length === 0) {
+    showToast('Print tur member record an awm lo.', 'error');
+    return;
+  }
+
+  showToast(`Member card ${targetMembers.length} A4-ah batch print tura buatsaih mek a ni...`, 'info');
+
+  const chunkSize = 8;
+  const pages = [];
+  for (let i = 0; i < targetMembers.length; i += chunkSize) {
+    const chunk = targetMembers.slice(i, i + chunkSize);
+    const cardsHtml = chunk.map((m, idxInChunk) => {
+      const overallIndex = i + idxInChunk;
+      return buildCardHtml(m, overallIndex);
+    }).join('\n');
+
+    pages.push(`
+      <div class="a4-page">
+        ${cardsHtml}
+      </div>
+    `);
+  }
+
+  const pagesHtml = pages.join('\n');
+
+  const fullHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>KTP Member Cards - A4 Landscape Batch Print (8 Cards: 6.4cm x 9.4cm)</title>
+      <style>
+        @page {
+          size: A4 landscape;
+          margin: 4mm 6mm;
+        }
+        * {
+          box-sizing: border-box;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        html, body {
+          margin: 0;
+          padding: 0;
+          background: #ffffff;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+          color: #000000;
+        }
+        .a4-page {
+          width: 285mm;
+          height: 198mm;
+          display: grid;
+          grid-template-columns: repeat(4, 6.4cm);
+          grid-template-rows: repeat(2, 9.4cm);
+          gap: 3mm 5mm;
+          justify-content: center;
+          align-content: center;
+          page-break-after: always;
+          margin: 0 auto;
+          box-sizing: border-box;
+        }
+        .a4-page:last-child {
+          page-break-after: auto;
+        }
+        .card-item {
+          width: 6.4cm !important;
+          height: 9.4cm !important;
+          page-break-inside: avoid;
+        }
+        @media screen {
+          body {
+            background: #f1f5f9;
+            padding: 20px;
+          }
+          .a4-page {
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 24px;
+          }
+          .print-tip-bar {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            padding: 12px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 10px;
+            max-width: 900px;
+            margin: 0 auto 18px auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          }
+        }
+        @media print {
+          body {
+            padding: 0 !important;
+            background: #ffffff !important;
+          }
+          .print-tip-bar {
+            display: none !important;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="print-tip-bar">
+        💡 <b>Print Tip:</b> Print dialog-ah khan <b>"Background graphics"</b> (e.g. More settings -> Background graphics) hi check / on tur a ni a, tichuan card background design leh color zawng zawng a fiah em em-in a chhuak vek ang!
+      </div>
+      ${pagesHtml}
+    </body>
+    </html>
+  `;
+
+  printViaIframeOrWindow('KTP Member Cards - A4 Batch Print', fullHtml);
+}
+
+// Print Single Member ID Card
+function printMemberIdCard() {
+  if (!currentViewedMember) {
+    showToast('Print tur member card hmuh a ni lo.', 'error');
+    return;
+  }
+  const idx = members.findIndex(m => String(m.id) === String(currentViewedMember.id));
+  const cardHtml = buildCardHtml(currentViewedMember, idx);
+  const fullHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>${escapeHtml(currentViewedMember.name)} - KTP Member Card</title>
+      <style>
+        @page {
+          size: auto;
+          margin: 10mm;
+        }
+        * {
+          box-sizing: border-box;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
+        }
+        html, body {
+          margin: 0;
+          padding: 0;
+          background: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          font-family: system-ui, -apple-system, sans-serif;
+        }
+        .card-wrapper {
+          width: 6.4cm;
+          height: 9.4cm;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="card-wrapper">
+        ${cardHtml}
+      </div>
+    </body>
+    </html>
+  `;
+  printViaIframeOrWindow(`${currentViewedMember.name} - Member Card`, fullHtml);
+}
+
+// Share Member ID Card Info via WhatsApp
+function shareMemberIdCardWhatsApp() {
+  if (!currentViewedMember) return;
+  const m = currentViewedMember;
+  const idx = members.findIndex(item => String(item.id) === String(m.id));
+  const cardNo = getMemberCardNo(m, idx);
+  const text = `*KRISTIAN ṬHALAI PAWL*\n*Armed Veng South Branch*\n*MEMBER CARD*\n\n` +
+    `🪪 *Card No:* ${cardNo}\n` +
+    `👤 *Hming:* ${m.name || '-'}\n` +
+    `👨‍👩‍👦 *Nu/Pa Hming:* ${m.parentsName || '-'}\n` +
+    `🏠 *In No:* ${m.houseNo || '-'}\n` +
+    `📍 *Upa Bial:* ${m.upaBial || '-'}\n` +
+    `📞 *Phone:* ${m.phone || '-'}\n` +
+    `👥 *Group:* ${m.group || '-'}\n\n` +
+    `_"Rawngbawl tura chhandam" (Ephesi 2:10)_`;
+  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
 
 // ==================== BULLETPROOF PRINTING (NEVER BLOCKED BY POPUP BLOCKERS) ====================
 function printViaIframeOrWindow(title, htmlContent) {
@@ -2216,73 +2658,22 @@ function printViaIframeOrWindow(title, htmlContent) {
 }
 
 function fallbackPrintWindow(title, htmlContent) {
-  const printHtml = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>KTP Member Cards - A4 Landscape Batch Print (8 Cards: 5.8cm x 8.8cm)</title>
-      <style>
-        @page {
-          size: A4 landscape;
-          margin: 6mm 10mm;
-        }
-        * {
-          box-sizing: border-box;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-          color-adjust: exact !important;
-        }
-        html, body {
-          margin: 0;
-          padding: 0;
-          background: #ffffff;
-          font-family: system-ui, -apple-system, sans-serif;
-          color: #000000;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
-        }
-        .a4-page {
-          page-break-after: always;
-        }
-        .a4-page:last-child {
-          page-break-after: auto;
-        }
-        .card-item {
-          page-break-inside: avoid;
-        }
-        @media screen {
-          .print-tip-bar {
-            background: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-            padding: 10px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 12px;
-            border-radius: 8px;
-            max-width: 800px;
-            margin: 10px auto;
-          }
-        }
-        @media print {
-          .print-tip-bar {
-            display: none !important;
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="print-tip-bar">
-        💡 <b>Print Tip:</b> Print dialog-ah khan <b>"Background graphics"</b> (e.g. More settings -> Background graphics) hi check / on tur a ni a, tichuan card background design leh color zawng zawng a fiah em em ang!
-      </div>
-      ${pagesHtml}
-    </body>
-    </html>
-  `;
-
-  printViaIframeOrWindow('KTP Member Cards A4 Batch Print', printHtml);
+  try {
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.open();
+      w.document.write(htmlContent);
+      w.document.close();
+      w.focus();
+      setTimeout(() => {
+        try { w.print(); } catch (e) {}
+      }, 500);
+    } else {
+      showToast('Print window popup a in-block. Khawngaihin popup allow rawh.', 'warning');
+    }
+  } catch (err) {
+    console.error('Fallback print window error:', err);
+  }
 }
 
 // ==================== AUTO-FIXED EXCEL EXPORT (.XLSX) ====================
@@ -2335,7 +2726,6 @@ function runActualExcelExport() {
         'House No.',
         'Upa Bial',
         'Phone Number',
-        'Gender',
         'Group',
         'Thalai Kantu',
         'Kristian Thalai'
@@ -2358,7 +2748,6 @@ function runActualExcelExport() {
         m.houseNo || '',
         m.upaBial || '',
         formattedPhone,
-        m.gender || '',
         m.group || 'Unassigned',
         m.thalaiKantu || 'Aw',
         m.kristianThalai || 'Aw'
@@ -2367,12 +2756,12 @@ function runActualExcelExport() {
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-    // Merge Headings across all 9 columns (A to I)
+    // Merge Headings across all 10 columns (A to J)
     ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // Row 1: MIZORAM PRESBYTERIAN KOHHRAN
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Row 2: (Presbyterian Church of India)
-      { s: { r: 2, c: 0 }, e: { r: 2, c: 10 } }, // Row 3: Kristian Thalai Pawl
-      { s: { r: 3, c: 0 }, e: { r: 3, c: 10 } }  // Row 4: Armed Veng South Branch
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } }, // Row 1: MIZORAM PRESBYTERIAN KOHHRAN
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } }, // Row 2: (Presbyterian Church of India)
+      { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } }, // Row 3: Kristian Thalai Pawl
+      { s: { r: 3, c: 0 }, e: { r: 3, c: 9 } }  // Row 4: Armed Veng South Branch
     ];
 
     // Row heights (Points)
@@ -2394,8 +2783,9 @@ function runActualExcelExport() {
       { wch: 16 }, // House No.
       { wch: 16 }, // Upa Bial
       { wch: 18 }, // Phone Number
-      { wch: 12 }, // Gender
-      { wch: 16 }  // Group (At Last)
+      { wch: 16 }, // Group (At Last)
+      { wch: 14 }, // Thalai Kantu
+      { wch: 14 }  // Kristian Thalai
     ];
 
     const borderThin = {
@@ -2438,7 +2828,7 @@ function runActualExcelExport() {
     }
 
     // Row 6: Column Headers (CENTERED, 12pt, BOLD, TIMES NEW ROMAN, LIGHT FILL)
-    for (let c = 0; c < 9; c++) {
+    for (let c = 0; c < 10; c++) {
       const cellRef = XLSX.utils.encode_cell({ r: 5, c: c });
       if (ws[cellRef]) {
         ws[cellRef].s = {
@@ -2451,11 +2841,11 @@ function runActualExcelExport() {
     }
 
     // Data Rows (Rows >= 6)
-    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:I6');
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1:J6');
     for (let R = 6; R <= range.e.r; ++R) {
       if (!ws['!rows'][R]) ws['!rows'][R] = { hpt: 21 };
 
-      for (let C = 0; C <= 8; ++C) {
+      for (let C = 0; C <= 9; ++C) {
         const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
         if (ws[cellRef]) {
           const isLeftAligned = (C === 2 || C === 3); // Member Name & Nu/Pa Hming
@@ -2509,11 +2899,11 @@ function exportToExcelHtmlFallback() {
     <body>
       <table>
         <thead>
-          <tr><th colspan="9" class="head-1">MIZORAM PRESBYTERIAN KOHHRAN</th></tr>
-          <tr><th colspan="9" class="head-2">(Presbyterian Church of India)</th></tr>
-          <tr><th colspan="9" class="head-3">Kristian Thalai Pawl</th></tr>
-          <tr><th colspan="9" class="head-4">Armed Veng South Branch</th></tr>
-          <tr style="height: 12px;"><th colspan="9" style="background:#fff;border:none;"></th></tr>
+          <tr><th colspan="10" class="head-1">MIZORAM PRESBYTERIAN KOHHRAN</th></tr>
+          <tr><th colspan="10" class="head-2">(Presbyterian Church of India)</th></tr>
+          <tr><th colspan="10" class="head-3">Kristian Thalai Pawl</th></tr>
+          <tr><th colspan="10" class="head-4">Armed Veng South Branch</th></tr>
+          <tr style="height: 12px;"><th colspan="10" style="background:#fff;border:none;"></th></tr>
           <tr>
             <th>Serial No.</th>
             <th>Card No.</th>
@@ -2522,8 +2912,9 @@ function exportToExcelHtmlFallback() {
             <th>House No.</th>
             <th>Upa Bial</th>
             <th>Phone Number</th>
-            <th>Gender</th>
             <th>Group</th>
+            <th>Thalai Kantu</th>
+            <th>Kristian Thalai</th>
           </tr>
         </thead>
         <tbody>
@@ -2545,8 +2936,9 @@ function exportToExcelHtmlFallback() {
         <td class="text-cell">${escapeHtml(m.houseNo || '')}</td>
         <td class="center-cell">${escapeHtml(m.upaBial || '')}</td>
         <td class="text-cell">${formattedPhone}</td>
-        <td class="center-cell">${escapeHtml(m.gender || '')}</td>
         <td class="center-cell">${escapeHtml(m.group || 'Unassigned')}</td>
+        <td class="center-cell">${escapeHtml(m.thalaiKantu || 'Aw')}</td>
+        <td class="center-cell">${escapeHtml(m.kristianThalai || 'Aw')}</td>
       </tr>
     `;
   });
@@ -2704,6 +3096,16 @@ function updateIdCardSignatures() {
       secArea.innerHTML = `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
     }
   }
+
+  // If card modal is currently visible, update it dynamically
+  const modal = document.getElementById('memberIdCardModal');
+  if (modal && !modal.classList.contains('hidden') && currentViewedMember) {
+    const idx = members.findIndex(m => String(m.id) === String(currentViewedMember.id));
+    const wrapper = document.getElementById('idCardModalBodyWrapper');
+    if (wrapper) {
+      wrapper.innerHTML = `<div id="idCardPrintTarget" class="rounded-xl shadow-xl overflow-hidden relative" style="width: 6.4cm; height: 9.4cm; min-height: 9.4cm; max-width: 6.4cm; box-sizing: border-box;">${buildCardHtml(currentViewedMember, idx)}</div>`;
+    }
+  }
 }
 
 function openSignatureUploadModal() {
@@ -2761,6 +3163,7 @@ function closeSignatureUploadModal() {
     modal.style.display = 'none';
   }
   updateIdCardSignatures();
+  syncSignaturesToServer();
 }
 
 function handleSignatureUpload(event, type) {
@@ -2818,6 +3221,7 @@ function handleSignatureUpload(event, type) {
         }
 
         updateIdCardSignatures();
+        syncSignaturesToServer();
       });
     };
     img.src = e.target.result;
@@ -2847,6 +3251,7 @@ function clearSignature(type) {
     showToast('Branch Secretary signature paih a ni ta.', 'info');
   }
   updateIdCardSignatures();
+  syncSignaturesToServer();
 }
 
 
@@ -2989,3 +3394,29 @@ function importDataBackup(event) {
   reader.readAsText(file);
   event.target.value = '';
 }
+
+// Global Window Bindings for inline HTML event handlers
+window.printAllMemberCardsA4 = printAllMemberCardsA4;
+window.printMemberIdCard = printMemberIdCard;
+window.shareMemberIdCardWhatsApp = shareMemberIdCardWhatsApp;
+window.viewMemberIdCard = viewMemberIdCard;
+window.closeMemberIdCardModal = closeMemberIdCardModal;
+window.openSignatureUploadModal = openSignatureUploadModal;
+window.closeSignatureUploadModal = closeSignatureUploadModal;
+window.handleSignatureUpload = handleSignatureUpload;
+window.clearSignature = clearSignature;
+window.openSelfRegisterModal = openSelfRegisterModal;
+window.closeSelfRegisterModal = closeSelfRegisterModal;
+window.handleSelfRegisterSubmit = handleSelfRegisterSubmit;
+window.openSecretaryLoginModal = openSecretaryLoginModal;
+window.closeSecretaryLoginModal = closeSecretaryLoginModal;
+window.handleSecretaryLogin = handleSecretaryLogin;
+window.logoutSecretary = logoutSecretary;
+window.openMemberModal = openMemberModal;
+window.closeMemberModal = closeMemberModal;
+window.handleSecretaryMemberSubmit = handleSecretaryMemberSubmit;
+window.deleteMember = deleteMember;
+window.confirmDelete = confirmDelete;
+window.closeDeleteModal = closeDeleteModal;
+window.switchTab = switchTab;
+window.exportToExcel = exportToExcel;
