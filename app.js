@@ -143,6 +143,16 @@ const NOTICE_CAT_CONFIG = {
     badgeClass: 'badge-cat-general',
     icon: 'bell',
     label: 'General'
+  },
+  'Other': {
+    badgeClass: 'badge-cat-general',
+    icon: 'tag',
+    label: 'Dangte'
+  },
+  'Dangte': {
+    badgeClass: 'badge-cat-general',
+    icon: 'tag',
+    label: 'Dangte'
   }
 };
 
@@ -692,6 +702,21 @@ function closeLightboxModal() {
   }
 }
 
+function openNoticeModalWithPhoto() {
+  openNoticeModal();
+  setTimeout(() => {
+    const galleryInput = document.getElementById('noticeGalleryInput');
+    if (galleryInput) {
+      try {
+        galleryInput.click();
+      } catch (err) {
+        console.warn('File input auto-click suppressed by browser:', err);
+      }
+    }
+  }, 250);
+}
+
+window.openNoticeModalWithPhoto = openNoticeModalWithPhoto;
 window.openLightboxModal = openLightboxModal;
 window.closeLightboxModal = closeLightboxModal;
 window.clearNoticePhoto = clearNoticePhoto;
@@ -935,8 +960,13 @@ function renderNotices() {
 
   // Filter notices by category
   filteredNotices = notices.filter(n => {
-    if (activeNoticeCategory !== 'All' && n.category !== activeNoticeCategory) {
-      return false;
+    if (activeNoticeCategory !== 'All') {
+      if (activeNoticeCategory === 'Other') {
+        const standardCats = ['Inkhawm', 'Hnatlang', 'Zaipawl', 'General'];
+        if (standardCats.includes(n.category)) return false;
+      } else if (n.category !== activeNoticeCategory) {
+        return false;
+      }
     }
     return true;
   });
@@ -966,7 +996,11 @@ function renderNotices() {
   if (emptyState) emptyState.classList.add('hidden');
 
   container.innerHTML = filteredNotices.map(notice => {
-    const catCfg = NOTICE_CAT_CONFIG[notice.category] || NOTICE_CAT_CONFIG['General'];
+    const catCfg = NOTICE_CAT_CONFIG[notice.category] || {
+      badgeClass: 'badge-cat-general',
+      icon: 'tag',
+      label: notice.category || 'Dangte'
+    };
     const formattedDate = formatNoticeDate(notice.date);
     const contentHtml = escapeHtml(notice.content || '').replace(/\n/g, '<br>');
 
@@ -1057,7 +1091,7 @@ function renderNotices() {
 function filterNotices(category) {
   activeNoticeCategory = category;
 
-  const categories = ['All', 'Inkhawm', 'Hnatlang', 'Zaipawl', 'General'];
+  const categories = ['All', 'Inkhawm', 'Hnatlang', 'Zaipawl', 'General', 'Other'];
   categories.forEach(cat => {
     const el = document.getElementById(`noticeFilter${cat}`);
     if (!el) return;
@@ -1102,6 +1136,20 @@ _"Rawngbawl tura chhandam" (Ephesi 2:10)_`;
   window.open(url, '_blank');
 }
 
+function handleNoticeCategoryChange() {
+  const catInput = document.getElementById('formNoticeCategory');
+  const otherWrap = document.getElementById('noticeOtherCategoryWrap');
+  const otherInput = document.getElementById('noticeOtherCategoryInput');
+  if (catInput && otherWrap) {
+    if (catInput.value === 'Other') {
+      otherWrap.classList.remove('hidden');
+      if (otherInput) otherInput.focus();
+    } else {
+      otherWrap.classList.add('hidden');
+    }
+  }
+}
+
 function openNoticeModal(id = null) {
   if (!isSecretaryLoggedIn) {
     showToast('Secretary chauhvin Notice a siam / edit thei.', 'error');
@@ -1112,10 +1160,14 @@ function openNoticeModal(id = null) {
   const titleInput = document.getElementById('formNoticeTitle');
   const idInput = document.getElementById('formNoticeId');
   const catInput = document.getElementById('formNoticeCategory');
+  const otherWrap = document.getElementById('noticeOtherCategoryWrap');
+  const otherInput = document.getElementById('noticeOtherCategoryInput');
   const dateInput = document.getElementById('formNoticeDate');
   const contentInput = document.getElementById('formNoticeContent');
   const titleEl = document.getElementById('noticeModalTitle');
   const btnSubmitText = document.getElementById('btnNoticeSubmitText');
+
+  const standardCats = ['Inkhawm', 'Hnatlang', 'Zaipawl', 'General'];
 
   if (id) {
     // Edit Notice
@@ -1123,7 +1175,17 @@ function openNoticeModal(id = null) {
     if (!notice) return;
     if (idInput) idInput.value = notice.id;
     if (titleInput) titleInput.value = notice.title || '';
-    if (catInput) catInput.value = notice.category || 'Inkhawm';
+    
+    if (standardCats.includes(notice.category)) {
+      if (catInput) catInput.value = notice.category;
+      if (otherWrap) otherWrap.classList.add('hidden');
+      if (otherInput) otherInput.value = '';
+    } else {
+      if (catInput) catInput.value = 'Other';
+      if (otherWrap) otherWrap.classList.remove('hidden');
+      if (otherInput) otherInput.value = notice.category || '';
+    }
+
     if (dateInput) dateInput.value = notice.date || new Date().toISOString().slice(0, 10);
     if (contentInput) contentInput.value = notice.content || '';
     if (titleEl) titleEl.textContent = 'Notice Siamthatna';
@@ -1142,7 +1204,21 @@ function openNoticeModal(id = null) {
     // Add New Notice
     if (idInput) idInput.value = '';
     if (titleInput) titleInput.value = '';
-    if (catInput) catInput.value = activeNoticeCategory !== 'All' ? activeNoticeCategory : 'Inkhawm';
+    
+    if (activeNoticeCategory !== 'All' && standardCats.includes(activeNoticeCategory)) {
+      if (catInput) catInput.value = activeNoticeCategory;
+      if (otherWrap) otherWrap.classList.add('hidden');
+      if (otherInput) otherInput.value = '';
+    } else if (activeNoticeCategory === 'Other') {
+      if (catInput) catInput.value = 'Other';
+      if (otherWrap) otherWrap.classList.remove('hidden');
+      if (otherInput) otherInput.value = '';
+    } else {
+      if (catInput) catInput.value = 'Inkhawm';
+      if (otherWrap) otherWrap.classList.add('hidden');
+      if (otherInput) otherInput.value = '';
+    }
+
     if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
     if (contentInput) contentInput.value = '';
     if (titleEl) titleEl.textContent = 'Notice Thar Tarchhuahna';
@@ -1158,6 +1234,10 @@ function openNoticeModal(id = null) {
 
 function closeNoticeModal() {
   clearNoticePhoto();
+  const otherWrap = document.getElementById('noticeOtherCategoryWrap');
+  const otherInput = document.getElementById('noticeOtherCategoryInput');
+  if (otherWrap) otherWrap.classList.add('hidden');
+  if (otherInput) otherInput.value = '';
   const modal = document.getElementById('noticeModal');
   if (modal) {
     modal.classList.add('hidden');
@@ -1174,7 +1254,11 @@ async function handleNoticeFormSubmit(e) {
 
   const id = document.getElementById('formNoticeId').value;
   const title = document.getElementById('formNoticeTitle').value.trim();
-  const category = document.getElementById('formNoticeCategory').value;
+  let category = document.getElementById('formNoticeCategory').value;
+  if (category === 'Other') {
+    const customCat = (document.getElementById('noticeOtherCategoryInput')?.value || '').trim();
+    category = customCat || 'Dangte';
+  }
   const date = document.getElementById('formNoticeDate').value;
   const content = document.getElementById('formNoticeContent').value.trim();
 
@@ -2403,12 +2487,15 @@ function buildCardHtml(member, index) {
         </div>
 
         <!-- Motto -->
-        <div style="position: relative; z-index: 2; text-align: center; margin: 1px 0;">
+        <div style="position: relative; z-index: 2; text-align: center; margin-top: 2px; margin-bottom: 2.5px;">
           <span style="font-size: 6.2px; font-style: italic; color: #000000; font-weight: 700;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
         </div>
 
+        <!-- Dedicated Divider Line Centered between Motto and Signatures -->
+        <div style="position: relative; z-index: 2; width: 90%; margin: 0 auto 2.5px auto; border-top: 1px solid #000000;"></div>
+
         <!-- Signatures (Leader on left, Secretary on right) -->
-        <div style="position: relative; z-index: 2; border-top: 1px solid #000000; padding-top: 1px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; color: #000000;">
+        <div style="position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; color: #000000;">
           <div style="display: flex; flex-direction: column; align-items: center;">
             <div style="height: 16px; display: flex; align-items: center; justify-content: center;">
               ${leaderSigHtml}
@@ -2619,6 +2706,119 @@ function shareMemberIdCardWhatsApp() {
     `_"Rawngbawl tura chhandam" (Ephesi 2:10)_`;
   const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');
+}
+
+// Download Member Card in High-Resolution JPEG (scale 3 = ~300 DPI)
+async function downloadMemberCardJpeg() {
+  if (!currentViewedMember) {
+    showToast('Member card en tur a awm lo.', 'error');
+    return;
+  }
+
+  const target = document.getElementById('idCardPrintTarget');
+  if (!target) {
+    showToast('Member card hmuh theih a ni lo.', 'error');
+    return;
+  }
+
+  showToast('Member Card JPEG siam mek a ni...', 'info');
+
+  try {
+    // If html2canvas is not yet available, load it dynamically
+    if (typeof html2canvas === 'undefined') {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'html2canvas.min.js';
+        script.onload = resolve;
+        script.onerror = () => {
+          // CDN fallback
+          const cdn = document.createElement('script');
+          cdn.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+          cdn.onload = resolve;
+          cdn.onerror = reject;
+          document.head.appendChild(cdn);
+        };
+        document.head.appendChild(script);
+      });
+    }
+
+    const canvas = await html2canvas(target, {
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+
+    const safeName = (currentViewedMember.name || 'Member').trim().replace(/[^a-zA-Z0-9_\-\s]/g, '').replace(/\s+/g, '_');
+    const filename = `${safeName}_KTP_Card.jpg`;
+
+    if (canvas.toBlob) {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          triggerDataUrlDownload(canvas, filename);
+          return;
+        }
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
+        showToast(`${filename} download a ni ta!`, 'success');
+      }, 'image/jpeg', 0.95);
+    } else {
+      triggerDataUrlDownload(canvas, filename);
+    }
+  } catch (err) {
+    console.error('Error generating card JPEG:', err);
+    showToast('JPEG download theih a ni lo: ' + (err.message || err), 'error');
+  }
+}
+
+function triggerDataUrlDownload(canvas, filename) {
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = dataUrl;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast(`${filename} download a ni ta!`, 'success');
+}
+
+// View Member Card in Large (High-Resolution Zoomed Preview Modal)
+function viewMemberCardLarge() {
+  if (!currentViewedMember) return;
+  const idx = members.findIndex(m => String(m.id) === String(currentViewedMember.id));
+  const cardHtml = buildCardHtml(currentViewedMember, idx);
+  const wrapper = document.getElementById('cardLargeTargetWrapper');
+  const modal = document.getElementById('cardLargeViewModal');
+  const title = document.getElementById('cardLargeModalTitle');
+
+  if (title) {
+    title.textContent = `${currentViewedMember.name || 'Member'} - Member Card`;
+  }
+  if (wrapper) {
+    wrapper.innerHTML = `<div class="rounded-xl shadow-2xl overflow-hidden relative" style="width: 6.4cm; height: 9.4cm; min-height: 9.4cm; max-width: 6.4cm; box-sizing: border-box;">${cardHtml}</div>`;
+  }
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+function closeCardLargeModal() {
+  const modal = document.getElementById('cardLargeViewModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
 }
 
 // ==================== BULLETPROOF PRINTING (NEVER BLOCKED BY POPUP BLOCKERS) ====================
@@ -3420,3 +3620,8 @@ window.confirmDelete = confirmDelete;
 window.closeDeleteModal = closeDeleteModal;
 window.switchTab = switchTab;
 window.exportToExcel = exportToExcel;
+window.downloadMemberCardJpeg = downloadMemberCardJpeg;
+window.viewMemberCardLarge = viewMemberCardLarge;
+window.closeCardLargeModal = closeCardLargeModal;
+window.handleNoticeCategoryChange = handleNoticeCategoryChange;
+window.openNoticeModalWithPhoto = openNoticeModalWithPhoto;

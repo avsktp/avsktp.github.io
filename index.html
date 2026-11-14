@@ -479,6 +479,9 @@
         <button onclick="filterNotices('General')" id="noticeFilterGeneral" class="notice-cat-chip px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50">
           General
         </button>
+        <button onclick="filterNotices('Other')" id="noticeFilterOther" class="notice-cat-chip px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50">
+          Dangte / Other
+        </button>
       </div>
 
       <!-- Notices Cards List -->
@@ -958,12 +961,22 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Category</label>
-            <select id="formNoticeCategory" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white">
+            <select id="formNoticeCategory" onchange="handleNoticeCategoryChange()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white cursor-pointer">
               <option value="Inkhawm">Inkhawm</option>
               <option value="Hnatlang">Hnatlang</option>
               <option value="Zaipawl">Zaipawl</option>
               <option value="General">General Announcement</option>
+              <option value="Other">Dangte (Other - Mahni ziah chawp)...</option>
             </select>
+            <!-- Custom Category Input (shown when 'Other' is selected) -->
+            <div id="noticeOtherCategoryWrap" class="hidden mt-2">
+              <input 
+                type="text" 
+                id="noticeOtherCategoryInput" 
+                placeholder="Category thar ziak rawh (e.g. Sports, Fellowship, etc.)..." 
+                class="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              >
+            </div>
           </div>
 
           <div>
@@ -998,21 +1011,33 @@
             </button>
           </div>
 
-          <!-- Upload Controls -->
-          <div id="noticePhotoUploadBox" class="space-y-2">
-            <input type="file" id="noticeCameraInput" accept="image/*" capture="user" onchange="handleNoticePhotoUpload(event)" style="display: none;">
+          <!-- Upload Controls (100% Clickable on All Devices) -->
+          <div id="noticePhotoUploadBox" class="space-y-2.5">
+            <input type="file" id="noticeCameraInput" accept="image/*" capture="environment" onchange="handleNoticePhotoUpload(event)" style="display: none;">
             <input type="file" id="noticeGalleryInput" accept="image/*" onchange="handleNoticePhotoUpload(event)" style="display: none;">
 
-            <div class="flex items-center gap-2 flex-wrap">
-              <button type="button" onclick="document.getElementById('noticeCameraInput').click()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95">
-                <i data-lucide="camera" class="w-4 h-4"></i>
-                <span>Camera Capture</span>
-              </button>
+            <!-- Main Big Tap Target -->
+            <label for="noticeGalleryInput" class="block border-2 border-dashed border-amber-300 hover:border-amber-500 bg-amber-50/60 hover:bg-amber-100/60 p-4 rounded-2xl text-center cursor-pointer transition active:scale-[0.99]">
+              <div class="flex flex-col items-center justify-center space-y-1.5 pointer-events-none">
+                <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shadow-2xs">
+                  <i data-lucide="image-plus" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">Heta hi hmet la, Flyer / Poster thlalak thlang rawh</span>
+                <span class="text-[11px] text-slate-500">Phone Gallery emaw Computer aṭangin thlalak upload rawh</span>
+              </div>
+            </label>
 
-              <button type="button" onclick="document.getElementById('noticeGalleryInput').click()" class="px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95">
+            <!-- Secondary Quick Buttons -->
+            <div class="flex items-center gap-2 flex-wrap pt-0.5">
+              <label for="noticeGalleryInput" class="px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-95">
                 <i data-lucide="upload" class="w-4 h-4 text-slate-500"></i>
-                <span>Upload Flyer / Poster Image</span>
-              </button>
+                <span>Choose Flyer File</span>
+              </label>
+
+              <label for="noticeCameraInput" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95">
+                <i data-lucide="camera" class="w-4 h-4 text-white"></i>
+                <span>Camera Capture</span>
+              </label>
             </div>
             <p class="text-[11px] text-slate-500">Inkhawm Programme flyer, Hnatlang / Zaipawl poster upload nan. Automatic-in <b>WebP</b>-ah a convert ang.</p>
           </div>
@@ -1158,11 +1183,6 @@
           <span class="text-xs font-bold tracking-wider uppercase text-slate-800">Branch Member Card</span>
         </div>
         <div class="flex items-center space-x-1.5">
-          <!-- Upload Signatures button -->
-          <button onclick="openSignatureUploadModal()" title="Upload Branch Signatures" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold flex items-center gap-1 transition shadow-2xs cursor-pointer">
-            <i data-lucide="pen-tool" class="w-3 h-3 text-amber-700"></i>
-            <span>Upload Sign</span>
-          </button>
           <button onclick="closeMemberIdCardModal()" class="w-7 h-7 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-600 transition cursor-pointer">
             <i data-lucide="x" class="w-4 h-4"></i>
           </button>
@@ -1330,12 +1350,15 @@
             </div>
 
             <!-- Motto -->
-            <div style="position: relative; z-index: 2; text-align: center; margin: 1px 0;">
+            <div style="position: relative; z-index: 2; text-align: center; margin-top: 2px; margin-bottom: 2.5px;">
               <span style="font-size: 6.2px; font-style: italic; color: #000000; font-weight: 700;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
             </div>
 
+            <!-- Dedicated Divider Line Centered between Motto and Signatures -->
+            <div style="position: relative; z-index: 2; width: 90%; margin: 0 auto 2.5px auto; border-top: 1px solid #000000;"></div>
+
             <!-- Signatures: LEADER ON LEFT, SECRETARY ON RIGHT (100% VISIBLE!) -->
-            <div style="position: relative; z-index: 2; border-top: 1px solid #000000; padding-top: 1px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; color: #000000;">
+            <div style="position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; color: #000000;">
               <div style="display: flex; flex-direction: column; align-items: center;">
                 <div id="idCardLeaderSigArea" style="height: 16px; display: flex; align-items: center; justify-content: center;">
                   <div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;">
@@ -1360,27 +1383,89 @@
       </div>
 
       <!-- Modal Footer Actions (Print, Share, Print All Cards A4, Close) -->
-      <div class="px-4 py-3 bg-white border-t border-slate-200 flex items-center justify-between gap-2 no-print">
+      <div class="px-4 py-3 bg-white border-t border-slate-200 flex items-center justify-between gap-2 no-print flex-wrap">
         <button type="button" onclick="closeMemberIdCardModal()" class="px-3 py-1.5 text-xs font-semibold rounded-xl text-slate-600 hover:bg-slate-100 transition cursor-pointer">
           Close
         </button>
 
-        <div class="flex items-center space-x-1.5">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <!-- View in Large (En Lian) -->
+          <button type="button" onclick="viewMemberCardLarge()" title="Card fiah tak leh lian zawka enna" class="px-2.5 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-300 text-xs font-bold rounded-xl flex items-center gap-1 shadow-2xs transition cursor-pointer active:scale-95">
+            <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-sky-700"></i>
+            <span>En Lian</span>
+          </button>
+
+          <!-- Download Member Card in JPEG -->
+          <button type="button" onclick="downloadMemberCardJpeg()" title="Download Member Card as JPEG image" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold rounded-xl flex items-center gap-1 shadow-2xs transition cursor-pointer active:scale-95">
+            <i data-lucide="download" class="w-3.5 h-3.5 text-amber-700"></i>
+            <span>Download JPEG</span>
+          </button>
+
           <!-- Print All Cards (A4) button -->
-          <button type="button" onclick="printAllMemberCardsA4()" title="Print All Cards in A4 (5.8cm x 8.8cm)" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-bold rounded-xl flex items-center gap-1 shadow-2xs transition cursor-pointer">
+          <button type="button" onclick="printAllMemberCardsA4()" title="Print All Cards in A4 (6.4cm x 9.4cm)" class="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-bold rounded-xl flex items-center gap-1 shadow-2xs transition cursor-pointer active:scale-95">
             <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-700"></i>
             <span>All Cards (A4)</span>
           </button>
 
           <!-- Print Single Card Button -->
-          <button type="button" onclick="printMemberIdCard()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition cursor-pointer">
+          <button type="button" onclick="printMemberIdCard()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition cursor-pointer active:scale-95">
             <i data-lucide="printer" class="w-3.5 h-3.5"></i>
             <span>Print</span>
           </button>
 
           <!-- WhatsApp Share -->
-          <button type="button" onclick="shareMemberIdCardWhatsApp()" class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition cursor-pointer">
+          <button type="button" onclick="shareMemberIdCardWhatsApp()" class="px-2.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition cursor-pointer active:scale-95">
             <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 8b. CARD LARGE VIEW MODAL (High-Resolution Zoomed Preview) -->
+  <div id="cardLargeViewModal" class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 hidden modal-backdrop bg-slate-950/85 backdrop-blur-md">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-700 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[95vh]">
+      
+      <!-- Top Bar -->
+      <div class="px-4 py-3 bg-slate-900 text-white flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">
+            <i data-lucide="maximize-2" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h4 id="cardLargeModalTitle" class="text-xs sm:text-sm font-bold tracking-wide uppercase text-white">Member Card (En Lian)</h4>
+            <p class="text-[10px] text-slate-400">Card fiah fiana enna</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button type="button" onclick="downloadMemberCardJpeg()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl flex items-center gap-1 transition shadow-xs cursor-pointer active:scale-95">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Download JPEG</span>
+          </button>
+          <button type="button" onclick="closeCardLargeModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition cursor-pointer">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Scaled-Up Card Body -->
+      <div class="p-4 sm:p-6 overflow-auto flex items-center justify-center bg-slate-800/40 flex-grow">
+        <div id="cardLargeTargetWrapper" class="transform scale-110 sm:scale-125 my-4 sm:my-8 transition-transform duration-200">
+          <!-- Rendered card injected here -->
+        </div>
+      </div>
+
+      <!-- Bottom Action Bar -->
+      <div class="px-4 py-3 bg-slate-900 border-t border-slate-800 flex items-center justify-between text-xs flex-shrink-0">
+        <span class="text-slate-400 text-[11px]">Exact card size: 6.4cm x 9.4cm (Scaled for easy reading)</span>
+        <div class="flex items-center space-x-2">
+          <button type="button" onclick="printMemberIdCard()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold flex items-center gap-1 transition cursor-pointer">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>Print</span>
+          </button>
+          <button type="button" onclick="closeCardLargeModal()" class="px-4 py-1.5 bg-rose-900 hover:bg-rose-800 text-white rounded-xl font-bold transition cursor-pointer">
+            Close
           </button>
         </div>
       </div>
@@ -1492,8 +1577,10 @@
   <!-- TOAST NOTIFICATION CONTAINER -->
   <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none no-print"></div>
 
+  <!-- HTML2Canvas Library for downloading cards as JPEG (Offline & High Quality) -->
+  <script src="html2canvas.min.js"></script>
   <!-- Application Logic (Cache-busted) -->
-  <script src="app.js?v=20261112_fast" defer></script>
+  <script src="app.js?v=20261114_card_upd" defer></script>
   <!-- Hidden Iframe for 100% Reliable Printing (Bypasses popup blocker on all computers) -->
   <iframe id="printExecutionIframe" style="position: fixed; right: 100%; bottom: 100%; width: 0; height: 0; border: 0; opacity: 0; pointer-events: none;" aria-hidden="true"></iframe>
 
