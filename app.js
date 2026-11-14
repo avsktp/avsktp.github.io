@@ -218,6 +218,13 @@ let currentServerVersion = 0;
 let autoSyncIntervalTimer = null;
 let isSyncingFromServer = false;
 
+function getApiUrl(endpoint) {
+  if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+    return endpoint;
+  }
+  return 'http://localhost:3000' + endpoint;
+}
+
 async function startAutoSyncEngine() {
   if (autoSyncIntervalTimer) {
     clearInterval(autoSyncIntervalTimer);
@@ -227,27 +234,22 @@ async function startAutoSyncEngine() {
   // Load server signatures on startup
   loadServerSignatures();
 
-  // Run initial version check
-  checkServerVersionForSync();
+  // Run initial version check & instant sync on startup so phones & laptops get fresh data immediately!
+  await checkServerVersionForSync();
 
-  // Poll version every 1800ms (1.8s) across all devices
-  autoSyncIntervalTimer = setInterval(checkServerVersionForSync, 1800);
+  // Poll version every 1500ms (1.5s) across all devices
+  autoSyncIntervalTimer = setInterval(checkServerVersionForSync, 1500);
 }
 
 async function checkServerVersionForSync() {
   if (isSyncingFromServer) return;
   try {
-    const res = await fetch('/api/version', { cache: 'no-store' });
+    const res = await fetch(getApiUrl('/api/version'), { cache: 'no-store' });
     if (!res.ok) return;
     const json = await res.json();
     if (!json || !json.success) return;
 
-    if (currentServerVersion === 0) {
-      currentServerVersion = json.version;
-      return;
-    }
-
-    if (json.version !== currentServerVersion) {
+    if (currentServerVersion === 0 || json.version !== currentServerVersion) {
       currentServerVersion = json.version;
       await syncDataFromServer();
     }
@@ -255,11 +257,13 @@ async function checkServerVersionForSync() {
 }
 
 async function syncDataFromServer() {
+  if (isSyncingFromServer) return;
   isSyncingFromServer = true;
   try {
-    const [memRes, sigRes] = await Promise.all([
-      fetch('/api/members', { cache: 'no-store' }),
-      fetch('/api/signatures', { cache: 'no-store' })
+    const [memRes, sigRes, notRes] = await Promise.all([
+      fetch(getApiUrl('/api/members'), { cache: 'no-store' }),
+      fetch(getApiUrl('/api/signatures'), { cache: 'no-store' }),
+      fetch(getApiUrl('/api/notices'), { cache: 'no-store' })
     ]);
 
     if (memRes.ok) {
@@ -269,6 +273,15 @@ async function syncDataFromServer() {
         saveToLocalStorage(members);
         renderMembers();
         updateStats();
+      }
+    }
+
+    if (notRes.ok) {
+      const notJson = await notRes.json();
+      if (notJson && notJson.data && Array.isArray(notJson.data)) {
+        notices = notJson.data;
+        saveNoticesToLocalStorage(notices);
+        renderNotices();
       }
     }
 
@@ -293,7 +306,7 @@ async function syncDataFromServer() {
 
 async function loadServerSignatures() {
   try {
-    const res = await fetch('/api/signatures', { cache: 'no-store' });
+    const res = await fetch(getApiUrl('/api/signatures'), { cache: 'no-store' });
     if (!res.ok) return;
     const json = await res.json();
     if (json && json.data) {
@@ -314,14 +327,14 @@ async function syncSignaturesToServer() {
       leaderSignature: getLeaderSignature(),
       secretarySignature: getSecretarySignature()
     };
-    const res = await fetch('/api/signatures', {
+    const res = await fetch(getApiUrl('/api/signatures'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
     if (res.ok) {
       const json = await res.json();
-      if (json.version) {
+      if (json && json.version) {
         currentServerVersion = json.version;
       }
     }
@@ -728,6 +741,7 @@ function openSelfRegisterModal() {
   try {
     clearSelfRegPhoto();
     const nameEl = document.getElementById('selfRegName');
+    const parentsEl = document.getElementById('selfRegParentsName');
     const phoneEl = document.getElementById('selfRegPhone');
     const houseEl = document.getElementById('selfRegHouseNo');
     const groupEl = document.getElementById('selfRegGroup');
@@ -735,9 +749,10 @@ function openSelfRegisterModal() {
     const modalEl = document.getElementById('selfRegisterModal');
 
     if (nameEl) nameEl.value = '';
+    if (parentsEl) parentsEl.value = '';
     if (phoneEl) phoneEl.value = '';
     if (houseEl) houseEl.value = '';
-    if (groupEl) groupEl.value = (activeGroupFilter && activeGroupFilter !== 'All') ? activeGroupFilter : 'Sadrak';
+    if (groupEl) groupEl.value = '';
     if (bialEl) bialEl.value = 'Upa Bial 1';
 
     if (modalEl) {
@@ -769,7 +784,7 @@ async function handleSelfRegisterSubmit(e) {
 
   const name = document.getElementById('selfRegName').value.trim();
   const parentsName = (document.getElementById('selfRegParentsName')?.value || '').trim();
-  const group = document.getElementById('selfRegGroup').value || 'Unassigned';
+  const group = (document.getElementById('selfRegGroup')?.value || '').trim();
   let phone = document.getElementById('selfRegPhone').value.trim().replace(/\D/g, '');
   const houseNo = document.getElementById('selfRegHouseNo').value.trim();
   const upaBial = document.getElementById('selfRegUpaBial').value;
@@ -881,7 +896,7 @@ function saveToLocalStorage(data) {
 
 async function syncToServer(data) {
   try {
-    const res = await fetch('/api/members', {
+    const res = await fetch(getApiUrl('/api/members'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ members: data })
@@ -944,11 +959,17 @@ function saveNoticesToLocalStorage(data) {
 
 async function syncNoticesToServer(data) {
   try {
-    await fetch('/api/notices', {
+    const res = await fetch(getApiUrl('/api/notices'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ notices: data })
     });
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.version) {
+        currentServerVersion = json.version;
+      }
+    }
   } catch (e) {}
 }
 
@@ -1809,7 +1830,7 @@ function openAddMemberModal() {
   document.getElementById('btnSubmitText').textContent = 'Dah rawh (Save Member)';
   document.getElementById('formName').value = '';
   if (document.getElementById('formParentsName')) document.getElementById('formParentsName').value = '';
-  document.getElementById('formGroup').value = activeGroupFilter !== 'All' ? activeGroupFilter : 'Sadrak';
+  document.getElementById('formGroup').value = '';
   document.getElementById('formPhone').value = '';
   document.getElementById('formHouseNo').value = '';
   document.getElementById('formUpaBial').value = 'Upa Bial 1';
@@ -1894,7 +1915,7 @@ async function handleSecretaryMemberSubmit(e) {
   const id = document.getElementById('formMemberId').value;
   const name = document.getElementById('formName').value.trim();
   const parentsName = (document.getElementById('formParentsName')?.value || '').trim();
-  const group = document.getElementById('formGroup').value || 'Unassigned';
+  const group = (document.getElementById('formGroup')?.value || '').trim();
   let phone = document.getElementById('formPhone').value.trim().replace(/\D/g, '');
   const houseNo = document.getElementById('formHouseNo').value.trim();
   const upaBial = document.getElementById('formUpaBial').value;
@@ -2437,10 +2458,11 @@ function buildCardHtml(member, index) {
           <div style="font-size: 6.8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 1px;">KRISTIAN THALAI PAWL</div>
           <div style="font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2px;">ARMED VENG SOUTH BRANCH</div>
         </div>
-        <div style="margin-top: 1.5px; text-align: center;">
-          <span style="font-size: 8px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1.2px solid #000000; padding-bottom: 0.5px; display: inline-block;">
+        <div style="margin-top: 2px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <span style="font-size: 8px; font-weight: 900; text-transform: uppercase; color: #000000; line-height: 1.2; display: block;">
             MEMBER CARD
           </span>
+          <div style="width: 58px; height: 1.2px; background: #000000; margin-top: 1.5px;"></div>
         </div>
       </div>
 
@@ -2448,14 +2470,14 @@ function buildCardHtml(member, index) {
       <div style="position: relative; z-index: 2; padding: 0 6px 4px 6px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
         
         <!-- Top Section: Photo on Left, Name & Card ID on Right -->
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
           ${photoHtml}
-          <div style="flex-grow: 1; overflow: hidden; line-height: 1.15;">
-            <div style="font-size: 9px; font-weight: 900; color: #000000; text-transform: uppercase; letter-spacing: 0.2px; line-height: 1.15; max-height: 24px; overflow: hidden;">
+          <div style="flex-grow: 1; min-width: 0;">
+            <div style="font-size: 8.8px; font-weight: 900; color: #000000; text-transform: uppercase; line-height: 1.35; padding: 1px 0; word-break: break-word;">
               ${escapeHtml(member.name || '-')}
             </div>
-            <div style="margin-top: 2px;">
-              <span style="font-size: 6.8px; font-family: monospace; font-weight: 900; color: #000000; background: rgba(255,255,255,0.75); border: 1px solid rgba(0,0,0,0.4); border-radius: 3px; padding: 0.5px 3.5px; display: inline-block;">
+            <div style="margin-top: 2.5px;">
+              <span style="font-size: 7px; font-family: monospace, Courier, sans-serif; font-weight: 900; color: #000000; background: rgba(255,255,255,0.85); border: 1px solid rgba(0,0,0,0.5); border-radius: 3px; padding: 1.5px 5px; line-height: 1.3; display: inline-block; vertical-align: middle;">
                 ${cardNo}
               </span>
             </div>
@@ -2463,36 +2485,36 @@ function buildCardHtml(member, index) {
         </div>
 
         <!-- Personal Details List (Translucent Glassy Rows so waves show through) -->
-        <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 1px; margin: 1px 0; color: #000000;">
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
-            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Nu / Pa Hming:</span>
-            <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(member.parentsName || '-')}</span>
+        <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: 1.5px; margin: 2px 0; color: #000000;">
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; min-height: 14px; border-radius: 3px; background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.85); box-sizing: border-box;">
+            <span style="font-size: 7px; font-weight: 800; color: #000000; text-transform: uppercase; line-height: 1.35; display: inline-block;">Nu / Pa Hming:</span>
+            <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right; line-height: 1.35; display: inline-block;">${escapeHtml(member.parentsName || '-')}</span>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
-            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">House No:</span>
-            <span style="font-size: 7.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(member.houseNo || '-')}</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; min-height: 14px; border-radius: 3px; background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.85); box-sizing: border-box;">
+            <span style="font-size: 7px; font-weight: 800; color: #000000; text-transform: uppercase; line-height: 1.35; display: inline-block;">House No:</span>
+            <span style="font-size: 7.2px; font-family: monospace, Courier, sans-serif; font-weight: 900; color: #000000; text-align: right; line-height: 1.35; display: inline-block;">${escapeHtml(member.houseNo || '-')}</span>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
-            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Upa Bial:</span>
-            <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right;">${escapeHtml(member.upaBial || '-')}</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; min-height: 14px; border-radius: 3px; background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.85); box-sizing: border-box;">
+            <span style="font-size: 7px; font-weight: 800; color: #000000; text-transform: uppercase; line-height: 1.35; display: inline-block;">Upa Bial:</span>
+            <span style="font-size: 7.2px; font-weight: 800; color: #000000; text-align: right; line-height: 1.35; display: inline-block;">${escapeHtml(member.upaBial || '-')}</span>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
-            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Phone:</span>
-            <span style="font-size: 7.2px; font-family: monospace; font-weight: 900; color: #000000; text-align: right;">${formattedPhone || '-'}</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; min-height: 14px; border-radius: 3px; background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.85); box-sizing: border-box;">
+            <span style="font-size: 7px; font-weight: 800; color: #000000; text-transform: uppercase; line-height: 1.35; display: inline-block;">Phone:</span>
+            <span style="font-size: 7.2px; font-family: monospace, Courier, sans-serif; font-weight: 900; color: #000000; text-align: right; line-height: 1.35; display: inline-block;">${formattedPhone || '-'}</span>
           </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1px 3px; border-radius: 2.5px; background: rgba(255,255,255,0.55); border: 1px solid rgba(255,255,255,0.75);">
-            <span style="font-size: 6.8px; font-weight: 800; color: #000000; text-transform: uppercase;">Group:</span>
-            <span style="font-size: 7.2px; font-weight: 900; color: #000000; text-align: right;">${escapeHtml(member.group || '-')}</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px; min-height: 14px; border-radius: 3px; background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.85); box-sizing: border-box;">
+            <span style="font-size: 7px; font-weight: 800; color: #000000; text-transform: uppercase; line-height: 1.35; display: inline-block;">Group:</span>
+            <span style="font-size: 7.2px; font-weight: 900; color: #000000; text-align: right; line-height: 1.35; display: inline-block;">${escapeHtml(member.group || '-')}</span>
           </div>
         </div>
 
         <!-- Motto -->
         <div style="position: relative; z-index: 2; text-align: center; margin-top: 2px; margin-bottom: 2.5px;">
-          <span style="font-size: 6.2px; font-style: italic; color: #000000; font-weight: 700;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
+          <span style="font-size: 6.2px; font-style: italic; color: #000000; font-weight: 700; line-height: 1.3; display: inline-block;">"Rawngbawl tura chhandam" (Ephesi 2:10)</span>
         </div>
 
         <!-- Dedicated Divider Line Centered between Motto and Signatures -->
-        <div style="position: relative; z-index: 2; width: 90%; margin: 0 auto 2.5px auto; border-top: 1px solid #000000;"></div>
+        <div style="position: relative; z-index: 2; width: 88%; margin: 1px auto 2.5px auto; border-top: 1px solid #000000;"></div>
 
         <!-- Signatures (Leader on left, Secretary on right) -->
         <div style="position: relative; z-index: 2; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; text-align: center; color: #000000;">
@@ -2500,13 +2522,13 @@ function buildCardHtml(member, index) {
             <div style="height: 16px; display: flex; align-items: center; justify-content: center;">
               ${leaderSigHtml}
             </div>
-            <span style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">Branch Leader</span>
+            <span style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px; line-height: 1.3;">Branch Leader</span>
           </div>
           <div style="display: flex; flex-direction: column; align-items: center;">
             <div style="height: 16px; display: flex; align-items: center; justify-content: center;">
               ${secSigHtml}
             </div>
-            <span style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px;">Branch Secretary</span>
+            <span style="font-size: 6.5px; font-weight: 900; color: #000000; text-transform: uppercase; margin-top: 1px; line-height: 1.3;">Branch Secretary</span>
           </div>
         </div>
 
@@ -2715,12 +2737,6 @@ async function downloadMemberCardJpeg() {
     return;
   }
 
-  const target = document.getElementById('idCardPrintTarget');
-  if (!target) {
-    showToast('Member card hmuh theih a ni lo.', 'error');
-    return;
-  }
-
   showToast('Member Card JPEG siam mek a ni...', 'info');
 
   try {
@@ -2731,7 +2747,6 @@ async function downloadMemberCardJpeg() {
         script.src = 'html2canvas.min.js';
         script.onload = resolve;
         script.onerror = () => {
-          // CDN fallback
           const cdn = document.createElement('script');
           cdn.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
           cdn.onload = resolve;
@@ -2742,13 +2757,48 @@ async function downloadMemberCardJpeg() {
       });
     }
 
-    const canvas = await html2canvas(target, {
+    const idx = members.findIndex(m => String(m.id) === String(currentViewedMember.id));
+    const cardHtml = buildCardHtml(currentViewedMember, idx);
+
+    // Create an isolated sandbox element attached to body, free from modal transforms and backdrop filters
+    const sandbox = document.createElement('div');
+    sandbox.style.position = 'fixed';
+    sandbox.style.left = '-9999px';
+    sandbox.style.top = '0';
+    sandbox.style.width = '242px';
+    sandbox.style.height = '355px';
+    sandbox.style.overflow = 'hidden';
+    sandbox.style.background = '#ffffff';
+    sandbox.style.zIndex = '-9999';
+    sandbox.innerHTML = cardHtml;
+    document.body.appendChild(sandbox);
+
+    // Ensure the card element inside sandbox has precise pixel sizing
+    const cardItem = sandbox.firstElementChild;
+    if (cardItem) {
+      cardItem.style.width = '242px';
+      cardItem.style.height = '355px';
+      cardItem.style.minHeight = '355px';
+      cardItem.style.maxHeight = '355px';
+      cardItem.style.borderRadius = '0px'; // Square corners for clean JPEG edge
+    }
+
+    // Wait 150ms for fonts & images to render
+    await new Promise(r => setTimeout(r, 150));
+
+    const canvas = await html2canvas(cardItem || sandbox, {
       scale: 3,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
-      logging: false
+      logging: false,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: 242,
+      windowHeight: 355
     });
+
+    document.body.removeChild(sandbox);
 
     const safeName = (currentViewedMember.name || 'Member').trim().replace(/[^a-zA-Z0-9_\-\s]/g, '').replace(/\s+/g, '_');
     const filename = `${safeName}_KTP_Card.jpg`;
