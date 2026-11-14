@@ -259,16 +259,19 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/notices/add' && req.method === 'POST') {
       try {
         const newNotice = await parseJsonBody(req);
-        if (!newNotice.title || !newNotice.content) {
+        newNotice.category = newNotice.category || 'General';
+        newNotice.content = newNotice.content || '';
+        newNotice.photo = newNotice.photo || '';
+        if (!newNotice.title && !newNotice.content && !newNotice.photo) {
           res.writeHead(400);
-          res.end(JSON.stringify({ success: false, error: 'Notice Title leh Content ziah a ngai.' }));
+          res.end(JSON.stringify({ success: false, error: 'Khawngaihin flyer thlalak, thupui, emaw thu tal dah rawh.' }));
           return;
         }
-
-        const notices = readJsonFile(NOTICES_FILE, []);
+        newNotice.title = newNotice.title || (newNotice.photo ? `${newNotice.category} Flyer` : `${newNotice.category} Hriattirna`);
         newNotice.id = newNotice.id || 'not-' + Date.now();
         newNotice.date = newNotice.date || new Date().toISOString().slice(0, 10);
-        newNotice.category = newNotice.category || 'General';
+
+        const notices = readJsonFile(NOTICES_FILE, []);
         notices.unshift(newNotice);
         writeJsonFile(NOTICES_FILE, notices);
         serverDataVersion = Date.now();

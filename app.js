@@ -454,15 +454,68 @@ function handleSecretaryLoginSubmit(e) {
   }
 }
 
-function changeSecretaryPassword() {
-  if (!isSecretaryLoggedIn) return;
-  const newPass = prompt('Branch Secretary Password thar tur chhu rawh (letters or numbers 4+):');
-  if (newPass && newPass.trim().length >= 4) {
-    localStorage.setItem('ktp_secretary_pwd', newPass.trim());
-    showToast('Secretary password thlak a ni ta!', 'success');
-  } else if (newPass !== null) {
-    showToast('Password hi a tlem berah letter/number 4 a tling tur a ni.', 'error');
+function openChangePasswordModal() {
+  if (!isSecretaryLoggedIn) {
+    openSecretaryLoginModal();
+    return;
   }
+  const modal = document.getElementById('changePasswordModal');
+  const fCurrent = document.getElementById('pwdCurrent');
+  const fNew = document.getElementById('pwdNew');
+  const fConfirm = document.getElementById('pwdConfirm');
+  if (fCurrent) fCurrent.value = '';
+  if (fNew) fNew.value = '';
+  if (fConfirm) fConfirm.value = '';
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+  }
+  if (fCurrent) setTimeout(() => fCurrent.focus(), 60);
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeChangePasswordModal() {
+  const modal = document.getElementById('changePasswordModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+function handleSecretaryChangePasswordSubmit(e) {
+  e.preventDefault();
+  const currentVal = document.getElementById('pwdCurrent').value;
+  const newVal = document.getElementById('pwdNew').value;
+  const confirmVal = document.getElementById('pwdConfirm').value;
+  const storedPwd = getSecretaryPassword();
+
+  if (currentVal !== storedPwd) {
+    showToast('Hmanlai password i chhu dik lo!', 'error');
+    document.getElementById('pwdCurrent').focus();
+    return;
+  }
+
+  if (newVal.length < 4) {
+    showToast('Password thar hi a tlem berah letter/number 4 a tling tur a ni.', 'error');
+    document.getElementById('pwdNew').focus();
+    return;
+  }
+
+  if (newVal !== confirmVal) {
+    showToast('Password thar leh a confirm-na a inmil lo!', 'error');
+    document.getElementById('pwdConfirm').focus();
+    return;
+  }
+
+  localStorage.setItem('ktp_secretary_pwd', newVal);
+  closeChangePasswordModal();
+  showToast('Branch Secretary Password thar hlawhtling taka thlak a ni ta!', 'success');
+}
+
+function togglePasswordVisibility(inputId, eyeIconId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.type = input.type === 'password' ? 'text' : 'password';
 }
 
 function logoutSecretary() {
@@ -1051,17 +1104,21 @@ function renderNotices() {
             </span>
           </div>
 
-          <!-- Title -->
-          <h4 class="text-base font-bold text-slate-900 leading-snug mb-2">
-            ${escapeHtml(notice.title)}
-          </h4>
+          <!-- Title (rendered if present) -->
+          ${(notice.title && notice.title.trim()) ? `
+            <h4 class="text-base font-bold text-slate-900 leading-snug mb-2">
+              ${escapeHtml(notice.title)}
+            </h4>
+          ` : ''}
 
           ${flyerHtml}
 
-          <!-- Content Body -->
-          <div class="text-xs sm:text-sm text-slate-600 space-y-1.5 leading-relaxed bg-slate-50/60 p-3.5 rounded-xl border border-slate-100">
-            ${contentHtml}
-          </div>
+          <!-- Content Body (rendered if present) -->
+          ${(notice.content && notice.content.trim()) ? `
+            <div class="text-xs sm:text-sm text-slate-600 space-y-1.5 leading-relaxed bg-slate-50/60 p-3.5 rounded-xl border border-slate-100">
+              ${contentHtml}
+            </div>
+          ` : ''}
         </div>
 
         <!-- Footer: Actions -->
@@ -1141,13 +1198,12 @@ function shareNoticeWhatsApp(id) {
   if (!notice) return;
 
   const flyerText = notice.photo ? '\n📷 *[Programme Flyer / Poster thlalak a tel e - Website-ah en theih a ni]*' : '';
+  const contentPart = (notice.content && notice.content.trim()) ? `\n\n${notice.content}` : '';
   const text = `📢 *KṬP ARMED VENG SOUTH BRANCH - HRIATTIRNA*
 
-📌 *${notice.title}*
+📌 *${notice.title || 'Hriattirna'}*
 📅 Ni: ${formatNoticeDate(notice.date)}
-🏷 Category: ${notice.category}${flyerText}
-
-${notice.content}
+🏷 Category: ${notice.category}${flyerText}${contentPart}
 
 ━━━━━━━━━━━━━━━
 _KṬP Armed Veng South Branch_
@@ -1274,18 +1330,25 @@ async function handleNoticeFormSubmit(e) {
   }
 
   const id = document.getElementById('formNoticeId').value;
-  const title = document.getElementById('formNoticeTitle').value.trim();
+  let title = (document.getElementById('formNoticeTitle')?.value || '').trim();
   let category = document.getElementById('formNoticeCategory').value;
   if (category === 'Other') {
     const customCat = (document.getElementById('noticeOtherCategoryInput')?.value || '').trim();
     category = customCat || 'Dangte';
   }
-  const date = document.getElementById('formNoticeDate').value;
-  const content = document.getElementById('formNoticeContent').value.trim();
+  const date = document.getElementById('formNoticeDate').value || new Date().toISOString().slice(0, 10);
+  const content = (document.getElementById('formNoticeContent')?.value || '').trim();
+  const photo = currentNoticePhoto || (id ? (notices.find(n => String(n.id) === String(id))?.photo || '') : '');
 
-  if (!title || !content) {
-    showToast('Notice Title leh Content ziah a ngai.', 'error');
+  // Photo, title, or content: at least one must be provided
+  if (!title && !content && !photo) {
+    showToast('Khawngaihin flyer thlalak, thupui, emaw thu tal dah rawh.', 'error');
     return;
+  }
+
+  // If title is blank, give a clean default
+  if (!title) {
+    title = photo ? `${category} Flyer` : `${category} Hriattirna`;
   }
 
   if (id) {
@@ -1298,7 +1361,7 @@ async function handleNoticeFormSubmit(e) {
         category,
         date: date || new Date().toISOString().slice(0, 10),
         content,
-        photo: currentNoticePhoto || notices[idx].photo || ''
+        photo: photo
       };
       saveNoticesToLocalStorage(notices);
       syncNoticesToServer(notices);
@@ -1313,7 +1376,7 @@ async function handleNoticeFormSubmit(e) {
       date: date || new Date().toISOString().slice(0, 10),
       author: 'Branch Secretary',
       content,
-      photo: currentNoticePhoto || ''
+      photo: photo
     };
     notices.unshift(newNotice);
     saveNoticesToLocalStorage(notices);
@@ -2355,10 +2418,10 @@ function buildCardHtml(member, index) {
 
   const { initials } = getAvatarData(member.name);
   const photoHtml = member.photo
-    ? `<div style="width: 42px; height: 50px; flex-shrink: 0; border-radius: 4px; overflow: hidden; border: 1.2px solid #000000; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+    ? `<div style="width: 42px; height: 50px; flex-shrink: 0; margin-right: 7px; border-radius: 4px; overflow: hidden; border: 1.2px solid #000000; background: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
          <img src="${member.photo}" alt="${escapeHtml(member.name)}" style="width: 100%; height: 100%; object-fit: cover;">
        </div>`
-    : `<div style="width: 42px; height: 50px; flex-shrink: 0; border-radius: 4px; overflow: hidden; border: 1.2px solid #000000; background: #1e293b; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+    : `<div style="width: 42px; height: 50px; flex-shrink: 0; margin-right: 7px; border-radius: 4px; overflow: hidden; border: 1.2px solid #000000; background: #1e293b; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
          ${initials}
        </div>`;
 
@@ -2374,7 +2437,7 @@ function buildCardHtml(member, index) {
     : `<div style="border-bottom: 1px dashed #000000; width: 45px; height: 9px; display: flex; align-items: center; justify-content: center;"><span style="font-size: 5.5px; color: #000000; font-style: italic;">Signature</span></div>`;
 
   return `
-    <div class="card-item" style="width: 6.4cm; height: 9.4cm; min-height: 9.4cm; max-height: 9.4cm; position: relative; overflow: hidden; border: 1px solid #94a3b8; border-radius: 8px; box-sizing: border-box; background: transparent; color: #000000; font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; justify-content: space-between; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+    <div class="card-item" style="width: 242px; height: 355px; min-height: 355px; max-height: 355px; position: relative; overflow: hidden; border: 1px solid #94a3b8; border-radius: 8px; box-sizing: border-box; background: #ffffff; color: #000000; font-family: Arial, 'Segoe UI', -apple-system, sans-serif; display: flex; flex-direction: column; justify-content: space-between; padding: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
       
       <!-- Fluid Waves SVG Background (Light theme soft blue gradients matching sample image) -->
       <svg style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;" viewBox="0 0 240 365" preserveAspectRatio="none">
@@ -2449,20 +2512,20 @@ function buildCardHtml(member, index) {
         <path d="M0,86 C70,92 160,78 240,88" stroke="url(#goldAccent_${uid})" stroke-width="1.3" fill="none"/>
       </svg>
 
-      <!-- Blank Top Hole Punch Space (7mm BLANK - NO LINES) & Church Header -->
-      <div style="position: relative; z-index: 2; padding: 7mm 5px 1px 5px; text-align: center; flex-shrink: 0;">
+      <!-- Blank Top Hole Punch Space (24px BLANK - NO LINES) & Church Header -->
+      <div style="position: relative; z-index: 2; padding: 24px 5px 1px 5px; text-align: center; flex-shrink: 0;">
         <img src="${ktpLogoBase64}" alt="Logo" style="width: 22px; height: 22px; object-fit: contain; margin: 0 auto 1px auto; display: block;">
-        <div style="text-align: center; line-height: 1.1; color: #000000;">
-          <div style="font-size: 6.2px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2px;">MIZORAM PRESBYTERIAN KOHHRAN</div>
+        <div style="text-align: center; line-height: 1.15; color: #000000;">
+          <div style="font-size: 6.2px; font-weight: 900; text-transform: uppercase;">MIZORAM PRESBYTERIAN KOHHRAN</div>
           <div style="font-size: 5.2px; font-style: italic; margin-top: 0.5px;">(Presbyterian Church of India)</div>
-          <div style="font-size: 6.8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 1px;">KRISTIAN THALAI PAWL</div>
-          <div style="font-size: 6.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2px;">ARMED VENG SOUTH BRANCH</div>
+          <div style="font-size: 6.8px; font-weight: 900; text-transform: uppercase; margin-top: 1px;">KRISTIAN THALAI PAWL</div>
+          <div style="font-size: 6.5px; font-weight: 900; text-transform: uppercase;">ARMED VENG SOUTH BRANCH</div>
         </div>
-        <div style="margin-top: 2px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-          <span style="font-size: 8px; font-weight: 900; text-transform: uppercase; color: #000000; line-height: 1.2; display: block;">
+        <div style="margin-top: 3px; text-align: center;">
+          <div style="font-size: 8px; font-weight: 900; text-transform: uppercase; color: #000000; line-height: 1.2;">
             MEMBER CARD
-          </span>
-          <div style="width: 58px; height: 1.2px; background: #000000; margin-top: 1.5px;"></div>
+          </div>
+          <div style="width: 58px; height: 1.2px; background: #000000; margin: 1.5px auto 0 auto;"></div>
         </div>
       </div>
 
@@ -2470,10 +2533,10 @@ function buildCardHtml(member, index) {
       <div style="position: relative; z-index: 2; padding: 0 6px 4px 6px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
         
         <!-- Top Section: Photo on Left, Name & Card ID on Right -->
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+        <div style="display: flex; align-items: center; margin-bottom: 3px;">
           ${photoHtml}
           <div style="flex-grow: 1; min-width: 0;">
-            <div style="font-size: 8.8px; font-weight: 900; color: #000000; text-transform: uppercase; line-height: 1.35; padding: 1px 0; word-break: break-word;">
+            <div style="font-size: 8.8px; font-weight: bold; color: #000000; text-transform: uppercase; line-height: 1.3; padding: 1px 0; word-break: break-word;">
               ${escapeHtml(member.name || '-')}
             </div>
             <div style="margin-top: 2.5px;">
@@ -2730,76 +2793,418 @@ function shareMemberIdCardWhatsApp() {
   window.open(url, '_blank');
 }
 
-// Download Member Card in High-Resolution JPEG (scale 3 = ~300 DPI)
+// ==================== HIGH-DEFINITION MEMBER CARD CANVAS 2D GENERATOR (300 DPI) ====================
+function fillRoundedRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function loadImageForCanvas(src) {
+  return new Promise((resolve) => {
+    if (!src) return resolve(null);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+function loadSvgImageToCanvas(svgStr) {
+  return new Promise((resolve) => {
+    try {
+      const blob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(img);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+        const img2 = new Image();
+        img2.onload = () => resolve(img2);
+        img2.onerror = () => resolve(null);
+        img2.src = dataUrl;
+      };
+      img.src = url;
+    } catch (e) {
+      resolve(null);
+    }
+  });
+}
+
+async function generateMemberCardCanvas(member, index) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 756;
+  canvas.height = 1110;
+  const ctx = canvas.getContext('2d');
+
+  // 1. Base White Fill
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 756, 1110);
+
+  // 2. Render SVG Silk Wave Background
+  const uid = 'canvas_' + Math.random().toString(36).substring(2, 9);
+  const svgBg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 365" width="756" height="1110" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="bgGrad_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#ffffff"/>
+        <stop offset="30%" stop-color="#f0f7ff"/>
+        <stop offset="65%" stop-color="#e0effe"/>
+        <stop offset="100%" stop-color="#cfe5fc"/>
+      </linearGradient>
+
+      <linearGradient id="silk1_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+        <stop offset="0%" stop-color="#cfe5fc" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="#e2f0fe" stop-opacity="0.95"/>
+      </linearGradient>
+      <linearGradient id="silk2_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+        <stop offset="0%" stop-color="#b4d7fa" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="#d5ebfd" stop-opacity="0.9"/>
+      </linearGradient>
+      <linearGradient id="silk3_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+        <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.88"/>
+        <stop offset="100%" stop-color="#bfe0fc" stop-opacity="0.9"/>
+      </linearGradient>
+      <linearGradient id="silk4_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+        <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.82"/>
+        <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.88"/>
+      </linearGradient>
+      <linearGradient id="silk5_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.78"/>
+        <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.82"/>
+      </linearGradient>
+      <linearGradient id="silk6_${uid}" x1="0%" y1="0%" x2="100%" y2="85%">
+        <stop offset="0%" stop-color="#2563eb" stop-opacity="0.75"/>
+        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.78"/>
+      </linearGradient>
+
+      <linearGradient id="goldAccent_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.7"/>
+        <stop offset="50%" stop-color="#d97706" stop-opacity="0.95"/>
+        <stop offset="100%" stop-color="#b45309" stop-opacity="0.7"/>
+      </linearGradient>
+      <linearGradient id="ridgeLight_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="#ffffff" stop-opacity="0.3"/>
+      </linearGradient>
+      <linearGradient id="ridgeDark_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#1e40af" stop-opacity="0.5"/>
+        <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.1"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="240" height="365" fill="url(#bgGrad_${uid})"/>
+    <path d="M0,75 C60,65 140,115 240,90 L240,365 L0,365 Z" fill="url(#silk1_${uid})"/>
+    <path d="M0,75 C60,65 140,115 240,90" stroke="url(#ridgeLight_${uid})" stroke-width="1" fill="none"/>
+
+    <path d="M0,115 C55,100 135,155 240,130 L240,365 L0,365 Z" fill="url(#silk2_${uid})"/>
+    <path d="M0,115 C55,100 135,155 240,130" stroke="url(#ridgeLight_${uid})" stroke-width="0.8" fill="none"/>
+
+    <path d="M0,160 C65,145 145,195 240,175 L240,365 L0,365 Z" fill="url(#silk3_${uid})"/>
+    <path d="M0,160 C65,145 145,195 240,175" stroke="url(#ridgeDark_${uid})" stroke-width="0.9" fill="none"/>
+
+    <path d="M0,205 C55,190 140,240 240,220 L240,365 L0,365 Z" fill="url(#silk4_${uid})"/>
+    <path d="M0,205 C55,190 140,240 240,220" stroke="url(#ridgeLight_${uid})" stroke-width="0.7" fill="none"/>
+
+    <path d="M0,250 C70,240 150,285 240,265 L240,365 L0,365 Z" fill="url(#silk5_${uid})"/>
+    <path d="M0,250 C70,240 150,285 240,265" stroke="url(#ridgeDark_${uid})" stroke-width="0.8" fill="none"/>
+
+    <path d="M0,295 C60,285 155,325 240,305 L240,365 L0,365 Z" fill="url(#silk6_${uid})"/>
+    <path d="M0,295 C60,285 155,325 240,305" stroke="url(#ridgeLight_${uid})" stroke-width="0.6" fill="none"/>
+
+    <path d="M0,86 C70,92 160,78 240,88" stroke="url(#goldAccent_${uid})" stroke-width="1.3" fill="none"/>
+  </svg>`;
+
+  const bgImg = await loadSvgImageToCanvas(svgBg);
+  if (bgImg) {
+    ctx.drawImage(bgImg, 0, 0, 756, 1110);
+  } else {
+    const g = ctx.createLinearGradient(0, 0, 756, 1110);
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(0.3, '#f0f7ff');
+    g.addColorStop(0.65, '#e0effe');
+    g.addColorStop(1, '#cfe5fc');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 756, 1110);
+  }
+
+  // Load external images in parallel
+  const leaderSigUrl = getLeaderSignature();
+  const secSigUrl = getSecretarySignature();
+  const [logoImg, photoImg, leaderSigImg, secSigImg] = await Promise.all([
+    loadImageForCanvas(ktpLogoBase64),
+    loadImageForCanvas(member.photo),
+    loadImageForCanvas(leaderSigUrl),
+    loadImageForCanvas(secSigUrl)
+  ]);
+
+  // 3. Church Logo (Centered)
+  if (logoImg) {
+    ctx.drawImage(logoImg, 378 - 35, 78, 70, 70);
+  }
+
+  // 4. Church Header Texts
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  ctx.font = `900 20px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  ctx.fillText('MIZORAM PRESBYTERIAN KOHHRAN', 378, 172);
+
+  ctx.font = `italic 16px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  ctx.fillText('(Presbyterian Church of India)', 378, 196);
+
+  ctx.font = `900 22px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  ctx.fillText('KRISTIAN THALAI PAWL', 378, 224);
+
+  ctx.font = `900 20px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  ctx.fillText('ARMED VENG SOUTH BRANCH', 378, 250);
+
+  // "MEMBER CARD" title
+  ctx.font = `900 26px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  ctx.fillText('MEMBER CARD', 378, 288);
+
+  // Underline
+  ctx.fillRect(378 - 90, 298, 180, 3.5);
+
+  // 5. Photo & Member Identity Block
+  const photoX = 40;
+  const photoY = 325;
+  const photoW = 150;
+  const photoH = 180;
+  const photoRadius = 14;
+
+  if (photoImg) {
+    ctx.save();
+    fillRoundedRect(ctx, photoX, photoY, photoW, photoH, photoRadius);
+    ctx.clip();
+    const imgW = photoImg.naturalWidth || photoImg.width;
+    const imgH = photoImg.naturalHeight || photoImg.height;
+    const hRatio = photoW / imgW;
+    const vRatio = photoH / imgH;
+    const ratio = Math.max(hRatio, vRatio);
+    const centerShiftX = (photoW - imgW * ratio) / 2;
+    const centerShiftY = (photoH - imgH * ratio) / 2;
+    ctx.drawImage(photoImg, 0, 0, imgW, imgH, photoX + centerShiftX, photoY + centerShiftY, imgW * ratio, imgH * ratio);
+    ctx.restore();
+
+    fillRoundedRect(ctx, photoX, photoY, photoW, photoH, photoRadius);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  } else {
+    fillRoundedRect(ctx, photoX, photoY, photoW, photoH, photoRadius);
+    ctx.fillStyle = '#1e293b';
+    ctx.fill();
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    const { initials } = getAvatarData(member.name);
+    ctx.font = `900 52px Arial, 'Segoe UI', -apple-system, sans-serif`;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(initials || 'AL', photoX + photoW / 2, photoY + photoH / 2 + 2);
+  }
+
+  // Member Name (Dynamically fitted font size so never halved or clipped)
+  const memberName = (member.name || '-').toUpperCase();
+  let nameFontSize = 28;
+  ctx.font = `900 ${nameFontSize}px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  let nameWidth = ctx.measureText(memberName).width;
+  const maxNameWidth = 490;
+  while (nameWidth > maxNameWidth && nameFontSize > 16) {
+    nameFontSize -= 1;
+    ctx.font = `900 ${nameFontSize}px Arial, 'Segoe UI', -apple-system, sans-serif`;
+    nameWidth = ctx.measureText(memberName).width;
+  }
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(memberName, 220, 395);
+
+  // Card ID Badge
+  const cardNo = getMemberCardNo(member, index);
+  const badgeX = 220;
+  const badgeY = 422;
+  const badgeW = 180;
+  const badgeH = 40;
+  fillRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 8);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.font = `bold 20px "Courier New", monospace, Arial, sans-serif`;
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(cardNo, badgeX + badgeW / 2, badgeY + badgeH / 2 + 1);
+
+  // 6. Personal Details (5 Glassy Translucent Rows)
+  const cleanPhone = (member.phone || '').replace(/\D/g, '');
+  const formattedPhone = cleanPhone.length === 10
+    ? `${cleanPhone.slice(0, 5)} ${cleanPhone.slice(5)}`
+    : (member.phone || '-');
+
+  const detailRows = [
+    { label: 'NU / PA HMING:', val: member.parentsName || '-' },
+    { label: 'HOUSE NO:', val: member.houseNo || '-', mono: true },
+    { label: 'UPA BIAL:', val: member.upaBial || '-' },
+    { label: 'PHONE:', val: formattedPhone, mono: true },
+    { label: 'GROUP:', val: member.group || '-' }
+  ];
+
+  let rowY = 535;
+  const rowH = 46;
+  const rowGap = 10;
+  const rowW = 676;
+  const rowX = 40;
+
+  for (const row of detailRows) {
+    fillRoundedRect(ctx, rowX, rowY, rowW, rowH, 8);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Left Label
+    ctx.font = `800 21px Arial, 'Segoe UI', -apple-system, sans-serif`;
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(row.label, rowX + 16, rowY + rowH / 2 + 1);
+
+    // Right Value
+    if (row.mono) {
+      ctx.font = `900 21px "Courier New", monospace, Arial, sans-serif`;
+    } else {
+      ctx.font = `800 21px Arial, 'Segoe UI', -apple-system, sans-serif`;
+    }
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(row.val, rowX + rowW - 16, rowY + rowH / 2 + 1);
+
+    rowY += rowH + rowGap;
+  }
+
+  // 7. Motto
+  ctx.font = `italic bold 20px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('"Rawngbawl tura chhandam" (Ephesi 2:10)', 378, 840);
+
+  // 8. Divider Line (Centered between Motto and Signatures)
+  ctx.beginPath();
+  ctx.moveTo(50, 875);
+  ctx.lineTo(706, 875);
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // 9. Signatures Block
+  const sigY = 945;
+  const sigH = 60;
+  const sigW = 180;
+
+  // Leader Signature
+  if (leaderSigImg) {
+    const lw = leaderSigImg.naturalWidth || leaderSigImg.width;
+    const lh = leaderSigImg.naturalHeight || leaderSigImg.height;
+    const scale = Math.min(sigW / lw, sigH / lh);
+    const dw = lw * scale;
+    const dh = lh * scale;
+    ctx.drawImage(leaderSigImg, 195 - dw / 2, sigY - dh / 2, dw, dh);
+  } else {
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(115, sigY + 10);
+    ctx.lineTo(275, sigY + 10);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+    ctx.font = `italic 17px Arial, sans-serif`;
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Signature', 195, sigY - 5);
+  }
+  ctx.font = `900 20px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('BRANCH LEADER', 195, 995);
+
+  // Secretary Signature
+  if (secSigImg) {
+    const sw = secSigImg.naturalWidth || secSigImg.width;
+    const sh = secSigImg.naturalHeight || secSigImg.height;
+    const scale = Math.min(sigW / sw, sigH / sh);
+    const dw = sw * scale;
+    const dh = sh * scale;
+    ctx.drawImage(secSigImg, 561 - dw / 2, sigY - dh / 2, dw, dh);
+  } else {
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(481, sigY + 10);
+    ctx.lineTo(641, sigY + 10);
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+    ctx.font = `italic 17px Arial, sans-serif`;
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Signature', 561, sigY - 5);
+  }
+  ctx.font = `900 20px Arial, 'Segoe UI', -apple-system, sans-serif`;
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('BRANCH SECRETARY', 561, 995);
+
+  // 10. Outer Border
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 2;
+  fillRoundedRect(ctx, 1, 1, 754, 1108, 16);
+  ctx.stroke();
+
+  return canvas;
+}
+
+// Download Member Card in High-Resolution JPEG (Native 300 DPI Canvas Generator)
 async function downloadMemberCardJpeg() {
   if (!currentViewedMember) {
     showToast('Member card en tur a awm lo.', 'error');
     return;
   }
 
-  showToast('Member Card JPEG siam mek a ni...', 'info');
+  showToast('Member Card High-Resolution JPEG siam mek a ni...', 'info');
 
   try {
-    // If html2canvas is not yet available, load it dynamically
-    if (typeof html2canvas === 'undefined') {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'html2canvas.min.js';
-        script.onload = resolve;
-        script.onerror = () => {
-          const cdn = document.createElement('script');
-          cdn.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-          cdn.onload = resolve;
-          cdn.onerror = reject;
-          document.head.appendChild(cdn);
-        };
-        document.head.appendChild(script);
-      });
-    }
-
     const idx = members.findIndex(m => String(m.id) === String(currentViewedMember.id));
-    const cardHtml = buildCardHtml(currentViewedMember, idx);
-
-    // Create an isolated sandbox element attached to body, free from modal transforms and backdrop filters
-    const sandbox = document.createElement('div');
-    sandbox.style.position = 'fixed';
-    sandbox.style.left = '-9999px';
-    sandbox.style.top = '0';
-    sandbox.style.width = '242px';
-    sandbox.style.height = '355px';
-    sandbox.style.overflow = 'hidden';
-    sandbox.style.background = '#ffffff';
-    sandbox.style.zIndex = '-9999';
-    sandbox.innerHTML = cardHtml;
-    document.body.appendChild(sandbox);
-
-    // Ensure the card element inside sandbox has precise pixel sizing
-    const cardItem = sandbox.firstElementChild;
-    if (cardItem) {
-      cardItem.style.width = '242px';
-      cardItem.style.height = '355px';
-      cardItem.style.minHeight = '355px';
-      cardItem.style.maxHeight = '355px';
-      cardItem.style.borderRadius = '0px'; // Square corners for clean JPEG edge
-    }
-
-    // Wait 150ms for fonts & images to render
-    await new Promise(r => setTimeout(r, 150));
-
-    const canvas = await html2canvas(cardItem || sandbox, {
-      scale: 3,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: 242,
-      windowHeight: 355
-    });
-
-    document.body.removeChild(sandbox);
-
+    const canvas = await generateMemberCardCanvas(currentViewedMember, idx);
     const safeName = (currentViewedMember.name || 'Member').trim().replace(/[^a-zA-Z0-9_\-\s]/g, '').replace(/\s+/g, '_');
     const filename = `${safeName}_KTP_Card.jpg`;
 
@@ -2818,7 +3223,7 @@ async function downloadMemberCardJpeg() {
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
         showToast(`${filename} download a ni ta!`, 'success');
-      }, 'image/jpeg', 0.95);
+      }, 'image/jpeg', 0.98);
     } else {
       triggerDataUrlDownload(canvas, filename);
     }
@@ -2829,7 +3234,7 @@ async function downloadMemberCardJpeg() {
 }
 
 function triggerDataUrlDownload(canvas, filename) {
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.98);
   const link = document.createElement('a');
   link.download = filename;
   link.href = dataUrl;
@@ -2840,10 +3245,9 @@ function triggerDataUrlDownload(canvas, filename) {
 }
 
 // View Member Card in Large (High-Resolution Zoomed Preview Modal)
-function viewMemberCardLarge() {
+async function viewMemberCardLarge() {
   if (!currentViewedMember) return;
   const idx = members.findIndex(m => String(m.id) === String(currentViewedMember.id));
-  const cardHtml = buildCardHtml(currentViewedMember, idx);
   const wrapper = document.getElementById('cardLargeTargetWrapper');
   const modal = document.getElementById('cardLargeViewModal');
   const title = document.getElementById('cardLargeModalTitle');
@@ -2852,14 +3256,33 @@ function viewMemberCardLarge() {
     title.textContent = `${currentViewedMember.name || 'Member'} - Member Card`;
   }
   if (wrapper) {
-    wrapper.innerHTML = `<div class="rounded-xl shadow-2xl overflow-hidden relative" style="width: 6.4cm; height: 9.4cm; min-height: 9.4cm; max-width: 6.4cm; box-sizing: border-box;">${cardHtml}</div>`;
+    wrapper.innerHTML = `
+      <div class="flex items-center justify-center p-12 text-slate-400">
+        <svg class="animate-spin -ml-1 mr-3 h-8 w-8 text-rose-600" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span class="text-sm font-semibold text-slate-700">High-Resolution Card buatsaih mek a ni...</span>
+      </div>
+    `;
   }
   if (modal) {
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
   }
-  if (window.lucide) {
-    lucide.createIcons();
+
+  try {
+    const canvas = await generateMemberCardCanvas(currentViewedMember, idx);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.98);
+    if (wrapper) {
+      wrapper.innerHTML = `<img src="${dataUrl}" alt="Member Card" class="rounded-2xl shadow-2xl border-2 border-slate-700 max-h-[75vh] w-auto max-w-full object-contain mx-auto select-none">`;
+    }
+  } catch (err) {
+    console.error('Error rendering large card:', err);
+    if (wrapper) {
+      const cardHtml = buildCardHtml(currentViewedMember, idx);
+      wrapper.innerHTML = `<div class="rounded-xl shadow-2xl overflow-hidden relative" style="width: 6.4cm; height: 9.4cm; min-height: 9.4cm; max-width: 6.4cm; box-sizing: border-box;">${cardHtml}</div>`;
+    }
   }
 }
 
@@ -3673,5 +4096,14 @@ window.exportToExcel = exportToExcel;
 window.downloadMemberCardJpeg = downloadMemberCardJpeg;
 window.viewMemberCardLarge = viewMemberCardLarge;
 window.closeCardLargeModal = closeCardLargeModal;
+window.generateMemberCardCanvas = generateMemberCardCanvas;
+window.openChangePasswordModal = openChangePasswordModal;
+window.closeChangePasswordModal = closeChangePasswordModal;
+window.handleSecretaryChangePasswordSubmit = handleSecretaryChangePasswordSubmit;
+window.togglePasswordVisibility = togglePasswordVisibility;
+window.openDataSyncModal = openDataSyncModal;
+window.closeDataSyncModal = closeDataSyncModal;
+window.exportBackupJson = exportBackupJson;
+window.importBackupJson = importBackupJson;
 window.handleNoticeCategoryChange = handleNoticeCategoryChange;
 window.openNoticeModalWithPhoto = openNoticeModalWithPhoto;
